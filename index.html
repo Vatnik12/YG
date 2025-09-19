@@ -21,7 +21,6 @@
   <!-- Fonts / Libs -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://unpkg.com/lucide@latest"></script>
-  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
@@ -60,13 +59,25 @@
 
     .drop-hover{ outline:3px dashed #4f46e5; outline-offset:-10px }
 
+    /* ---- Splash: CSS-first авто-скрытие (+ JS-фоллбэк) ---- */
+    #splash{ opacity:1; pointer-events:auto; }
+    @keyframes splashFade {
+      0%{ opacity:1 }
+      100%{ opacity:0; visibility:hidden; pointer-events:none }
+    }
+    #splash.splash-anim { animation: splashFade 1.5s ease .1s both; }
+    @media (prefers-reduced-motion: reduce) {
+      #splash.splash-anim { animation-duration:.01s; animation-delay:0s; }
+    }
+    #splash.force-hide{ opacity:0!important; visibility:hidden!important; pointer-events:none!important; }
+
     @media print{ @page{ size:A4 portrait; margin:10mm } }
   </style>
 </head>
 <body class="min-h-screen flex flex-col font-sans bg-slate-50 text-slate-900 dark:bg-slate-900 dark:text-slate-100">
 
-  <!-- ===== SPLASH (не трогаем; авто-уход 1.5с + клик) ===== -->
-  <div id="splash" class="fixed inset-0 z-50 grid place-items-center bg-[#0b1020]">
+  <!-- ===== SPLASH (не трогаем) ===== -->
+  <div id="splash" class="fixed inset-0 z-50 grid place-items-center bg-[#0b1020] splash-anim">
     <div class="relative w-full h-full overflow-hidden">
       <img src="./assets/bg.jpg" alt="" class="absolute inset-0 w-full h-full object-cover opacity-60"/>
       <div class="absolute inset-0 bg-gradient-to-b from-indigo-900/20 via-slate-900/30 to-slate-900/70"></div>
@@ -81,6 +92,16 @@
       </div>
     </div>
   </div>
+  <script>
+    // Жёсткий фоллбэк: скрыть заставку по таймеру/клику/после load
+    (function(){
+      const s=document.getElementById('splash');
+      const hide=()=>s&&s.classList.add('force-hide');
+      setTimeout(hide,1700);
+      s&&s.addEventListener('click',hide);
+      window.addEventListener('load',hide);
+    })();
+  </script>
 
   <!-- ===== HEADER ===== -->
   <header class="sticky top-0 z-40">
@@ -246,25 +267,6 @@
   </div>
 
 <script>
-  /* ===== Splash: гарантированное скрытие ===== */
-  function endSplash(){
-    const s=document.getElementById('splash');
-    if(!s||s.dataset.closed==='1') return;
-    s.dataset.closed='1'; s.style.pointerEvents='none';
-    if(window.gsap){ gsap.to('#splash',{opacity:0,duration:.35,ease:'power2.inOut',onComplete:()=>s.remove()}); }
-    else { s.style.transition='opacity .35s ease'; s.style.opacity='0'; setTimeout(()=>{ try{s.remove()}catch(_){} },400); }
-  }
-  try{
-    if(window.gsap){
-      gsap.timeline()
-        .fromTo("#splashContent",{y:20,opacity:0},{y:0,opacity:1,duration:.6,ease:"power3.out"})
-        .to("#splash",{opacity:0,duration:.35,delay:.9,ease:"power2.inOut",onComplete:endSplash});
-    }
-  }catch(_){}
-  document.addEventListener('DOMContentLoaded',()=> setTimeout(endSplash,1500));
-  window.addEventListener('load', endSplash);
-  document.getElementById('splash')?.addEventListener('click', endSplash);
-
   /* ===== Utils ===== */
   const $=(s,r=document)=>r.querySelector(s); const $$=(s,r=document)=>Array.from(r.querySelectorAll(s));
   const toast=(m)=>{const b=$("#toast>div"); b.textContent=m; $("#toast").classList.remove("hidden"); setTimeout(()=>$("#toast").classList.add("hidden"),2200);};
@@ -295,7 +297,7 @@
 
   // Support modal
   const supportFab=$("#supportFab"), supportModal=$("#supportModal"), modalClose=$("#modalClose");
-  supportFab.addEventListener('click', ()=>{ supportModal.classList.remove('hidden'); if(window.gsap) gsap.fromTo("#supportModal .panel",{y:20,opacity:0},{y:0,opacity:1,duration:.35}); });
+  supportFab.addEventListener('click', ()=>{ supportModal.classList.remove('hidden'); });
   modalClose.addEventListener('click', ()=> supportModal.classList.add('hidden'));
   supportModal.addEventListener('click', (e)=>{ if(e.target===supportModal) supportModal.classList.add('hidden'); });
 
@@ -381,7 +383,6 @@
   function cell(row,i){ return i>=0 ? (row[i] ?? '') : ''; }
   function detectMode(name=""){ const n=String(name).toLowerCase(); if(n.includes('сделано сегодня')) return 'fact'; if(n.includes('задачи на сегодня')) return 'plan'; return 'plan'; }
 
-  const MONTHS=['Янв','Фев','Март','Апр','Май','Июнь','Июль','Авг','Сент','Окт','Ноя','Дек'];
   function extractDate(name=""){ // => "19 Сент. 16:38"
     const m=String(name).match(/(\d{1,2})\s*(Янв|Фев|Март|Апр|Май|Июнь|Июль|Авг|Сент|Окт|Ноя|Дек)[^\d]*(\d{1,2})_(\d{2})/i);
     if(!m) return '—';
@@ -407,7 +408,6 @@
 
     applyLayout(); drawCards(tasksView,isFact);
     collageWrap.classList.remove('hidden');
-    if(window.gsap) gsap.from($$(".card",collage),{y:12,opacity:0,duration:.45,stagger:.02});
   }
 
   function sortList(a,how){
@@ -436,7 +436,7 @@
   }
   colSelect.addEventListener('change', ()=> vizMode==='collage' && applyLayout());
   density.addEventListener('change', ()=> drawCards(tasksView,isFactGlobal));
-  sortBy.addEventListener('change', ()=>{ tasksView=sortList(tasksView,sortBy.value); drawCards(tasksView,isFactGlobal); });
+  sortBy.addEventListener('change', ()=>{ tasksView=sortList(tasksView, sortBy.value); drawCards(tasksView,isFactGlobal); });
 
   // YouGile-like sticker → badge
   function stickerBadge(text){
@@ -449,7 +449,6 @@
     else if(t.includes('выполнено')||t.includes('закончено')) { cls='badge-emerald'; icon='check-circle-2'; }
     return `<span class="yg-badge ${cls}"><i data-lucide="${icon}" class="w-3.5 h-3.5"></i>${esc(text)}</span>`;
   }
-
   function chipWithIcon(icon, text){ if(!text) return ''; return `<span class="yg-chip"><i data-lucide="${icon}" class="w-3.5 h-3.5"></i>${esc(text)}</span>`; }
 
   function drawCards(items,isFact){
@@ -466,7 +465,6 @@
       const el=document.createElement('article');
       el.className=`card ${pad} ${isFact?'opacity-95':''}`;
 
-      // Верхняя линия «стикеров»
       const stickerRow = [
         chipWithIcon('building-2', t.project),
         chipWithIcon('layout-grid', t.board),
@@ -475,13 +473,11 @@
         stickerBadge(t.sticker_stage)
       ].filter(Boolean).join(' ');
 
-      // Вторая линия — как у YouGile
       const secondRow = `<div class="flex flex-wrap gap-2 mt-2">
         ${chipWithIcon('calendar-clock', t.deadline?`Дедлайн: ${t.deadline}`:'')}
         ${chipWithIcon('message-square-more', t.last_msg?`Последнее сообщение: ${t.last_msg}`:'')}
       </div>`;
 
-      // Инфо-строка с Plan/Fact
       const infoRow = `<div class="mt-2 flex flex-wrap gap-2">
         ${chipWithIcon('messages-square', `Сообщений: ${t.msgs||0}`)}
         ${plan? chipWithIcon('target', `План: ${plan} ч`) : ''}
@@ -520,9 +516,6 @@
   btnPNG.addEventListener('click', async ()=>{ try{ const c=await exportCanvas(); c.toBlob(b=>{ const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download=`${collageTitle.textContent}.png`; a.click(); URL.revokeObjectURL(a.href); }); }catch(e){ toast('PNG: ошибка'); } });
   btnPDF.addEventListener('click', async ()=>{ try{ const c=await exportCanvas(); const img=c.toDataURL('image/png'); const { jsPDF }=window.jspdf; const pdf=new jsPDF({unit:'pt',format:'a4',compress:true}); const pageW=pdf.internal.pageSize.getWidth(), margin=24; const w=pageW - margin*2, h=w*(c.height/c.width); pdf.addImage(img,'PNG',margin,margin,w,h); pdf.save(`${collageTitle.textContent}.pdf`); }catch(e){ toast('PDF: ошибка'); } });
   btnCopy.addEventListener('click', async ()=>{ try{ const c=await exportCanvas(); c.toBlob(async b=>{ try{ await navigator.clipboard.write([new ClipboardItem({'image/png':b})]); toast('Скопировано в буфер ✔'); }catch(_){ toast('Буфер недоступен — скачай PNG'); } }); }catch(e){ toast('Копирование не удалось'); } });
-
-  // helpers
-  function detectLong(s){ return String(s||'').length>120 }
 </script>
 </body>
 </html>
