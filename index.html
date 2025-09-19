@@ -5,15 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>OneScreen План/Факт — by Vatnik</title>
 
-  <!-- Tailwind CDN -->
+  <!-- Tailwind -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
       darkMode:'class',
       theme:{ extend:{
         fontFamily:{ sans:['Inter','ui-sans-serif','system-ui'] },
-        colors:{ os:{ primary:'#4f46e5' } },
-        boxShadow:{ soft:'0 10px 30px rgba(0,0,0,.06)' }
+        colors:{ os:{ primary:'#4f46e5'}},
+        boxShadow:{ soft:'0 10px 30px rgba(0,0,0,.06)'}
       }}
     }
   </script>
@@ -29,32 +29,43 @@
   <style>
     :root{ --ring:#e5e7eb }
     *{ scrollbar-width:thin; scrollbar-color:#CBD5E1 transparent }
-    *::-webkit-scrollbar{ width:8px;height:8px } *::-webkit-scrollbar-thumb{ background:#CBD5E1;border-radius:9999px }
+    *::-webkit-scrollbar{ width:8px;height:8px }*::-webkit-scrollbar-thumb{ background:#CBD5E1;border-radius:9999px }
 
-    .panel{ border:1px solid var(--ring); border-radius:14px; background:#fff; box-shadow:0 10px 30px rgba(0,0,0,.04) }
-    .dark .panel{ background:#0b1220; border-color:#1f2937 }
-    .card{ border:1px solid var(--ring); border-radius:14px; background:#fff; box-shadow:0 10px 30px rgba(0,0,0,.04) }
-    .dark .card{ background:#0b1220; border-color:#1f2937 }
+    .panel{ border:1px solid var(--ring); border-radius:14px; background:#fff; box-shadow:0 10px 30px rgba(0,0,0,.04)}
+    .dark .panel{ background:#0b1220; border-color:#1f2937}
+    .card{ border:1px solid var(--ring); border-radius:14px; background:#fff; box-shadow:0 10px 30px rgba(0,0,0,.04)}
+    .dark .card{ background:#0b1220; border-color:#1f2937}
 
-    .pill{ border-radius:9999px; padding:2px 8px; font-size:12px; line-height:18px; display:inline-flex; align-items:center; gap:6px; white-space:nowrap }
-    .chip{ border-radius:10px; padding:2px 8px; font-size:12px; line-height:18px; background:#F8FAFC; border:1px solid #E2E8F0; display:inline-flex; align-items:center; gap:6px }
-    .dark .chip{ background:#111827; border-color:#1f2937; color:#cbd5e1 }
+    /* YouGile-like chips */
+    .yg-chip{ display:inline-flex; align-items:center; gap:6px; height:26px; padding:0 10px; border-radius:9999px; background:#F1F5F9; border:1px solid #E2E8F0; font-size:12px; line-height:26px; }
+    .dark .yg-chip{ background:#0f172a; border-color:#1f2937; color:#cbd5e1 }
+    .yg-badge{ display:inline-flex; align-items:center; gap:6px; height:26px; padding:0 10px; border-radius:9999px; color:#fff; font-size:12px; line-height:26px; }
+
+    .badge-red{ background:#ef4444 } .badge-amber{ background:#f59e0b } .badge-slate{ background:#94a3b8 }
+    .badge-blue{ background:#3b82f6 } .badge-emerald{ background:#10b981 }
+
+    .title{ font-weight:700; line-height:1.25; word-break:break-word; overflow-wrap:anywhere;
+      display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
 
     .mode-switch{ position:relative; border-radius:12px; border:1px solid var(--ring); background:rgba(99,102,241,.08); padding:4px; display:flex; gap:4px }
     .mode-thumb{ position:absolute; inset:4px auto 4px 4px; width:calc(50% - 6px); border-radius:8px; background:rgba(99,102,241,.18); transition:transform .25s ease }
     .mode-item{ position:relative; z-index:1; flex:1; padding:8px 10px; font-size:12px; border-radius:8px; display:flex; align-items:center; gap:6px; justify-content:center; cursor:pointer }
     .mode-item.inactive{ filter:saturate(.8) opacity:.65 }
 
+    .theme-switch{ position:relative; width:64px; height:30px; border-radius:9999px; border:1px solid var(--ring); background:#eef2ff }
+    .dark .theme-switch{ background:#0f172a; border-color:#1f2937 }
+    .theme-thumb{ position:absolute; top:3px; left:3px; width:24px; height:24px; border-radius:9999px; background:#fff; transition:transform .25s ease, background .25s ease }
+    .dark .theme-thumb{ background:#111827 }
+    .theme-switch.on .theme-thumb{ transform:translateX(34px) }
+
     .drop-hover{ outline:3px dashed #4f46e5; outline-offset:-10px }
-    .card h4{ word-break:break-word; overflow-wrap:anywhere }
-    .card .pill,.card .chip{ max-width:100%; overflow:hidden; text-overflow:ellipsis }
 
     @media print{ @page{ size:A4 portrait; margin:10mm } }
   </style>
 </head>
 <body class="min-h-screen flex flex-col font-sans bg-slate-50 text-slate-900 dark:bg-slate-900 dark:text-slate-100">
 
-  <!-- ===== SPLASH (железный, самоуходящий) ===== -->
+  <!-- ===== SPLASH (не трогаем; авто-уход 1.5с + клик) ===== -->
   <div id="splash" class="fixed inset-0 z-50 grid place-items-center bg-[#0b1020]">
     <div class="relative w-full h-full overflow-hidden">
       <img src="./assets/bg.jpg" alt="" class="absolute inset-0 w-full h-full object-cover opacity-60"/>
@@ -108,6 +119,7 @@
               </select>
             </div>
 
+            <!-- Mode -->
             <div class="panel px-3 py-2 flex-1 min-w-[260px]">
               <div class="text-xs text-slate-500 dark:text-slate-400 mb-1">Режим</div>
               <div id="modeSwitch" class="mode-switch">
@@ -115,6 +127,12 @@
                 <button data-mode="collage" class="mode-item"><i data-lucide="grid-3x3" class="w-4 h-4"></i>Коллаж</button>
                 <button data-mode="tower"   class="mode-item inactive"><i data-lucide="panel-right" class="w-4 h-4"></i>Башня</button>
               </div>
+            </div>
+
+            <!-- Theme -->
+            <div class="panel px-3 py-2 flex items-center justify-between min-w-[160px]">
+              <span class="text-xs text-slate-500 dark:text-slate-400">Тема</span>
+              <button id="themeSwitch" class="theme-switch"><span class="theme-thumb"></span></button>
             </div>
           </div>
 
@@ -187,6 +205,7 @@
     </section>
   </main>
 
+  <!-- FOOTER -->
   <footer class="mt-10 border-t border-slate-200 dark:border-slate-800">
     <div class="max-w-[1200px] mx-auto px-4 py-6 flex items-center justify-between">
       <div class="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
@@ -199,6 +218,7 @@
     </div>
   </footer>
 
+  <!-- Support -->
   <button id="supportFab" title="Техподдержка" class="fixed bottom-6 right-6 z-40 rounded-full shadow-lg bg-indigo-600 hover:bg-indigo-500 text-white w-14 h-14 grid place-items-center">
     <i data-lucide="life-buoy" class="w-6 h-6"></i>
   </button>
@@ -220,28 +240,20 @@
     </div>
   </div>
 
+  <!-- Toast -->
   <div id="toast" class="fixed bottom-4 left-1/2 -translate-x-1/2 z-40 hidden">
     <div class="px-4 py-2 rounded-xl bg-slate-900 text-white shadow-lg text-sm"></div>
   </div>
 
 <script>
-  /* ====== SPLASH: НЕ ВИСНЕТ НИКОГДА ====== */
+  /* ===== Splash: гарантированное скрытие ===== */
   function endSplash(){
     const s=document.getElementById('splash');
-    if(!s || s.dataset.closed==='1') return;
-    s.dataset.closed='1';
-    s.style.pointerEvents='none';
-    try{
-      if(window.gsap){
-        gsap.to('#splash',{opacity:0,duration:.35,ease:'power2.inOut',onComplete:()=>s.remove()});
-      }else{
-        s.style.transition='opacity .35s ease';
-        s.style.opacity='0';
-        setTimeout(()=>{ try{s.remove();}catch(_){} }, 400);
-      }
-    }catch(_){ try{s.remove();}catch(_){} }
+    if(!s||s.dataset.closed==='1') return;
+    s.dataset.closed='1'; s.style.pointerEvents='none';
+    if(window.gsap){ gsap.to('#splash',{opacity:0,duration:.35,ease:'power2.inOut',onComplete:()=>s.remove()}); }
+    else { s.style.transition='opacity .35s ease'; s.style.opacity='0'; setTimeout(()=>{ try{s.remove()}catch(_){} },400); }
   }
-  // красивый вход + автоисчезание через 1.5с
   try{
     if(window.gsap){
       gsap.timeline()
@@ -249,21 +261,31 @@
         .to("#splash",{opacity:0,duration:.35,delay:.9,ease:"power2.inOut",onComplete:endSplash});
     }
   }catch(_){}
-  document.addEventListener('DOMContentLoaded', ()=> setTimeout(endSplash,1500));
+  document.addEventListener('DOMContentLoaded',()=> setTimeout(endSplash,1500));
   window.addEventListener('load', endSplash);
   document.getElementById('splash')?.addEventListener('click', endSplash);
 
-  /* ====== БАЗА ====== */
+  /* ===== Utils ===== */
   const $=(s,r=document)=>r.querySelector(s); const $$=(s,r=document)=>Array.from(r.querySelectorAll(s));
   const toast=(m)=>{const b=$("#toast>div"); b.textContent=m; $("#toast").classList.remove("hidden"); setTimeout(()=>$("#toast").classList.add("hidden"),2200);};
   const esc=(s="")=>String(s).replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
   const num=(v)=>{if(typeof v==='number')return v; if(v==null||v==='')return 0; const s=String(v).replace(",",".").replace(/[^\d.-]/g,""); const n=parseFloat(s); return isNaN(n)?0:n;};
   const prRank=(p="")=>{p=String(p).toLowerCase(); if(p.includes('пожар')||p.includes('alarm')||p.includes('аларм'))return 0; if(p.includes('важно'))return 1; return 2;};
 
-  const applyTheme=()=>{const t=localStorage.getItem('theme')||'dark'; document.documentElement.classList.toggle('dark',t==='dark');};
-  applyTheme(); window.addEventListener('DOMContentLoaded',()=> lucide.createIcons());
+  // Theme
+  const themeSwitch=$("#themeSwitch");
+  const applyTheme=()=>{ const t=localStorage.getItem('theme')||'dark'; document.documentElement.classList.toggle('dark',t==='dark'); themeSwitch.classList.toggle('on', t==='dark'); };
+  applyTheme();
+  themeSwitch.addEventListener('click',()=>{
+    const dark=document.documentElement.classList.toggle('dark');
+    localStorage.setItem('theme', dark?'dark':'light');
+    themeSwitch.classList.toggle('on',dark);
+    const b=document.body; b.style.filter='blur(6px) saturate(.95)'; setTimeout(()=>b.style.filter='',140);
+  });
 
-  // refs
+  window.addEventListener('DOMContentLoaded',()=> lucide.createIcons());
+
+  // Refs
   const dropzone=$("#dropzone"), fileInput=$("#fileInput");
   const collage=$("#collage"), collageWrap=$("#collageWrap"), collageTitle=$("#collageTitle"), modeHint=$("#modeHint");
   const sumDate=$("#sumDate"), sumPlan=$("#sumPlan"), sumFact=$("#sumFact"), sumCount=$("#sumCount"), modeBadge=$("#modeBadge");
@@ -271,13 +293,13 @@
   const colSelect=$("#colSelect"), density=$("#density"), sortBy=$("#sortBy");
   const progressWrap=$("#progressWrap"), progressBar=$("#progressBar"), progressLabel=$("#progressLabel"), progressStep=$("#progressStep"), diag=$("#diag");
 
-  // support
+  // Support modal
   const supportFab=$("#supportFab"), supportModal=$("#supportModal"), modalClose=$("#modalClose");
   supportFab.addEventListener('click', ()=>{ supportModal.classList.remove('hidden'); if(window.gsap) gsap.fromTo("#supportModal .panel",{y:20,opacity:0},{y:0,opacity:1,duration:.35}); });
   modalClose.addEventListener('click', ()=> supportModal.classList.add('hidden'));
   supportModal.addEventListener('click', (e)=>{ if(e.target===supportModal) supportModal.classList.add('hidden'); });
 
-  // режимы
+  // Mode switch
   const modeSwitch=$("#modeSwitch"), modeThumb=$("#modeThumb"), modeBtns=$$(".mode-item",modeSwitch);
   let vizMode='collage';
   const setModeUI=(m)=>{ vizMode=m; modeThumb.style.transform=`translateX(${m==='collage'?0:100}%)`; modeBtns.forEach(b=>b.classList.toggle('inactive', b.dataset.mode!==m)); applyLayout(); blurHint(); };
@@ -291,15 +313,16 @@
   dropzone.addEventListener("click",()=>fileInput.click());
   fileInput.addEventListener("change",e=>{ const f=e.target.files?.[0]; if(f) handleFile(f); });
 
-  // state
+  // State
   let tasksRaw=[], tasksView=[], isFact=false, isFactGlobal=false;
 
-  // progress
+  // Progress
   function showProgress(){ progressWrap.classList.remove('hidden'); setProgress(0,'Старт'); }
   function setProgress(p,step){ progressBar.style.width=p+'%'; progressLabel.textContent=`Готово: ${Math.round(p)}%`; if(step) progressStep.textContent=step; }
   function hideProgress(){ setTimeout(()=>progressWrap.classList.add('hidden'),350); }
   const setDiag=(html)=>{ diag.innerHTML=html; };
 
+  // File
   async function handleFile(file){
     try{
       showProgress(); setProgress(10,'Читаю файл');
@@ -316,8 +339,14 @@
       if(!M.length){ toast('Пустой лист'); hideProgress(); return; }
 
       const headers=(M[0]||[]).map(h=>canon(h)); const rows=M.slice(1);
+
       const need={ id:['id задачи','id'], title:['название задачи','название'], deadline:['дедлайн'], board:['доска'], column:['колонка'], project:['проект'], last_msg:['дата последнего сообщения','последнее сообщение'], msgs:['кол-во сообщений','сообщений'], sticker_priority:['стикер "приоритет"','приоритет'], sticker_stage:['стикер "этап"','этап'], sticker_project:['стикер "проект"','проект (стикер)'], sticker_plan:['стикер "план сегодня"','план сегодня','план'], sticker_fact:['стикер "факт часов"','факт часов','факт'], sticker_category:['стикер "категория"','категория'] };
-      const findCol=(vars)=>{ const vs=vars.map(canon); for(const v of vs){ const i=headers.indexOf(v); if(i>=0) return i;} for(const v of vs){ const i=headers.findIndex(h=>h.includes(v)); if(i>=0) return i;} for(const v of vs){ const w=v.split(' ').filter(Boolean); const i=headers.findIndex(h=>w.every(x=>h.includes(x))); if(i>=0) return i;} return -1; };
+      const findCol=(vars)=>{ const vs=vars.map(canon);
+        for(const v of vs){ const i=headers.indexOf(v); if(i>=0) return i;}
+        for(const v of vs){ const i=headers.findIndex(h=>h.includes(v)); if(i>=0) return i;}
+        for(const v of vs){ const w=v.split(' ').filter(Boolean); const i=headers.findIndex(h=>w.every(x=>h.includes(x))); if(i>=0) return i;}
+        return -1;
+      };
       const idx={}; Object.entries(need).forEach(([k,v])=>idx[k]=findCol(v));
 
       const found = Object.entries(idx).filter(([_,i])=>i>=0).map(([k,i])=>`${k} → <b>${esc(headers[i]||'?')}</b> (col ${i+1})`).join('<br>');
@@ -347,11 +376,21 @@
     }catch(e){ console.error(e); toast('Ошибка обработки файла'); hideProgress(); }
   }
 
+  // helpers
   function canon(s){ return String(s||'').replace(/[“”«»„‟"']/g,'"').replace(/ё/g,'е').replace(/\s+/g,' ').trim().toLowerCase(); }
   function cell(row,i){ return i>=0 ? (row[i] ?? '') : ''; }
   function detectMode(name=""){ const n=String(name).toLowerCase(); if(n.includes('сделано сегодня')) return 'fact'; if(n.includes('задачи на сегодня')) return 'plan'; return 'plan'; }
-  function extractDate(name=""){ const m=String(name).match(/сегодня[^\d]*(.+)$/i); return m? m[1].replace(/\.[^.]+$/,'').trim() : '—'; }
 
+  const MONTHS=['Янв','Фев','Март','Апр','Май','Июнь','Июль','Авг','Сент','Окт','Ноя','Дек'];
+  function extractDate(name=""){ // => "19 Сент. 16:38"
+    const m=String(name).match(/(\d{1,2})\s*(Янв|Фев|Март|Апр|Май|Июнь|Июль|Авг|Сент|Окт|Ноя|Дек)[^\d]*(\d{1,2})_(\d{2})/i);
+    if(!m) return '—';
+    const d=m[1], mon=m[2], h=m[3], mm=m[4];
+    return `${d} ${mon}. ${h}:${mm}`;
+  }
+
+  // render
+  let isFactGlobal=false;
   function render(list,isFact,filename){
     isFactGlobal=isFact;
     sumDate.textContent=extractDate(filename);
@@ -399,6 +438,20 @@
   density.addEventListener('change', ()=> drawCards(tasksView,isFactGlobal));
   sortBy.addEventListener('change', ()=>{ tasksView=sortList(tasksView,sortBy.value); drawCards(tasksView,isFactGlobal); });
 
+  // YouGile-like sticker → badge
+  function stickerBadge(text){
+    if(!text) return '';
+    const t=String(text).toLowerCase();
+    let cls='badge-slate', icon='tag';
+    if(t.includes('пожар')||t.includes('alarm')||t.includes('аларм')) { cls='badge-red'; icon='flame'; }
+    else if(t.includes('важно')) { cls='badge-amber'; icon='alert-triangle'; }
+    else if(t.includes('в работе')) { cls='badge-blue'; icon='play'; }
+    else if(t.includes('выполнено')||t.includes('закончено')) { cls='badge-emerald'; icon='check-circle-2'; }
+    return `<span class="yg-badge ${cls}"><i data-lucide="${icon}" class="w-3.5 h-3.5"></i>${esc(text)}</span>`;
+  }
+
+  function chipWithIcon(icon, text){ if(!text) return ''; return `<span class="yg-chip"><i data-lucide="${icon}" class="w-3.5 h-3.5"></i>${esc(text)}</span>`; }
+
   function drawCards(items,isFact){
     collage.innerHTML='';
     const compact = density.value==='sm';
@@ -412,39 +465,46 @@
 
       const el=document.createElement('article');
       el.className=`card ${pad} ${isFact?'opacity-95':''}`;
+
+      // Верхняя линия «стикеров»
+      const stickerRow = [
+        chipWithIcon('building-2', t.project),
+        chipWithIcon('layout-grid', t.board),
+        chipWithIcon('columns-3', t.column),
+        stickerBadge(t.sticker_priority),
+        stickerBadge(t.sticker_stage)
+      ].filter(Boolean).join(' ');
+
+      // Вторая линия — как у YouGile
+      const secondRow = `<div class="flex flex-wrap gap-2 mt-2">
+        ${chipWithIcon('calendar-clock', t.deadline?`Дедлайн: ${t.deadline}`:'')}
+        ${chipWithIcon('message-square-more', t.last_msg?`Последнее сообщение: ${t.last_msg}`:'')}
+      </div>`;
+
+      // Инфо-строка с Plan/Fact
+      const infoRow = `<div class="mt-2 flex flex-wrap gap-2">
+        ${chipWithIcon('messages-square', `Сообщений: ${t.msgs||0}`)}
+        ${plan? chipWithIcon('target', `План: ${plan} ч`) : ''}
+        ${fact? chipWithIcon('clock', `Факт: ${fact} ч`) : ''}
+        ${t.sticker_category? chipWithIcon('bookmark', `Категория: ${t.sticker_category}`):''}
+      </div>`;
+
       el.innerHTML=`
-        <div class="flex items-start justify-between gap-3">
-          <div class="min-w-0">
-            <div class="text-xs text-slate-500 dark:text-slate-400 flex flex-wrap items-center gap-2">
-              ${t.project? `<span class="pill bg-slate-800 text-white dark:bg-slate-200 dark:text-slate-900">${esc(t.project)}</span>`:''}
-              ${chip(t.board)} ${chip(t.column)}
+        <div class="flex flex-col gap-2">
+          <div class="flex flex-wrap gap-2">${stickerRow}</div>
+          <h4 class="title">${esc(idStr? idStr+' — ' : '')}${esc(titleStr)}</h4>
+          ${secondRow}
+          ${infoRow}
+          <div class="mt-3">
+            <div class="h-2 rounded-full bg-slate-200 dark:bg-slate-800 overflow-hidden">
+              <div class="h-full bg-indigo-500" style="width:${ratio}%"></div>
             </div>
-            <h4 class="mt-2 font-semibold leading-snug">${esc(idStr? idStr+' — ' : '')}${esc(titleStr)}</h4>
-          </div>
-          <div class="text-right shrink-0 space-x-1">
-            ${badge(t.sticker_priority,colorPriority(t.sticker_priority))}
-            ${badge(t.sticker_stage,colorStage(t.sticker_stage))}
-          </div>
-        </div>
-
-        <div class="mt-3 flex flex-wrap gap-2 text-xs">
-          ${t.deadline? `<span class="chip"><b>Дедлайн:</b> ${esc(t.deadline)}</span>`:''}
-          ${t.last_msg? `<span class="chip"><b>Последнее сообщение:</b> ${esc(t.last_msg)}</span>`:''}
-          ${t.msgs? `<span class="chip"><b>Сообщений:</b> ${esc(t.msgs)}</span>`:''}
-          ${plan? `<span class="chip"><b>План:</b> ${esc(plan)} ч</span>`:''}
-          ${fact? `<span class="chip"><b>Факт:</b> ${esc(fact)} ч</span>`:''}
-          ${t.sticker_category? `<span class="chip"><b>Категория:</b> ${esc(t.sticker_category)}</span>`:''}
-        </div>
-
-        <div class="mt-4">
-          <div class="h-2 rounded-full bg-slate-200 dark:bg-slate-800 overflow-hidden">
-            <div class="h-full bg-indigo-500" style="width:${ratio}%"></div>
-          </div>
-          <div class="mt-2 text-xs flex items-center justify-between text-slate-500 dark:text-slate-400">
-            <div class="inline-flex items-center gap-1"><i data-lucide="message-circle" class="w-3.5 h-3.5"></i> Сообщений: ${esc(t.msgs||'0')}</div>
-            <div class="flex items-center gap-4">
-              ${plan? `<span class="inline-flex items-center gap-1"><i data-lucide="target" class="w-3.5 h-3.5"></i>${esc(plan)}</span>`:''}
-              ${fact? `<span class="inline-flex items-center gap-1"><i data-lucide="clock" class="w-3.5 h-3.5"></i>${esc(fact)}</span>`:''}
+            <div class="mt-2 text-xs flex items-center justify-between text-slate-500 dark:text-slate-400">
+              <div class="inline-flex items-center gap-1"><i data-lucide="message-circle" class="w-3.5 h-3.5"></i> Сообщений: ${esc(t.msgs||'0')}</div>
+              <div class="flex items-center gap-4">
+                ${plan? `<span class="inline-flex items-center gap-1"><i data-lucide="target" class="w-3.5 h-3.5"></i>${esc(plan)}</span>`:''}
+                ${fact? `<span class="inline-flex items-center gap-1"><i data-lucide="clock" class="w-3.5 h-3.5"></i>${esc(fact)}</span>`:''}
+              </div>
             </div>
           </div>
         </div>`;
@@ -454,11 +514,7 @@
     lucide.createIcons();
   }
 
-  function chip(text){ return text? `<span class="chip">${esc(text)}</span>`:''; }
-  function badge(text,cls){ return text? `<span class="pill ${cls} text-white">${esc(text)}</span>`:''; }
-  function colorPriority(p){ const s=String(p||'').toLowerCase(); if(s.includes('пожар')||s.includes('alarm')||s.includes('аларм')) return 'bg-rose-500'; if(s.includes('важно')) return 'bg-amber-500'; return 'bg-slate-400'; }
-  function colorStage(s){ s=String(s||'').toLowerCase(); if(s.includes('ждет')||s.includes('очередь')) return 'bg-slate-500'; if(s.includes('в работе')) return 'bg-blue-600'; if(s.includes('выполнено')||s.includes('закончено')) return 'bg-emerald-600'; return 'bg-slate-400'; }
-
+  // Export
   function enableExports(v){ btnPNG.disabled=btnPDF.disabled=btnCopy.disabled=!v; }
   async function exportCanvas(){ await new Promise(r=>setTimeout(r,40)); return html2canvas(collage,{ backgroundColor:getComputedStyle(document.body).backgroundColor, scale:2, useCORS:true }); }
   btnPNG.addEventListener('click', async ()=>{ try{ const c=await exportCanvas(); c.toBlob(b=>{ const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download=`${collageTitle.textContent}.png`; a.click(); URL.revokeObjectURL(a.href); }); }catch(e){ toast('PNG: ошибка'); } });
@@ -466,7 +522,7 @@
   btnCopy.addEventListener('click', async ()=>{ try{ const c=await exportCanvas(); c.toBlob(async b=>{ try{ await navigator.clipboard.write([new ClipboardItem({'image/png':b})]); toast('Скопировано в буфер ✔'); }catch(_){ toast('Буфер недоступен — скачай PNG'); } }); }catch(e){ toast('Копирование не удалось'); } });
 
   // helpers
-  function chipTxt(x){return x?`<span class="chip">${esc(x)}</span>`:''}
+  function detectLong(s){ return String(s||'').length>120 }
 </script>
 </body>
 </html>
