@@ -14,7 +14,8 @@
         extend: {
           fontFamily: { sans: ['Inter','ui-sans-serif','system-ui'] },
           boxShadow:  { soft: '0 10px 30px rgba(0,0,0,.08)' },
-          colors: { os:{ primary:'#4f46e5', accent:'#22c55e', warn:'#ef4444' } }
+          colors: { os:{ primary:'#4f46e5', accent:'#22c55e', warn:'#ef4444' } },
+          borderRadius: { 'xl2':'1rem' }
         }
       }
     }
@@ -32,13 +33,17 @@
     *::-webkit-scrollbar{ width:8px;height:8px } *::-webkit-scrollbar-thumb{ background:#CBD5E1;border-radius:9999px }
     .panel{ border:1px solid var(--ring); border-radius:16px; background:#fff; box-shadow:0 10px 30px rgba(0,0,0,.06) }
     .dark .panel{ background:#0b1220; border-color:#1f2937 }
-    .kanban-card{ border:1px solid var(--ring); border-radius:16px; background:#fff; box-shadow:0 10px 30px rgba(0,0,0,.06) }
-    .dark .kanban-card{ background:#0b1220; border-color:#1f2937 }
-    .pill{ border-radius:999px; padding:2px 8px; font-size:12px; line-height:18px }
-    .chip{ border-radius:10px; padding:2px 8px; font-size:12px; line-height:18px; background:#F8FAFC; border:1px solid #E2E8F0 }
+    .card{ border:1px solid var(--ring); border-radius:16px; background:#fff; box-shadow:0 10px 30px rgba(0,0,0,.06) }
+    .dark .card{ background:#0b1220; border-color:#1f2937 }
+    .pill{ border-radius:999px; padding:2px 8px; font-size:12px; line-height:18px; display:inline-flex; gap:6px; align-items:center }
+    .chip{ border-radius:10px; padding:2px 8px; font-size:12px; line-height:18px; background:#F8FAFC; border:1px solid #E2E8F0; display:inline-flex; gap:6px; align-items:center }
     .dark .chip{ background:#111827; border-color:#1f2937; color:#cbd5e1 }
-    .fade-dim{ filter:saturate(.75) brightness(.92) }
+    .fade-dim{ filter:saturate(.78) brightness(.92) }
     .drop-hover{ outline:3px dashed #4f46e5; outline-offset:-10px }
+    .pill-gray{ background:#eef2f7; color:#334155 } .dark .pill-gray{ background:#0f172a; color:#cbd5e1; border:1px solid #1f2937 }
+    .pill-amber{ background:#FEF3C7; color:#92400E } .dark .pill-amber{ background:#78350f; color:#fde68a; border:1px solid #ea580c22 }
+    .pill-red{ background:#fee2e2; color:#991b1b } .dark .pill-red{ background:#7f1d1d; color:#fecaca; border:1px solid #ef444422 }
+    .pill-teal{ background:#ccfbf1; color:#115e59 } .dark .pill-teal{ background:#064e3b; color:#99f6e4; border:1px solid #14b8a622 }
     @media print{ @page{ size:A4 portrait; margin:10mm } }
   </style>
 </head>
@@ -47,7 +52,6 @@
   <!-- SPLASH -->
   <div id="splash" class="fixed inset-0 z-50 grid place-items-center bg-[#0b1020]">
     <div class="relative w-full h-full overflow-hidden">
-      <!-- замени путь на свой арт, если нужно -->
       <img src="./assets/bg.jpg" alt="" class="absolute inset-0 w-full h-full object-cover opacity-60"/>
       <div class="absolute inset-0 bg-gradient-to-b from-indigo-900/20 via-slate-900/30 to-slate-900/70"></div>
       <div class="relative h-full w-full flex items-center justify-center">
@@ -64,8 +68,8 @@
 
   <!-- FULL-WIDTH TOOLBAR -->
   <header class="sticky top-0 z-40">
-    <div class="backdrop-blur bg-white/70 dark:bg-slate-900/70 border-b border-slate-200 dark:border-slate-800">
-      <div class="max-w-[1200px] mx-auto px-4">
+    <div class="backdrop-blur bg-white/80 dark:bg-slate-900/70 border-b border-slate-200 dark:border-slate-800">
+      <div class="max-w-[1280px] mx-auto px-4">
         <div class="py-4 md:py-5 grid grid-cols-1 lg:grid-cols-12 gap-3">
           <div class="lg:col-span-4 flex items-center gap-3">
             <div class="w-10 h-10 rounded-2xl bg-indigo-600 grid place-items-center text-white font-bold">OS</div>
@@ -118,7 +122,7 @@
 
   <!-- MAIN -->
   <main class="flex-1 w-full">
-    <section class="max-w-[1200px] mx-auto px-4 py-10">
+    <section class="max-w-[1280px] mx-auto px-4 py-10">
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
         <div class="lg:col-span-8">
           <!-- DROPZONE -->
@@ -139,8 +143,6 @@
               <div class="h-3 rounded-full bg-slate-200 dark:bg-slate-800 overflow-hidden">
                 <div id="progressBar" class="h-full w-0 bg-indigo-600 transition-all duration-300"></div>
               </div>
-              <div id="diag" class="mt-3 text-[12px] text-slate-500 dark:text-slate-400"></div>
-              <div class="mt-2 text-xs text-slate-500 dark:text-slate-400">После генерации появится коллаж и кнопки скачивания.</div>
             </div>
           </div>
         </div>
@@ -154,10 +156,6 @@
               <div class="panel py-3"><div class="text-xs text-slate-500 dark:text-slate-400">Задач</div><div id="sumCount" class="font-semibold">0</div></div>
               <div class="panel py-3"><div class="text-xs text-slate-500 dark:text-slate-400">План (ч)</div><div id="sumPlan" class="font-semibold">0</div></div>
               <div class="panel py-3"><div class="text-xs text-slate-500 dark:text-slate-400">Факт (ч)</div><div id="sumFact" class="font-semibold">0</div></div>
-            </div>
-
-            <div id="whyEmpty" class="hidden mt-4 panel p-4 text-sm text-rose-600 dark:text-rose-400">
-              Ничего не отрисовано. Проверь названия колонок в Excel — ключевые поля не найдены. Подсказка — под прогресс-баром.
             </div>
           </div>
         </div>
@@ -178,7 +176,7 @@
 
   <!-- FOOTER -->
   <footer class="mt-10 border-t border-slate-200 dark:border-slate-800">
-    <div class="max-w-[1200px] mx-auto px-4 py-6 flex items-center justify-between">
+    <div class="max-w-[1280px] mx-auto px-4 py-6 flex items-center justify-between">
       <div class="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
         <span class="inline-flex items-center gap-2 px-3 py-1 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
           <i data-lucide="heart" class="w-4 h-4 text-rose-500"></i>
@@ -237,7 +235,7 @@
   const collage=$("#collage"), collageWrap=$("#collageWrap"), collageTitle=$("#collageTitle");
   const sumDate=$("#sumDate"), sumPlan=$("#sumPlan"), sumFact=$("#sumFact"), sumCount=$("#sumCount");
   const btnPNG=$("#btnExportPNG"), btnPDF=$("#btnExportPDF"), btnCopy=$("#btnCopy"), colSelect=$("#colSelect"), density=$("#density"), sortBy=$("#sortBy");
-  const progressWrap=$("#progressWrap"), progressBar=$("#progressBar"), progressLabel=$("#progressLabel"), progressStep=$("#progressStep"), diag=$("#diag");
+  const progressWrap=$("#progressWrap"), progressBar=$("#progressBar"), progressLabel=$("#progressLabel"), progressStep=$("#progressStep");
   const supportFab=$("#supportFab"), supportModal=$("#supportModal"), modalClose=$("#modalClose");
   supportFab.addEventListener('click', ()=>{ supportModal.classList.remove('hidden'); gsap.fromTo("#supportModal .panel",{y:20,opacity:0},{y:0,opacity:1,duration:.35,ease:"power2.out"}); });
   modalClose.addEventListener('click', ()=> supportModal.classList.add('hidden'));
@@ -257,7 +255,6 @@
   function showProgress(){ progressWrap.classList.remove('hidden'); setProgress(0,'Старт'); }
   function setProgress(p, step){ progressBar.style.width = p+'%'; progressLabel.textContent = `Готово: ${Math.round(p)}%`; if(step) progressStep.textContent = step; }
   function hideProgress(){ setTimeout(()=>progressWrap.classList.add('hidden'), 350); }
-  const setDiag=(html)=>{ diag.innerHTML = html; };
 
   // File flow
   async function handleFile(file){
@@ -278,7 +275,7 @@
       const M = XLSX.utils.sheet_to_json(sheet, {header:1, defval:"", raw:true});
       if(!M.length){ toast('Пустой лист'); hideProgress(); return; }
 
-      const headers = (M[0]||[]).map(h=>canon(h));
+      const headers = (M[0]||[]).map(canon);
       const rows = M.slice(1);
 
       // индексы колонок
@@ -299,29 +296,16 @@
         sticker_fact:['стикер "факт часов"','факт часов','факт'],
         sticker_category:['стикер "категория"','категория'],
       };
-      const findCol = (variants)=>{
+      const findCol=(variants)=>{
         const vs = variants.map(canon);
-        // точное
         for(const v of vs){ const i=headers.indexOf(v); if(i>=0) return i; }
-        // включает
         for(const v of vs){ const i=headers.findIndex(h=>h.includes(v)); if(i>=0) return i; }
-        // по словам
-        for(const v of vs){
-          const words=v.split(' ').filter(Boolean);
-          const i=headers.findIndex(h=>words.every(w=>h.includes(w)));
-          if(i>=0) return i;
-        }
+        for(const v of vs){ const w=v.split(' ').filter(Boolean); const i=headers.findIndex(h=>w.every(x=>h.includes(x))); if(i>=0) return i; }
         return -1;
       };
       const idx={}; Object.entries(need).forEach(([k,vars])=> idx[k]=findCol(vars));
 
-      // диагностика
-      const found = Object.entries(idx).filter(([_,i])=>i>=0).map(([k,i])=>`${k} → <b>${esc(headers[i]||'?')}</b> (col ${i+1})`).join('<br>');
-      const miss  = Object.entries(idx).filter(([_,i])=>i<0).map(([k])=>k).join(', ') || '—';
-      setDiag(`Лист: <b>${esc(sheetName)}</b><br>Строк: <b>${rows.length}</b>, Колонок: <b>${headers.length}</b><br><br><u>Найдены:</u><br>${found||'—'}<br><br><u>Отсутствуют:</u> ${miss}`);
-
-      if(idx.title<0 && idx.id<0){ $("#whyEmpty").classList.remove('hidden'); toast('Не найдены колонки ID/Название'); hideProgress(); return; }
-      $("#whyEmpty").classList.add('hidden');
+      if(idx.title<0 && idx.id<0){ toast('Не найдены колонки ID/Название'); hideProgress(); return; }
 
       setProgress(60,'Готовлю задачи');
       tasksRaw = rows
@@ -336,7 +320,7 @@
         }))
         .filter(t => (String(t.id||t.title||'').trim()!=='') && !/^сумма значений/i.test(String(t.id||'').trim()));
 
-      if(!tasksRaw.length){ $("#whyEmpty").classList.remove('hidden'); toast('После фильтрации задач не осталось'); hideProgress(); return; }
+      if(!tasksRaw.length){ toast('После фильтрации задач не осталось'); hideProgress(); return; }
 
       setProgress(78,'Рисую карточки');
       render(tasksRaw, isFact, file.name);
@@ -345,7 +329,6 @@
       hideProgress();
       enableExports(true);
       toast('Коллаж готов. Можно скачать/копировать.');
-      // авто-скролл к коллажу
       $("#collageWrap").scrollIntoView({behavior:'smooth', block:'start'});
 
     }catch(e){
@@ -355,30 +338,28 @@
     }
   }
 
-  // helpers for parsing
+  // helpers
   function canon(s){ return String(s||'').replace(/[“”«»„‟"']/g,'"').replace(/ё/g,'е').replace(/\s+/g,' ').trim().toLowerCase(); }
   function cell(row, i){ return i>=0 ? (row[i] ?? '') : ''; }
   function detectMode(name=""){ const n=String(name).toLowerCase(); if(n.includes('сделано сегодня')) return 'fact'; if(n.includes('задачи на сегодня')) return 'plan'; return 'plan'; }
 
   // ===== Render
-  let isFactGlobal=false;
+  let isFactGlobal=false, tasksView=[];
   function render(list, isFact, filename){
     isFactGlobal=isFact;
     sumDate.textContent = extractDate(filename);
 
-    // сортировка
     tasksView = sortList(list, sortBy.value);
 
     const sp=tasksView.reduce((a,t)=>a+num(t.sticker_plan),0), sf=tasksView.reduce((a,t)=>a+num(t.sticker_fact),0);
     sumPlan.textContent=String(sp).replace('.',','); sumFact.textContent=String(sf).replace('.',','); sumCount.textContent=tasksView.length;
 
     collageTitle.textContent = isFact? 'Сделано сегодня' : 'Задачи на сегодня';
-
     setColumns(parseInt(colSelect.value||'2',10));
     drawCards(tasksView, isFact);
 
     $("#collageWrap").classList.remove("hidden");
-    gsap.from($$(".kanban-card", collage),{y:12,opacity:0,duration:.5,stagger:.02,ease:"power2.out"});
+    gsap.from($$(".card", collage),{y:12,opacity:0,duration:.5,stagger:.02,ease:"power2.out"});
   }
 
   function sortList(arr, how){
@@ -397,8 +378,7 @@
     const widthPerCol = 540;
     collage.style.width = `${Math.max(700, n*widthPerCol + (n-1)*16)}px`;
   }
-  colSelect.addEventListener('change', ()=>{ setColumns(parseInt(colSelect.value,10)); });
-
+  colSelect.addEventListener('change', ()=> setColumns(parseInt(colSelect.value,10)));
   density.addEventListener('change', ()=> drawCards(tasksView, isFactGlobal));
   sortBy.addEventListener('change', ()=>{ tasksView=sortList(tasksView, sortBy.value); drawCards(tasksView, isFactGlobal); });
 
@@ -409,58 +389,68 @@
 
     const frag=document.createDocumentFragment();
     for(const t of items){
-      try{
-        const card=document.createElement('article');
-        card.className=`kanban-card ${pad} ${isFact? 'fade-dim':''}`;
-        const titleStr = String(t.title||'Без названия');
-        const idStr = String(t.id||'').trim();
-        const descr = String(t.description||'');
-        card.innerHTML=`
-          <div class="flex items-start justify-between gap-3">
-            <div class="min-w-0">
-              <div class="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-2">
-                <span class="pill bg-slate-800 text-white dark:bg-slate-200 dark:text-slate-900">${esc(t.project||'—')}</span>
-                ${chip(t.board)} ${chip(t.column)}
-              </div>
-              <h4 class="mt-2 font-semibold leading-snug">${esc(idStr? idStr+' — ' : '')}${esc(titleStr)}</h4>
+      const fact=num(t.sticker_fact), plan=num(t.sticker_plan);
+      const ratio = plan>0? Math.min(100, Math.round(fact/plan*100)) : (fact>0?100:0);
+
+      const card=document.createElement('article');
+      card.className=`card ${pad} ${isFact? 'fade-dim':''}`;
+      card.innerHTML=`
+        <div class="flex items-start justify-between gap-3">
+          <div class="min-w-0">
+            <h4 class="font-semibold leading-snug">${esc(String(t.id||'').trim()? t.id+' — ' : '')}${esc(t.title||'Без названия')}</h4>
+          </div>
+          <button class="opacity-50 hover:opacity-100"><i data-lucide="more-horizontal" class="w-5 h-5"></i></button>
+        </div>
+
+        <div class="mt-3 flex flex-wrap gap-6">
+          <div class="space-y-2">
+            <div class="flex flex-wrap gap-2">
+              ${pill('calendar',''+(t.deadline||'—'),'pill-amber')}
+              ${t.sticker_priority? pill('flame', t.sticker_priority, 'pill-red'):''}
+              ${t.sticker_stage? pill('bar-chart-3', t.sticker_stage, 'pill-teal'):''}
+              ${t.project? pill('', t.project, 'pill-gray'):''}
+              ${t.sticker_category? pill('', t.sticker_category, 'pill-gray'):''}
             </div>
-            <div class="text-right shrink-0 space-x-1">
-              ${badge(t.sticker_priority, colorPriority(t.sticker_priority))}
-              ${badge(t.sticker_stage, colorStage(t.sticker_stage))}
+            <div class="flex flex-wrap gap-2">
+              ${plan? chip('target',`План Сегодня: ${plan}`):''}
+              ${fact? chip('clock',`Факт часов: ${fact}`):''}
             </div>
           </div>
+        </div>
 
-          <div class="mt-3 flex flex-wrap gap-2 text-xs">
-            ${t.deadline? `<span class="chip"><b>Дедлайн:</b> ${esc(t.deadline)}</span>`:''}
-            ${t.last_msg? `<span class="chip"><b>Последнее сообщение:</b> ${esc(t.last_msg)}</span>`:''}
-            ${t.msgs? `<span class="chip"><b>Сообщений:</b> ${esc(t.msgs)}</span>`:''}
-            ${t.sticker_plan? `<span class="chip"><b>План:</b> ${esc(t.sticker_plan)} ч</span>`:''}
-            ${t.sticker_fact? `<span class="chip"><b>Факт:</b> ${esc(t.sticker_fact)} ч</span>`:''}
-            ${t.sticker_category? `<span class="chip"><b>Категория:</b> ${esc(t.sticker_category)}</span>`:''}
+        <div class="mt-4">
+          <div class="h-2 rounded-full bg-slate-200 dark:bg-slate-800 overflow-hidden">
+            <div class="h-full bg-indigo-500" style="width:${ratio}%"></div>
           </div>
-
-          ${descr ? `<div class="mt-3 text-[13px] leading-relaxed text-slate-700 dark:text-slate-300">
-             ${esc(descr.slice(0,420))}${descr.length>420?'…':''}
-          </div>`:''}
-        `;
-        frag.appendChild(card);
-      }catch(_e){
-        // если вдруг задача сломана — просто пропускаем
-        console.error('bad task row', _e, t);
-      }
+          <div class="mt-2 text-xs flex items-center justify-between text-slate-500 dark:text-slate-400">
+            <div class="flex items-center gap-4">
+              ${t.last_msg? `<span class="inline-flex items-center gap-1"><i data-lucide="message-circle" class="w-3.5 h-3.5"></i> Сообщений: ${esc(t.msgs||'0')}</span>`: `<span class="inline-flex items-center gap-1"><i data-lucide="message-circle" class="w-3.5 h-3.5"></i> Сообщений: ${esc(t.msgs||'0')}</span>`}
+            </div>
+            <div class="flex items-center gap-4">
+              ${plan? `<span class="inline-flex items-center gap-1"><i data-lucide="target" class="w-3.5 h-3.5"></i>${plan}</span>`:''}
+              ${fact? `<span class="inline-flex items-center gap-1"><i data-lucide="clock" class="w-3.5 h-3.5"></i>${fact}</span>`:''}
+            </div>
+          </div>
+        </div>
+      `;
+      frag.appendChild(card);
     }
     collage.appendChild(frag);
+    lucide.createIcons(); // обновить иконки внутри карточек
   }
 
-  function chip(text){ return text? `<span class="chip">${esc(text)}</span>`:''; }
-  function badge(text, cls){ return text? `<span class="pill ${cls} text-white">${esc(text)}</span>`:''; }
-  function colorPriority(p){ const s=String(p||'').toLowerCase(); if(s.includes('пожар')||s.includes('alarm')||s.includes('аларм')) return 'bg-rose-500'; if(s.includes('важно')) return 'bg-amber-500'; return 'bg-slate-400'; }
-  function colorStage(s){ s=String(s||'').toLowerCase(); if(s.includes('ждет')||s.includes('очередь')) return 'bg-slate-500'; if(s.includes('в работе')) return 'bg-blue-600'; if(s.includes('выполнено')||s.includes('закончено')) return 'bg-emerald-600'; return 'bg-slate-400'; }
+  function pill(icon, text, cls){
+    const ico = icon? `<i data-lucide="${icon}" class="w-3.5 h-3.5"></i>` : '';
+    return `<span class="pill ${cls}">${ico}<span>${esc(text)}</span></span>`;
+  }
+  function chip(icon, text){
+    return `<span class="chip"><i data-lucide="${icon}" class="w-3.5 h-3.5"></i><span>${esc(text)}</span></span>`;
+  }
   function extractDate(name=""){ const m=String(name).match(/сегодня[^\d]*(.+)$/i); return m? m[1].replace(/\.[^.]+$/,'').trim() : '—'; }
 
   // Export
   function enableExports(v){ btnPNG.disabled=btnPDF.disabled=btnCopy.disabled=!v; }
-  async function exportCanvas(){ await new Promise(r=>setTimeout(r,50)); return html2canvas(collage,{ backgroundColor:getComputedStyle(document.body).backgroundColor, scale:2, useCORS:true }); }
+  async function exportCanvas(){ await new Promise(r=>setTimeout(r,40)); return html2canvas(collage,{ backgroundColor:getComputedStyle(document.body).backgroundColor, scale:2, useCORS:true }); }
   btnPNG.addEventListener('click', async ()=>{ try{ const c=await exportCanvas(); c.toBlob(b=>{ const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download=`${collageTitle.textContent}.png`; a.click(); URL.revokeObjectURL(a.href); }); }catch(e){ console.error(e); toast('PNG: ошибка'); } });
   btnPDF.addEventListener('click', async ()=>{ try{ const c=await exportCanvas(); const img=c.toDataURL('image/png'); const { jsPDF }=window.jspdf; const pdf=new jsPDF({unit:'pt',format:'a4',compress:true}); const pageW=pdf.internal.pageSize.getWidth(), margin=24; const w=pageW - margin*2, h=w*(c.height/c.width); pdf.addImage(img,'PNG',margin,margin,w,h); pdf.save(`${collageTitle.textContent}.pdf`); }catch(e){ console.error(e); toast('PDF: ошибка'); } });
   btnCopy.addEventListener('click', async ()=>{ try{ const c=await exportCanvas(); c.toBlob(async b=>{ try{ await navigator.clipboard.write([new ClipboardItem({'image/png':b})]); toast('Скопировано в буфер ✔'); }catch(_){ toast('Буфер недоступен — скачай PNG'); } }); }catch(e){ console.error(e); toast('Копирование не удалось'); } });
