@@ -1,120 +1,105 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="ru" class="scroll-smooth">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>OneScreen План/Факт — by Vatnik</title>
 
-  <!-- Tailwind (CDN) -->
+  <!-- Tailwind -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
+      darkMode: 'class',
       theme: {
         extend: {
-          fontFamily: {
-            sans: ["Inter", "ui-sans-serif", "system-ui"]
-          },
-          boxShadow: {
-            soft: "0 10px 30px rgba(0,0,0,0.08)"
-          }
+          fontFamily: { sans: ['Inter','ui-sans-serif','system-ui'] },
+          boxShadow: { soft: '0 10px 30px rgba(0,0,0,.08)' },
+          colors: { os: { primary:'#4f46e5', accent:'#22c55e', warn:'#ef4444' } }
         }
       }
     }
   </script>
-  <!-- Inter font -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <!-- Icons -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://unpkg.com/lucide@latest"></script>
-  <!-- GSAP for cute animations -->
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
-  <!-- XLSX parser -->
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-  <!-- html2canvas & jsPDF for export -->
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 
   <style>
-    :root {
-      --os-primary: #4f46e5; /* indigo-600 */
-      --os-accent: #22c55e;  /* green-500 */
-      --os-warn:   #ef4444;  /* red-500 */
-      --os-muted:  #64748b;  /* slate-500 */
-    }
-    /* Pretty scroll */
-    * { scrollbar-width: thin; scrollbar-color: #CBD5E1 transparent; }
-    *::-webkit-scrollbar { height: 8px; width: 8px; }
-    *::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 9999px; }
-    /* Welcome overlay */
-    #splash {
-      background: radial-gradient(1200px 600px at 30% 10%, rgba(79,70,229,.3), transparent 60%),
-                  radial-gradient(1000px 500px at 80% 80%, rgba(34,197,94,.25), transparent 60%),
-                  #0b1020;
-    }
-    .fade-dim { filter: saturate(.75) brightness(.92); }
-    .pill { border-radius: 999px; padding: 2px 8px; font-size: 12px; line-height: 18px; }
-    .chip { border-radius: 10px; padding: 2px 8px; font-size: 12px; line-height: 18px; background:#F8FAFC; border:1px solid #E2E8F0; }
-    .kanban-card {
-      background: white; border-radius: 16px; box-shadow: var(--shadow, 0 10px 30px rgba(0,0,0,.06));
-      border: 1px solid #eaeef5;
-    }
-    /* Export page size hints (A4) */
-    @media print {
-      @page { size: A4 portrait; margin: 10mm; }
-    }
-    /* Drag states */
-    .drop-hover { outline: 3px dashed var(--os-primary); outline-offset: -10px; }
+    :root{ --ring:#e2e8f0 }
+    *{ scrollbar-width:thin; scrollbar-color:#CBD5E1 transparent }
+    *::-webkit-scrollbar{ width:8px;height:8px } *::-webkit-scrollbar-thumb{ background:#CBD5E1;border-radius:9999px }
+    .kanban-card{ border:1px solid var(--ring); border-radius:16px; background:#fff; box-shadow:0 10px 30px rgba(0,0,0,.06) }
+    .dark .kanban-card{ background:#0b1220; border-color:#1f2937 }
+    .pill{ border-radius:999px; padding:2px 8px; font-size:12px; line-height:18px }
+    .chip{ border-radius:10px; padding:2px 8px; font-size:12px; line-height:18px; background:#F8FAFC; border:1px solid #E2E8F0 }
+    .dark .chip{ background:#111827; border-color:#1f2937; color:#cbd5e1 }
+    .fade-dim{ filter:saturate(.75) brightness(.92) }
+    .drop-hover{ outline:3px dashed #4f46e5; outline-offset:-10px }
+    @media print{ @page{ size:A4 portrait; margin:10mm } }
   </style>
 </head>
-<body class="font-sans bg-slate-50 text-slate-900 selection:bg-indigo-200 selection:text-indigo-900">
+<body class="font-sans bg-slate-50 text-slate-900 dark:bg-slate-900 dark:text-slate-100 selection:bg-indigo-200 selection:text-indigo-900">
 
-  <!-- SPLASH / WELCOME -->
-  <div id="splash" class="fixed inset-0 z-40 grid place-items-center">
+  <!-- SPLASH -->
+  <div id="splash" class="fixed inset-0 z-50 grid place-items-center bg-[#0b1020]">
     <div class="relative w-full h-full overflow-hidden">
-      <!-- Background image (replace path to your art) -->
-      <img src="./assets/bg.jpg" alt="OneScreen background" 
-           class="absolute inset-0 w-full h-full object-cover opacity-60" />
-      <!-- Soft gradient veil -->
+      <!-- поменяй путь при желании -->
+      <img src="./assets/bg.jpg" alt="" class="absolute inset-0 w-full h-full object-cover opacity-60"/>
       <div class="absolute inset-0 bg-gradient-to-b from-indigo-900/20 via-slate-900/30 to-slate-900/70"></div>
-
       <div class="relative h-full w-full flex items-center justify-center">
         <div id="splashContent" class="text-center">
           <div class="inline-flex items-center gap-3 px-5 py-2 rounded-2xl bg-white/10 backdrop-blur ring-1 ring-white/20">
-            <svg id="logo" xmlns="http://www.w3.org/2000/svg" class="w-7 h-7 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-              <path d="M4 17V7l8-4 8 4v10l-8 4-8-4z"/><path d="M12 3v18"/>
-            </svg>
             <span class="text-white/90 font-semibold tracking-wide">OneScreen</span>
           </div>
-
-          <h1 class="mt-5 text-3xl md:text-5xl font-extrabold text-white drop-shadow">
-            План/Факт <span class="text-indigo-200">by Vatnik</span>
-          </h1>
-          <p class="mt-3 text-white/80">Закинь xlsx — получи красивый коллаж задач.</p>
+          <h1 class="mt-5 text-3xl md:text-5xl font-extrabold text-white drop-shadow">План/Факт <span class="text-indigo-200">by Vatnik</span></h1>
+          <p class="mt-3 text-white/80">Перетащи xlsx — получи красивый коллаж задач.</p>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- NAV -->
-  <header class="sticky top-0 z-30 bg-white/80 backdrop-blur border-b border-slate-200">
+  <!-- HEADER -->
+  <header class="sticky top-0 z-40 bg-white/80 dark:bg-slate-900/70 backdrop-blur border-b border-slate-200 dark:border-slate-800">
     <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
       <div class="flex items-center gap-3">
         <div class="w-8 h-8 rounded-xl bg-indigo-600 grid place-items-center text-white font-bold">OS</div>
         <div class="leading-tight">
           <div class="font-semibold">OneScreen: План/Факт</div>
-          <div id="modeBadge" class="text-xs text-slate-500">режим не выбран</div>
+          <div id="modeBadge" class="text-xs text-slate-500 dark:text-slate-400">режим не выбран</div>
         </div>
       </div>
 
       <div class="flex items-center gap-2">
-        <button id="btnExportPNG" disabled class="px-3 py-2 text-sm rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200 disabled:opacity-50">
-          Скачать PNG
+        <div class="hidden md:flex items-center gap-2 mr-2">
+          <label class="text-xs text-slate-500 dark:text-slate-400">Колонки</label>
+          <select id="colSelect" class="px-2 py-1 text-sm rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+            <option value="2">2</option><option value="3">3</option><option value="4">4</option>
+          </select>
+
+          <label class="text-xs text-slate-500 dark:text-slate-400 ml-3">Плотность</label>
+          <select id="density" class="px-2 py-1 text-sm rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+            <option value="md">Стандарт</option><option value="sm">Компактно</option>
+          </select>
+
+          <label class="text-xs text-slate-500 dark:text-slate-400 ml-3">Сорт</label>
+          <select id="sortBy" class="px-2 py-1 text-sm rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+            <option value="none">Без сортировки</option>
+            <option value="priority">Приоритет</option>
+            <option value="deadline">Дедлайн</option>
+            <option value="plan">План (ч)</option>
+            <option value="fact">Факт (ч)</option>
+          </select>
+        </div>
+
+        <button id="themeToggle" class="px-3 py-2 text-sm rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700" title="Тема">
+          <span class="inline-flex items-center gap-1"><i data-lucide="sun" class="w-4 h-4 hidden dark:inline"></i><i data-lucide="moon" class="w-4 h-4 dark:hidden"></i><span class="hidden md:inline">Тема</span></span>
         </button>
-        <button id="btnExportPDF" disabled class="px-3 py-2 text-sm rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200 disabled:opacity-50">
-          Скачать PDF
-        </button>
-        <button id="btnCopy" disabled class="px-3 py-2 text-sm rounded-xl bg-slate-900 text-white hover:bg-slate-800 disabled:opacity-50">
-          Копировать картинку
-        </button>
+
+        <button id="btnExportPNG" disabled class="px-3 py-2 text-sm rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 disabled:opacity-50">PNG</button>
+        <button id="btnExportPDF" disabled class="px-3 py-2 text-sm rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 disabled:opacity-50">PDF</button>
+        <button id="btnCopy" disabled class="px-3 py-2 text-sm rounded-xl bg-slate-900 text-white hover:bg-slate-800 disabled:opacity-50">Копировать</button>
       </div>
     </div>
   </header>
@@ -124,347 +109,350 @@
 
     <!-- Dropzone -->
     <section id="dropSection" class="mt-10">
-      <div id="dropzone" class="kanban-card p-8 md:p-12 text-center bg-gradient-to-b from-white to-slate-50">
-        <div class="mx-auto w-16 h-16 rounded-2xl bg-indigo-50 grid place-items-center text-indigo-600 shadow-soft">
+      <div id="dropzone" class="kanban-card p-8 md:p-12 text-center bg-gradient-to-b from-white to-slate-50 dark:from-slate-900 dark:to-slate-900/40">
+        <div class="mx-auto w-16 h-16 rounded-2xl bg-indigo-50 dark:bg-indigo-900/40 grid place-items-center text-indigo-600 dark:text-indigo-300 shadow-soft">
           <i data-lucide="upload" class="w-8 h-8"></i>
         </div>
-        <h2 class="mt-4 text-xl font-bold">Перетащи сюда .xlsx или <label for="fileInput" class="text-indigo-700 cursor-pointer underline decoration-dotted">выбери файл</label></h2>
-        <p class="mt-1 text-slate-500 text-sm">Название файла определяет режим:
-          <span class="font-medium text-slate-700">«Задачи на сегодня …»</span> → План,
-          <span class="font-medium text-slate-700">«Сделано сегодня …»</span> → Факт
-        </p>
-        <input id="fileInput" type="file" accept=".xlsx,.xls" class="hidden" />
+        <h2 class="mt-4 text-xl font-bold">Перетащи сюда .xlsx или <label for="fileInput" class="text-indigo-700 dark:text-indigo-300 cursor-pointer underline decoration-dotted">выбери файл</label></h2>
+        <p class="mt-1 text-slate-500 dark:text-slate-400 text-sm">«Задачи на сегодня …» → План, «Сделано сегодня …» → Факт</p>
+        <input id="fileInput" type="file" accept=".xlsx,.xls" class="hidden"/>
       </div>
     </section>
 
-    <!-- Summary -->
-    <section id="summary" class="mt-8 hidden">
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <div class="kanban-card p-4">
-          <div class="text-xs text-slate-500">Дата из имени файла</div>
-          <div id="sumDate" class="text-lg font-semibold">—</div>
-        </div>
-        <div class="kanban-card p-4">
-          <div class="text-xs text-slate-500">План сегодня (ч)</div>
-          <div id="sumPlan" class="text-lg font-semibold">0</div>
-        </div>
-        <div class="kanban-card p-4">
-          <div class="text-xs text-slate-500">Факт часов (ч)</div>
-          <div id="sumFact" class="text-lg font-semibold">0</div>
-        </div>
-        <div class="kanban-card p-4">
-          <div class="text-xs text-slate-500">Задач</div>
-          <div id="sumCount" class="text-lg font-semibold">0</div>
+    <!-- Toolbar below -->
+    <section id="tools" class="mt-6 hidden">
+      <div class="kanban-card p-4">
+        <div class="flex flex-wrap gap-3 items-center justify-between">
+          <div class="flex items-center gap-2">
+            <span class="text-xs text-slate-500 dark:text-slate-400">Фильтр:</span>
+            <input id="quickSearch" type="text" placeholder="Найти по названию/ID…" class="px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm w-64"/>
+          </div>
+          <div class="text-xs text-slate-500 dark:text-slate-400">
+            Дата: <b id="sumDate">—</b> · План: <b id="sumPlan">0</b> ч · Факт: <b id="sumFact">0</b> ч · Задач: <b id="sumCount">0</b>
+          </div>
         </div>
       </div>
     </section>
 
     <!-- Collage -->
-    <section id="collageWrap" class="mt-8 hidden">
+    <section id="collageWrap" class="mt-6 hidden">
       <h3 id="collageTitle" class="text-2xl font-extrabold tracking-tight"></h3>
-      <div class="mt-4 kanban-card p-4">
-        <!-- Fixed-width canvas area for clean export -->
-        <div id="collage" class="grid gap-4"
-             style="width: 1123px; /* ~A4 portrait content width at 96dpi with margins */ grid-template-columns: repeat(2, minmax(0, 1fr));">
-          <!-- cards injected here -->
+      <div class="mt-3 kanban-card p-4">
+        <div class="overflow-auto">
+          <!-- фиксированная ширина для ровного экспорта -->
+          <div id="collage" class="grid gap-4"
+               style="width:1123px; grid-template-columns:repeat(2,minmax(0,1fr));">
+          </div>
         </div>
       </div>
     </section>
 
-    <!-- Footer tip -->
-    <p class="mt-8 text-center text-xs text-slate-500">
-      Made with 💙 for Onescreen. Залей фон приветствия в <code>/assets/bg.jpg</code> (или поменяй путь в коде).
-    </p>
+    <p class="mt-8 text-center text-xs text-slate-500 dark:text-slate-400">Залей фон в <code>/assets/bg.jpg</code> при желании.</p>
   </main>
 
-  <script>
-    // Icons
-    window.addEventListener('DOMContentLoaded', () => { lucide.createIcons(); });
+  <!-- Toast -->
+  <div id="toast" class="fixed bottom-4 left-1/2 -translate-x-1/2 z-40 hidden">
+    <div class="px-4 py-2 rounded-xl bg-slate-900 text-white shadow-lg text-sm"></div>
+  </div>
 
-    // Splash animation
-    (function splash() {
-      const tl = gsap.timeline();
-      tl.fromTo("#splashContent", { y: 20, opacity: 0 }, { y:0, opacity:1, duration:1.0, ease:"power3.out" })
-        .to("#splash", { opacity: 0, pointerEvents: "none", duration: .8, delay: 1.2, ease: "power2.inOut" });
-    })();
+<script>
+  // ====== Utils ======
+  const $ = (s, r=document)=>r.querySelector(s);
+  const $$ = (s, r=document)=>Array.from(r.querySelectorAll(s));
+  const toast = (msg)=>{ const box=$("#toast>div"); box.textContent=msg; $("#toast").classList.remove("hidden"); setTimeout(()=>$("#toast").classList.add("hidden"), 2200); };
+  const num = (v)=>{ if(typeof v==='number') return v; if(!v) return 0; const s=(""+v).replace(",",".").replace(/[^\d.-]/g,""); const n=parseFloat(s); return isNaN(n)?0:n; };
+  const esc = (s="")=>s.replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
+  const priorityRank = (p="")=>{ p=p.toLowerCase(); if(p.includes('пожар')||p.includes('alarm')||p.includes('аларм'))return 0; if(p.includes('важно'))return 1; return 2; };
 
-    // Helpers
-    const $ = (s, root=document) => root.querySelector(s);
-    const $$ = (s, root=document) => Array.from(root.querySelectorAll(s));
-    const normalizeKey = (k) => (k||"").toString().replace(/[“”"']/g,'"').trim();
-    const num = (v) => {
-      if (typeof v === "number") return v;
-      if (!v) return 0;
-      const s = (""+v).replace(",", ".").replace(/[^\d.-]/g,"").trim();
-      const n = parseFloat(s); return isNaN(n) ? 0 : n;
+  // Theme
+  const themeToggle=$("#themeToggle");
+  const applyStoredTheme=()=>{ const t=localStorage.getItem('theme')||'light'; document.documentElement.classList.toggle('dark', t==='dark'); };
+  applyStoredTheme();
+  themeToggle.addEventListener('click',()=>{
+    const isDark=document.documentElement.classList.toggle('dark');
+    localStorage.setItem('theme', isDark?'dark':'light');
+  });
+
+  // Splash
+  (function splash(){
+    const tl=gsap.timeline();
+    tl.fromTo("#splashContent",{y:20,opacity:0},{y:0,opacity:1,duration:1,ease:"power3.out"})
+      .to("#splash",{opacity:0,pointerEvents:"none",duration:.7,delay:1.1,ease:"power2.inOut"});
+  })();
+
+  // Icons
+  window.addEventListener('DOMContentLoaded',()=>{ lucide.createIcons(); });
+
+  // ====== DOM Refs ======
+  const dropzone=$("#dropzone"), fileInput=$("#fileInput");
+  const collage=$("#collage"), collageWrap=$("#collageWrap"), collageTitle=$("#collageTitle");
+  const tools=$("#tools"), quickSearch=$("#quickSearch");
+  const sumDate=$("#sumDate"), sumPlan=$("#sumPlan"), sumFact=$("#sumFact"), sumCount=$("#sumCount");
+  const modeBadge=$("#modeBadge");
+  const btnPNG=$("#btnExportPNG"), btnPDF=$("#btnExportPDF"), btnCopy=$("#btnCopy");
+  const colSelect=$("#colSelect"), density=$("#density"), sortBy=$("#sortBy");
+
+  // ====== DnD ======
+  ["dragenter","dragover"].forEach(ev=>dropzone.addEventListener(ev,e=>{e.preventDefault();dropzone.classList.add("drop-hover");}));
+  ["dragleave","drop"].forEach(ev=>dropzone.addEventListener(ev,e=>{e.preventDefault();dropzone.classList.remove("drop-hover");}));
+  dropzone.addEventListener("drop",e=>{ const f=e.dataTransfer.files?.[0]; if(f) handleFile(f); });
+  dropzone.addEventListener("click",()=>fileInput.click());
+  fileInput.addEventListener("change",e=>{ const f=e.target.files?.[0]; if(f) handleFile(f); });
+
+  // ====== State ======
+  let rawTasks=[], viewTasks=[], isFact=false;
+
+  // ====== File handling ======
+  async function handleFile(file){
+    try{
+      const mode = detectMode(file.name);
+      isFact = mode==='fact';
+      modeBadge.textContent = isFact ? 'режим: ФАКТ' : 'режим: ПЛАН';
+
+      const buf = await file.arrayBuffer();
+      const wb = XLSX.read(buf, {type:'array'});
+
+      // берём лист с максимумом заполненных ячеек — надёжнее
+      let targetSheet = wb.Sheets[wb.SheetNames[0]], best=0;
+      wb.SheetNames.forEach(name=>{
+        const s=wb.Sheets[name]; const r=XLSX.utils.decode_range(s['!ref']||'A1:A1');
+        const cells=(r.e.r-r.s.r+1)*(r.e.c-r.s.c+1); if(cells>best){best=cells; targetSheet=s;}
+      });
+
+      const rows = XLSX.utils.sheet_to_json(targetSheet, {defval:"", raw:true});
+      if(!rows.length){ toast('Лист пустой или не распознан.'); return; }
+
+      rawTasks = normalize(rows);
+      render(rawTasks, isFact, file.name);
+      enableExports(true);
+      toast('Файл загружен ✔');
+
+    }catch(err){
+      console.error(err);
+      toast('Ошибка чтения файла. Проверь .xlsx');
+    }
+  }
+
+  function detectMode(name=""){
+    const n=name.toLowerCase();
+    if(n.includes('сделано сегодня')) return 'fact';
+    if(n.includes('задачи на сегодня')) return 'plan';
+    return 'plan';
+  }
+
+  function normalize(rows){
+    // делаем карту ключей: нижний регистр + убираем пробелы/кавычки
+    const canon = s => (s||'').toString()
+      .replace(/[“”"']/g,'"').replace(/\s+/g,' ').trim().toLowerCase();
+
+    const want = {
+      id:['id задачи','id'],
+      title:['название задачи','название'],
+      deadline:['дедлайн'],
+      board:['доска'], column:['колонка'], project:['проект'],
+      last_msg:['дата последнего сообщения'], msgs:['кол-во сообщений','сообщений'],
+      description:['описание задачи','описание'],
+      sticker_priority:['стикер "приоритет"','стикер “приоритет”','приоритет'],
+      sticker_stage:['стикер "этап"','стикер “этап”','этап'],
+      sticker_project:['стикер "проект"','стикер “проект”'],
+      sticker_plan:['стикер "план сегодня"','план сегодня','стикер “план сегодня”'],
+      sticker_fact:['стикер "факт часов"','факт часов','стикер “факт часов”'],
+      sticker_category:['стикер "категория"','категория','стикер “категория”'],
     };
 
-    // DOM refs
-    const dropzone = $("#dropzone");
-    const fileInput = $("#fileInput");
-    const collageWrap = $("#collageWrap");
-    const collage = $("#collage");
-    const collageTitle = $("#collageTitle");
-    const summary = $("#summary");
-    const modeBadge = $("#modeBadge");
-    const sumDate = $("#sumDate");
-    const sumPlan = $("#sumPlan");
-    const sumFact = $("#sumFact");
-    const sumCount = $("#sumCount");
-    const btnPNG = $("#btnExportPNG");
-    const btnPDF = $("#btnExportPDF");
-    const btnCopy = $("#btnCopy");
-
-    // Drag & drop wiring
-    ["dragenter","dragover"].forEach(ev => dropzone.addEventListener(ev, e => {
-      e.preventDefault(); e.stopPropagation(); dropzone.classList.add("drop-hover");
-    }));
-    ["dragleave","drop"].forEach(ev => dropzone.addEventListener(ev, e => {
-      e.preventDefault(); e.stopPropagation(); dropzone.classList.remove("drop-hover");
-    }));
-    dropzone.addEventListener("drop", (e) => {
-      const f = e.dataTransfer.files?.[0]; if (f) handleFile(f);
-    });
-    dropzone.addEventListener("click", ()=> fileInput.click());
-    fileInput.addEventListener("change", (e)=> {
-      const f = e.target.files?.[0]; if (f) handleFile(f);
+    const headerMap = {};
+    const first = rows[0];
+    Object.keys(first).forEach(k=>{
+      const ck=canon(k);
+      Object.entries(want).forEach(([std, variants])=>{
+        if(variants.some(v=>canon(v)===ck)) headerMap[std]=k;
+      });
     });
 
-    async function handleFile(file){
-      const mode = detectMode(file.name); // "plan" | "fact" | "auto"
-      modeBadge.textContent = mode === "fact" ? "режим: ФАКТ" : "режим: ПЛАН";
-
-      const data = await file.arrayBuffer();
-      const wb = XLSX.read(data, { type: "array" });
-      const sheet = wb.Sheets[wb.SheetNames[0]];
-      const rows = XLSX.utils.sheet_to_json(sheet, { defval: "" });
-
-      const parsed = parseRows(rows);
-      render(parsed, mode, file.name);
-
-      // enable exports
-      btnPNG.disabled = btnPDF.disabled = btnCopy.disabled = false;
-    }
-
-    function detectMode(filename=""){
-      const name = filename.toLowerCase();
-      if (name.includes("сделано сегодня")) return "fact";
-      if (name.includes("задачи на сегодня")) return "plan";
-      return "plan"; // дефолт — план
-    }
-
-    function extractDateFromFilename(filename=""){
-      // берём всё после «сегодня»:
-      const m = filename.match(/сегодня[^\d]*(.+)$/i);
-      return m ? m[1].replace(/\.[^.]+$/,'').trim() : "—";
-    }
-
-    function parseRows(rows){
-      // Сопоставление ключей (учитываем разные кавычки)
-      const keys = {
-        id:               ["ID задачи","ID"],
-        title:            ["Название задачи","Название"],
-        created:          ["Создана"],
-        author:           ["Автор"],
-        assignee:         ["Исполнитель"],
-        scheduled:        ["Дата назначения"],
-        responsible:      ["Ответственный"],
-        done_at:          ["Дата выполнения"],
-        deadline:         ["Дедлайн"],
-        project:          ["Проект"],
-        board:            ["Доска"],
-        column:           ["Колонка"],
-        moved:            ["Перемещена"],
-        last_msg:         ["Дата последнего сообщения"],
-        msgs:             ["Кол-во сообщений","Сообщений"],
-        description:      ["Описание задачи","Описание"],
-        checklists:       ["Чеклисты"],
-        sticker_priority: ['Стикер "Приоритет"','Стикер “Приоритет”','Приоритет'],
-        sticker_stage:    ['Стикер "Этап"','Стикер “Этап”','Этап'],
-        sticker_project:  ['Стикер "Проект"','Стикер “Проект”'],
-        sticker_plan:     ['Стикер "План Сегодня"','Стикер “План Сегодня”','План Сегодня'],
-        sticker_fact:     ['Стикер "Факт часов"','Стикер “Факт часов”','Факт часов'],
-        sticker_category: ['Стикер "Категория"','Стикер “Категория”','Категория'],
-        sticker_totalplan:['Стикер "Общий план"','Стикер “Общий план”','Общий план'],
-        company:          ["Название компании"],
-      };
-
-      const mapKey = (obj, variants) => {
-        for (const k of Object.keys(obj)) {
-          const nk = normalizeKey(k);
-          if (variants.some(v => normalizeKey(v).toLowerCase() === nk.toLowerCase())) return obj[k];
-        }
-        return "";
-      };
-
-      return rows.map(r => ({
-        id:               mapKey(r, keys.id),
-        title:            mapKey(r, keys.title),
-        created:          mapKey(r, keys.created),
-        author:           mapKey(r, keys.author),
-        assignee:         mapKey(r, keys.assignee),
-        scheduled:        mapKey(r, keys.scheduled),
-        responsible:      mapKey(r, keys.responsible),
-        done_at:          mapKey(r, keys.done_at),
-        deadline:         mapKey(r, keys.deadline),
-        project:          mapKey(r, keys.project),
-        board:            mapKey(r, keys.board),
-        column:           mapKey(r, keys.column),
-        moved:            mapKey(r, keys.moved),
-        last_msg:         mapKey(r, keys.last_msg),
-        msgs:             mapKey(r, keys.msgs),
-        description:      mapKey(r, keys.description),
-        checklists:       mapKey(r, keys.checklists),
-
-        sticker_priority: mapKey(r, keys.sticker_priority),
-        sticker_stage:    mapKey(r, keys.sticker_stage),
-        sticker_project:  mapKey(r, keys.sticker_project),
-        sticker_plan:     mapKey(r, keys.sticker_plan),
-        sticker_fact:     mapKey(r, keys.sticker_fact),
-        sticker_category: mapKey(r, keys.sticker_category),
-        sticker_totalplan:mapKey(r, keys.sticker_totalplan),
-
-        company:          mapKey(r, keys.company),
+    // преобразуем строки
+    const tasks = rows
+      .map(r=>({
+        id: r[headerMap.id]||'',
+        title: r[headerMap.title]||'',
+        deadline: r[headerMap.deadline]||'',
+        board: r[headerMap.board]||'',
+        column: r[headerMap.column]||'',
+        project: r[headerMap.project]||'',
+        last_msg: r[headerMap.last_msg]||'',
+        msgs: r[headerMap.msgs]||'',
+        description: r[headerMap.description]||'',
+        sticker_priority: r[headerMap.sticker_priority]||'',
+        sticker_stage: r[headerMap.sticker_stage]||'',
+        sticker_project: r[headerMap.sticker_project]||'',
+        sticker_plan: r[headerMap.sticker_plan]||'',
+        sticker_fact: r[headerMap.sticker_fact]||'',
+        sticker_category: r[headerMap.sticker_category]||'',
       }))
-      .filter(t => (t.id || t.title) && !/^сумма значений/i.test((t.id||"").toString().trim())); // выкидываем итоговую строку
-    }
+      .filter(t=> (t.id||t.title) && !/^сумма значений/i.test((t.id||'').toString().trim()));
 
-    function badge(text, colorClass) {
-      if (!text) return "";
-      return `<span class="pill ${colorClass} text-white">${escapeHtml(text)}</span>`;
-    }
+    return tasks;
+  }
 
-    function chip(text) {
-      if (!text) return "";
-      return `<span class="chip">${escapeHtml(text)}</span>`;
-    }
+  // ====== Rendering ======
+  function render(tasks, isFact, filename){
+    // дата
+    sumDate.textContent = extractDate(filename);
 
-    function colorForPriority(p) {
-      const s = (p||"").toLowerCase();
-      if (s.includes("пожар") || s.includes("alarm") || s.includes("аларм")) return "bg-red-500";
-      if (s.includes("важно")) return "bg-amber-500";
-      return "bg-slate-400";
-    }
+    // сорт/фильтр
+    viewTasks = applyView(tasks);
 
-    function colorForStage(s) {
-      s = (s||"").toLowerCase();
-      if (s.includes("ждет") || s.includes("очередь")) return "bg-slate-500";
-      if (s.includes("в работе")) return "bg-blue-600";
-      if (s.includes("выполнено") || s.includes("закончено")) return "bg-emerald-600";
-      return "bg-slate-400";
-    }
+    // суммы
+    const sp=viewTasks.reduce((a,t)=>a+num(t.sticker_plan),0);
+    const sf=viewTasks.reduce((a,t)=>a+num(t.sticker_fact),0);
+    sumPlan.textContent = (sp||0).toString().replace('.',',');
+    sumFact.textContent = (sf||0).toString().replace('.',',');
+    sumCount.textContent = viewTasks.length;
 
-    function escapeHtml(s=""){ return s.replace(/[&<>"]/g, m=> ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m])); }
+    // заголовок
+    collageTitle.textContent = isFact? 'Сделано сегодня' : 'Задачи на сегодня';
 
-    function render(tasks, mode, filename){
-      collage.innerHTML = "";
-      const isFact = mode === "fact";
-      collageTitle.textContent = isFact ? "Сделано сегодня" : "Задачи на сегодня";
-      $("#sumDate").textContent = extractDateFromFilename(filename);
+    // показать секции
+    $("#dropSection").classList.add("hidden");
+    tools.classList.remove("hidden");
+    collageWrap.classList.remove("hidden");
 
-      // Sums
-      let sumP = 0, sumF = 0;
-      tasks.forEach(t => { sumP += num(t.sticker_plan); sumF += num(t.sticker_fact); });
-      sumPlan.textContent = (sumP || 0).toString().replace(".", ",");
-      sumFact.textContent = (sumF || 0).toString().replace(".", ",");
-      sumCount.textContent = tasks.length;
+    // сетка
+    setColumns(parseInt(colSelect.value||'2',10));
+    drawCards(viewTasks, isFact);
+    gsap.from($$(".kanban-card", collage),{y:12,opacity:0,duration:.5,stagger:.03,ease:"power2.out"});
+  }
 
-      summary.classList.remove("hidden");
-      collageWrap.classList.remove("hidden");
-      $("#dropSection").classList.add("hidden");
+  function setColumns(n){
+    collage.style.gridTemplateColumns = `repeat(${n}, minmax(0, 1fr))`;
+    const widthPerCol = 540; // визуально приятно
+    collage.style.width = `${Math.max(700, n*widthPerCol + (n-1)*16)}px`;
+  }
 
-      // Cards
-      const frag = document.createDocumentFragment();
-      tasks.forEach(t => {
-        const card = document.createElement("article");
-        card.className = "kanban-card p-4 md:p-5 " + (isFact ? "fade-dim" : "");
-        card.innerHTML = `
-          <div class="flex items-start justify-between gap-3">
-            <div class="min-w-0">
-              <div class="text-xs text-slate-500 flex items-center gap-2">
-                <span class="pill bg-slate-800 text-white">${escapeHtml(t.project || "—")}</span>
-                ${chip(t.board)} ${chip(t.column)}
-              </div>
-              <h4 class="mt-2 font-semibold leading-snug">
-                ${escapeHtml(t.id ? t.id + " — " : "")}${escapeHtml(t.title || "Без названия")}
-              </h4>
+  function drawCards(items, isFact){
+    collage.innerHTML='';
+    const compact = density.value==='sm';
+    const pad = compact? 'p-3 md:p-4' : 'p-4 md:p-5';
+
+    const frag = document.createDocumentFragment();
+    items.forEach(t=>{
+      const card = document.createElement('article');
+      card.className = `kanban-card ${pad} ${isFact? 'fade-dim':''}`;
+      card.innerHTML = `
+        <div class="flex items-start justify-between gap-3">
+          <div class="min-w-0">
+            <div class="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-2">
+              <span class="pill bg-slate-800 text-white dark:bg-slate-200 dark:text-slate-900">${esc(t.project||'—')}</span>
+              ${chip(t.board)} ${chip(t.column)}
             </div>
-            <div class="text-right shrink-0">
-              ${badge(t.sticker_priority, colorForPriority(t.sticker_priority))}
-              ${badge(t.sticker_stage, colorForStage(t.sticker_stage))}
-            </div>
+            <h4 class="mt-2 font-semibold leading-snug">${esc(t.id? t.id+' — ' : '')}${esc(t.title||'Без названия')}</h4>
           </div>
-
-          <div class="mt-3 flex flex-wrap gap-2 text-xs">
-            ${t.deadline ? `<span class="chip"><b>Дедлайн:</b> ${escapeHtml(t.deadline)}</span>`:""}
-            ${t.last_msg ? `<span class="chip"><b>Последнее сообщение:</b> ${escapeHtml(t.last_msg)}</span>`:""}
-            ${t.msgs ? `<span class="chip"><b>Сообщений:</b> ${escapeHtml(t.msgs)}</span>`:""}
-            ${t.sticker_plan ? `<span class="chip"><b>План:</b> ${escapeHtml(t.sticker_plan)} ч</span>`:""}
-            ${t.sticker_fact ? `<span class="chip"><b>Факт:</b> ${escapeHtml(t.sticker_fact)} ч</span>`:""}
-            ${t.sticker_category ? `<span class="chip"><b>Категория:</b> ${escapeHtml(t.sticker_category)}</span>`:""}
+          <div class="text-right shrink-0 space-x-1">
+            ${badge(t.sticker_priority, colorForPriority(t.sticker_priority))}
+            ${badge(t.sticker_stage, colorForStage(t.sticker_stage))}
           </div>
+        </div>
 
-          ${t.description ? `<div class="mt-3 text-[13px] leading-relaxed text-slate-700">
-            ${escapeHtml(t.description).slice(0, 420)}${t.description.length>420?"…":""}
-          </div>`:""}
-        `;
-        frag.appendChild(card);
-      });
-      collage.appendChild(frag);
+        <div class="mt-3 flex flex-wrap gap-2 text-xs">
+          ${t.deadline? `<span class="chip"><b>Дедлайн:</b> ${esc(t.deadline)}</span>`:''}
+          ${t.last_msg? `<span class="chip"><b>Последнее сообщение:</b> ${esc(t.last_msg)}</span>`:''}
+          ${t.msgs? `<span class="chip"><b>Сообщений:</b> ${esc(t.msgs)}</span>`:''}
+          ${t.sticker_plan? `<span class="chip"><b>План:</b> ${esc(t.sticker_plan)} ч</span>`:''}
+          ${t.sticker_fact? `<span class="chip"><b>Факт:</b> ${esc(t.sticker_fact)} ч</span>`:''}
+          ${t.sticker_category? `<span class="chip"><b>Категория:</b> ${esc(t.sticker_category)}</span>`:''}
+        </div>
 
-      // animate the grid
-      gsap.from($$(".kanban-card", collage), { y: 12, opacity: 0, duration: .5, stagger: .03, ease: "power2.out" });
-    }
-
-    // EXPORTS
-    async function exportCanvas(){
-      // Ensure fonts rendered
-      await new Promise(r => setTimeout(r, 50));
-      return html2canvas(collage, {
-        backgroundColor: "#ffffff",
-        scale: 2,
-        useCORS: true
-      });
-    }
-
-    btnPNG.addEventListener("click", async ()=>{
-      const canvas = await exportCanvas();
-      canvas.toBlob((blob) => {
-        const a = document.createElement("a");
-        a.href = URL.createObjectURL(blob);
-        a.download = `${collageTitle.textContent}.png`;
-        a.click();
-        URL.revokeObjectURL(a.href);
-      });
+        ${t.description? `<div class="mt-3 text-[13px] leading-relaxed text-slate-700 dark:text-slate-300">
+          ${esc((t.description||'').slice(0, 420))}${t.description.length>420?'…':''}
+        </div>`:''}
+      `;
+      frag.appendChild(card);
     });
+    collage.appendChild(frag);
+  }
 
-    btnPDF.addEventListener("click", async ()=>{
+  function chip(text){ return text? `<span class="chip">${esc(text)}</span>`:''; }
+  function badge(text, cls){ return text? `<span class="pill ${cls} text-white">${esc(text)}</span>`:''; }
+  function colorForPriority(p){
+    const s=(p||'').toLowerCase();
+    if(s.includes('пожар')||s.includes('alarm')||s.includes('аларм')) return 'bg-red-500';
+    if(s.includes('важно')) return 'bg-amber-500';
+    return 'bg-slate-400';
+  }
+  function colorForStage(s){
+    s=(s||'').toLowerCase();
+    if(s.includes('ждет')||s.includes('очередь')) return 'bg-slate-500';
+    if(s.includes('в работе')) return 'bg-blue-600';
+    if(s.includes('выполнено')||s.includes('закончено')) return 'bg-emerald-600';
+    return 'bg-slate-400';
+  }
+  function extractDate(name=""){ const m=name.match(/сегодня[^\d]*(.+)$/i); return m? m[1].replace(/\.[^.]+$/,'').trim() : '—'; }
+
+  // ====== View controls ======
+  function applyView(list){
+    let arr=[...list];
+    // search
+    const q = quickSearch.value.trim().toLowerCase();
+    if(q) arr = arr.filter(t => (t.title||'').toLowerCase().includes(q) || (t.id||'').toLowerCase().includes(q));
+    // sort
+    switch (sortBy.value){
+      case 'priority': arr.sort((a,b)=> priorityRank(a.sticker_priority) - priorityRank(b.sticker_priority)); break;
+      case 'deadline': arr.sort((a,b)=>(a.deadline||'').localeCompare(b.deadline||'')); break;
+      case 'plan': arr.sort((a,b)=> num(b.sticker_plan)-num(a.sticker_plan)); break;
+      case 'fact': arr.sort((a,b)=> num(b.sticker_fact)-num(a.sticker_fact)); break;
+    }
+    return arr;
+  }
+
+  quickSearch.addEventListener('input', ()=>{ viewTasks=applyView(rawTasks); drawCards(viewTasks, isFact); });
+  sortBy.addEventListener('change', ()=>{ viewTasks=applyView(rawTasks); drawCards(viewTasks, isFact); });
+  density.addEventListener('change', ()=> drawCards(viewTasks, isFact));
+  colSelect.addEventListener('change', ()=> setColumns(parseInt(colSelect.value,10)));
+
+  // ====== Export ======
+  function enableExports(v){ btnPNG.disabled=btnPDF.disabled=btnCopy.disabled=!v; }
+
+  async function exportCanvas(){
+    // ВАЖНО: рендерим только коллаж (без фона) — это устраняет любые CORS-проблемы
+    await new Promise(r=>setTimeout(r, 50));
+    return html2canvas(collage, { backgroundColor: getComputedStyle(document.body).backgroundColor, scale:2, useCORS:true, logging:false });
+  }
+
+  btnPNG.addEventListener('click', async ()=>{
+    try{
       const canvas = await exportCanvas();
-      const imgData = canvas.toDataURL("image/png");
+      canvas.toBlob((blob)=>{
+        const a=document.createElement('a');
+        a.href=URL.createObjectURL(blob);
+        a.download=`${collageTitle.textContent}.png`;
+        a.click(); URL.revokeObjectURL(a.href);
+      });
+    }catch(e){ console.error(e); toast('Не удалось собрать изображение'); }
+  });
+
+  btnPDF.addEventListener('click', async ()=>{
+    try{
+      const canvas = await exportCanvas();
+      const img = canvas.toDataURL('image/png');
       const { jsPDF } = window.jspdf;
-      const pdf = new jsPDF({ unit: "pt", format: "a4", compress: true });
-
-      const pageWidth = pdf.internal.pageSize.getWidth();
-      const pageHeight = pdf.internal.pageSize.getHeight();
-      const margin = 24;
-      // Fit image width to page
-      const ratio = canvas.height / canvas.width;
-      const w = pageWidth - margin*2;
-      const h = w * ratio;
-      pdf.addImage(imgData, "PNG", margin, margin, w, h);
+      const pdf = new jsPDF({ unit:'pt', format:'a4', compress:true });
+      const pageW = pdf.internal.pageSize.getWidth(), margin=24;
+      const w = pageW - margin*2, h = w * (canvas.height/canvas.width);
+      pdf.addImage(img, 'PNG', margin, margin, w, h);
       pdf.save(`${collageTitle.textContent}.pdf`);
-    });
+    }catch(e){ console.error(e); toast('PDF: ошибка экспорта'); }
+  });
 
-    btnCopy.addEventListener("click", async ()=>{
+  btnCopy.addEventListener('click', async ()=>{
+    try{
       const canvas = await exportCanvas();
-      try {
-        canvas.toBlob(async (blob) => {
-          await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
-        });
-      } catch(e){
-        alert("Не удалось скопировать в буфер. Разреши доступ к буферу обмена или скачай PNG.");
-      }
-    });
-  </script>
+      canvas.toBlob(async (blob)=>{
+        try{
+          await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+          toast('Скопировано в буфер ✔');
+        }catch(e){ toast('Браузер не дал доступ к буферу. Скачай PNG.'); }
+      });
+    }catch(e){ console.error(e); toast('Копирование не удалось'); }
+  });
+</script>
 </body>
 </html>
