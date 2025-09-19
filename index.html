@@ -21,7 +21,6 @@
   <!-- Fonts / Libs -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://unpkg.com/lucide@latest"></script>
-  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
@@ -40,7 +39,6 @@
     .yg-chip{ display:inline-flex; align-items:center; gap:6px; height:26px; padding:0 10px; border-radius:9999px; background:#F1F5F9; border:1px solid #E2E8F0; font-size:12px; line-height:26px; }
     .dark .yg-chip{ background:#0f172a; border-color:#1f2937; color:#cbd5e1 }
     .yg-badge{ display:inline-flex; align-items:center; gap:6px; height:26px; padding:0 10px; border-radius:9999px; color:#fff; font-size:12px; line-height:26px; }
-
     .badge-red{ background:#ef4444 } .badge-amber{ background:#f59e0b } .badge-slate{ background:#94a3b8 }
     .badge-blue{ background:#3b82f6 } .badge-emerald{ background:#10b981 }
 
@@ -59,6 +57,10 @@
     .theme-switch.on .theme-thumb{ transform:translateX(34px) }
 
     .drop-hover{ outline:3px dashed #4f46e5; outline-offset:-10px }
+
+    /* Splash hide */
+    #splash{ transition:opacity .6s ease, filter .6s ease }
+    #splash.splash-hide{ opacity:0; filter:blur(8px) saturate(.9); pointer-events:none }
 
     @media print{ @page{ size:A4 portrait; margin:10mm } }
   </style>
@@ -246,22 +248,15 @@
   </div>
 
 <script>
-  /* ===== Splash: ТОЛЬКО авто-уход ===== */
-  function endSplash(){
+  /* ===== Splash: авто-скрытие с аварийным фоллбеком ===== */
+  document.addEventListener('DOMContentLoaded', ()=>{
     const s=document.getElementById('splash');
-    if(!s||s.dataset.closed==='1') return;
-    s.dataset.closed='1'; s.style.pointerEvents='none';
-    if(window.gsap){
-      gsap.timeline()
-        .fromTo('#splashContent',{y:18,opacity:0},{y:0,opacity:1,duration:.6,ease:'power3.out'})
-        .to('#splash',{opacity:0,filter:'blur(6px)',duration:.6,ease:'power2.inOut',onComplete:()=>s.remove()});
-    }else{
-      s.style.transition='opacity .6s ease, filter .6s ease';
-      s.style.opacity='0'; s.style.filter='blur(6px)';
-      setTimeout(()=>{ try{s.remove()}catch(_){} },650);
-    }
-  }
-  document.addEventListener('DOMContentLoaded',()=> setTimeout(endSplash,1500));
+    if(!s) return;
+    // Основное скрытие через 1.5 сек
+    setTimeout(()=>{ s.classList.add('splash-hide'); }, 1500);
+    // Жёсткая подстраховка — удалить из DOM через 3.5 сек
+    setTimeout(()=>{ if(document.body.contains(s)) s.remove(); }, 3500);
+  });
 
   /* ===== Utils ===== */
   const $=(s,r=document)=>r.querySelector(s); const $$=(s,r=document)=>Array.from(r.querySelectorAll(s));
@@ -293,7 +288,7 @@
 
   // Support modal
   const supportFab=$("#supportFab"), supportModal=$("#supportModal"), modalClose=$("#modalClose");
-  supportFab.addEventListener('click', ()=>{ supportModal.classList.remove('hidden'); if(window.gsap) gsap.fromTo("#supportModal .panel",{y:20,opacity:0},{y:0,opacity:1,duration:.35}); });
+  supportFab.addEventListener('click', ()=>{ supportModal.classList.remove('hidden'); });
   modalClose.addEventListener('click', ()=> supportModal.classList.add('hidden'));
   supportModal.addEventListener('click', (e)=>{ if(e.target===supportModal) supportModal.classList.add('hidden'); });
 
@@ -379,8 +374,7 @@
   function cell(row,i){ return i>=0 ? (row[i] ?? '') : ''; }
   function detectMode(name=""){ const n=String(name).toLowerCase(); if(n.includes('сделано сегодня')) return 'fact'; if(n.includes('задачи на сегодня')) return 'plan'; return 'plan'; }
 
-  const MONTHS=['Янв','Фев','Март','Апр','Май','Июнь','Июль','Авг','Сент','Окт','Ноя','Дек'];
-  function extractDate(name=""){ // => "19 Сент. 16:38"
+  function extractDate(name=""){ // "19 Сент. 16:38"
     const m=String(name).match(/(\d{1,2})\s*(Янв|Фев|Март|Апр|Май|Июнь|Июль|Авг|Сент|Окт|Ноя|Дек)[^\d]*(\d{1,2})_(\d{2})/i);
     if(!m) return '—';
     const d=m[1], mon=m[2], h=m[3], mm=m[4];
@@ -388,7 +382,7 @@
   }
 
   // render
-  let isFactGlobal=false;
+  let isFactGlobal=false, tasksView=[];
   function render(list,isFact,filename){
     isFactGlobal=isFact;
     sumDate.textContent=extractDate(filename);
@@ -405,7 +399,6 @@
 
     applyLayout(); drawCards(tasksView,isFact);
     collageWrap.classList.remove('hidden');
-    if(window.gsap) gsap.from($$(".card",collage),{y:12,opacity:0,duration:.45,stagger:.02});
   }
 
   function sortList(a,how){
@@ -436,7 +429,6 @@
   density.addEventListener('change', ()=> drawCards(tasksView,isFactGlobal));
   sortBy.addEventListener('change', ()=>{ tasksView=sortList(tasksView,sortBy.value); drawCards(tasksView,isFactGlobal); });
 
-  // YouGile-like sticker → badge
   function stickerBadge(text){
     if(!text) return '';
     const t=String(text).toLowerCase();
