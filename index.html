@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>OneScreen План/Факт — by Vatnik</title>
 
-  <!-- Tailwind (CDN ok для GitHub Pages; предупреждение можно игнорить) -->
+  <!-- Tailwind (CDN ок для GH Pages) -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -18,7 +18,7 @@
     }
   </script>
 
-  <!-- Fonts / Libs -->
+  <!-- Libs -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://unpkg.com/lucide@latest"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
@@ -32,13 +32,35 @@
 
     .panel{ border:1px solid var(--ring); border-radius:14px; background:#fff; box-shadow:0 10px 30px rgba(0,0,0,.04)}
     .dark .panel{ background:#0b1220; border-color:#1f2937}
-    .card{ border:1px solid var(--ring); border-radius:14px; background:#fff; box-shadow:0 10px 30px rgba(0,0,0,.04)}
-    .dark .card{ background:#0b1220; border-color:#1f2937}
 
-    /* YouGile-like chips */
-    .yg-chip{ display:inline-flex; align-items:center; gap:6px; height:26px; padding:0 10px; border-radius:9999px; background:#F1F5F9; border:1px solid #E2E8F0; font-size:12px; line-height:26px; }
+    .card{
+      position:relative;
+      border:1px solid var(--ring);
+      border-radius:14px;
+      background:#fff;
+      box-shadow:
+        inset 0 0 0 1px rgba(0,0,0,0.02),
+        inset 0 0 80px rgba(0,0,0,0.05),
+        0 10px 30px rgba(0,0,0,.04);
+    }
+    .dark .card{
+      background:#0b1220; border-color:#1f2937;
+      box-shadow:
+        inset 0 0 0 1px rgba(255,255,255,0.03),
+        inset 0 0 120px rgba(255,255,255,0.03),
+        0 10px 30px rgba(0,0,0,.35);
+    }
+
+    /* YouGile-like chips (устойчивы в html2canvas) */
+    .yg-chip,.yg-badge{
+      display:inline-flex; align-items:center; gap:6px;
+      height:26px; padding:0 10px; border-radius:9999px;
+      font-size:12px; line-height:26px; vertical-align:middle;
+      white-space:nowrap;
+    }
+    .yg-chip{ background:#F1F5F9; border:1px solid #E2E8F0; }
     .dark .yg-chip{ background:#0f172a; border-color:#1f2937; color:#cbd5e1 }
-    .yg-badge{ display:inline-flex; align-items:center; gap:6px; height:26px; padding:0 10px; border-radius:9999px; color:#fff; font-size:12px; line-height:26px; }
+    .yg-badge{ color:#fff }
     .badge-red{ background:#ef4444 } .badge-amber{ background:#f59e0b } .badge-slate{ background:#94a3b8 }
     .badge-blue{ background:#3b82f6 } .badge-emerald{ background:#10b981 }
 
@@ -58,16 +80,23 @@
 
     .drop-hover{ outline:3px dashed #4f46e5; outline-offset:-10px }
 
-    /* Splash hide */
+    /* Splash */
     #splash{ transition:opacity .6s ease, filter .6s ease }
     #splash.splash-hide{ opacity:0; filter:blur(8px) saturate(.9); pointer-events:none }
+
+    /* Экспорт-сцена (фон под коллажем) */
+    #exportStage{ position:relative; border-radius:12px; overflow:hidden }
+    #exportStage .bg-img{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; transform:scale(1.08); filter:blur(8px) saturate(0.95); }
+    #exportStage.tower .bg-img{ transform:scale(1.45); } /* в Башне сильнее зум */
+    #exportStage .bg-overlay{ position:absolute; inset:0; background:linear-gradient(180deg,rgba(15,23,42,.25),rgba(15,23,42,.25)); }
+    #exportStage .stage-pad{ position:relative; padding:24px; }
 
     @media print{ @page{ size:A4 portrait; margin:10mm } }
   </style>
 </head>
 <body class="min-h-screen flex flex-col font-sans bg-slate-50 text-slate-900 dark:bg-slate-900 dark:text-slate-100">
 
-  <!-- ===== SPLASH (авто 1.5с, без кликов/скроллов) ===== -->
+  <!-- ===== SPLASH (авто 1.5с) ===== -->
   <div id="splash" class="fixed inset-0 z-50 grid place-items-center bg-[#0b1020]">
     <div class="relative w-full h-full overflow-hidden">
       <img src="./assets/bg.jpg" alt="" class="absolute inset-0 w-full h-full object-cover opacity-60"/>
@@ -193,6 +222,7 @@
         </div>
       </div>
 
+      <!-- СЦЕНА ЭКСПОРТА: фон + коллаж -->
       <section id="collageWrap" class="mt-10 hidden">
         <div class="flex items-center justify-between gap-4">
           <h3 id="collageTitle" class="text-3xl font-extrabold tracking-tight"></h3>
@@ -200,7 +230,14 @@
         </div>
         <div class="mt-4 panel p-4">
           <div class="overflow-auto">
-            <div id="collage" class="grid gap-4" style="width:1123px; grid-template-columns:repeat(2,minmax(0,1fr));"></div>
+            <!-- фиксированная ширина сценЫ для чистого PNG -->
+            <div id="exportStage" class="relative" style="width:1123px;">
+              <img src="./assets/bg.jpg" alt="" class="bg-img select-none pointer-events-none">
+              <div class="bg-overlay"></div>
+              <div class="stage-pad">
+                <div id="collage" class="grid gap-4" style="grid-template-columns:repeat(2,minmax(0,1fr));"></div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -248,7 +285,7 @@
   </div>
 
 <script>
-  /* ===== Splash: авто-скрытие с аварийным фоллбеком ===== */
+  /* ===== Splash: авто-скрытие гарантированно ===== */
   document.addEventListener('DOMContentLoaded', ()=>{
     const s=document.getElementById('splash');
     if(!s) return;
@@ -278,13 +315,13 @@
 
   // Refs
   const dropzone=$("#dropzone"), fileInput=$("#fileInput");
-  const collage=$("#collage"), collageWrap=$("#collageWrap"), collageTitle=$("#collageTitle"), modeHint=$("#modeHint");
+  const exportStage=$("#exportStage"), collage=$("#collage"), collageWrap=$("#collageWrap"),
+        collageTitle=$("#collageTitle"), modeHint=$("#modeHint");
   const sumDate=$("#sumDate"), sumPlan=$("#sumPlan"), sumFact=$("#sumFact"), sumCount=$("#sumCount"), modeBadge=$("#modeBadge");
   const btnPNG=$("#btnExportPNG"), btnPDF=$("#btnExportPDF"), btnCopy=$("#btnCopy");
   const colSelect=$("#colSelect"), density=$("#density"), sortBy=$("#sortBy");
   const progressWrap=$("#progressWrap"), progressBar=$("#progressBar"), progressLabel=$("#progressLabel"), progressStep=$("#progressStep"), diag=$("#diag");
 
-  // Support modal
   const supportFab=$("#supportFab"), supportModal=$("#supportModal"), modalClose=$("#modalClose");
   supportFab.addEventListener('click', ()=>{ supportModal.classList.remove('hidden'); });
   modalClose.addEventListener('click', ()=> supportModal.classList.add('hidden'));
@@ -293,8 +330,13 @@
   // Mode switch
   const modeSwitch=$("#modeSwitch"), modeThumb=$("#modeThumb"), modeBtns=$$(".mode-item",modeSwitch);
   let vizMode='collage';
-  const setModeUI=(m)=>{ vizMode=m; modeThumb.style.transform=`translateX(${m==='collage'?0:100}%)`; modeBtns.forEach(b=>b.classList.toggle('inactive', b.dataset.mode!==m)); applyLayout(); blurHint(); };
-  const blurHint=()=>{ const c=$("#collage"); if(!c) return; c.style.filter='blur(6px) saturate(.9)'; c.style.opacity='0.9'; setTimeout(()=>{c.style.filter=''; c.style.opacity='1';},160); };
+  const setModeUI=(m)=>{
+    vizMode=m;
+    modeThumb.style.transform=`translateX(${m==='collage'?0:100}%)`;
+    modeBtns.forEach(b=>b.classList.toggle('inactive', b.dataset.mode!==m));
+    applyLayout(); blurHint();
+  };
+  const blurHint=()=>{ const c=$("#exportStage"); if(!c) return; c.style.filter='blur(6px) saturate(.95)'; c.style.opacity='0.95'; setTimeout(()=>{c.style.filter=''; c.style.opacity='1';},160); };
   modeBtns.forEach(b=> b.addEventListener('click', ()=> setModeUI(b.dataset.mode)));
 
   // DnD
@@ -304,7 +346,7 @@
   dropzone.addEventListener("click",()=>fileInput.click());
   fileInput.addEventListener("change",e=>{ const f=e.target.files?.[0]; if(f) handleFile(f); });
 
-  // ===== State (единственное объявление!) =====
+  // ===== State =====
   let tasksRaw=[], tasksView=[], isFact=false, isFactGlobal=false;
 
   // Progress
@@ -313,7 +355,7 @@
   function hideProgress(){ setTimeout(()=>progressWrap.classList.add('hidden'),350); }
   const setDiag=(html)=>{ diag.innerHTML=html; };
 
-  // File
+  // File flow
   async function handleFile(file){
     try{
       showProgress(); setProgress(10,'Читаю файл');
@@ -371,11 +413,10 @@
   function canon(s){ return String(s||'').replace(/[“”«»„‟"']/g,'"').replace(/ё/g,'е').replace(/\s+/g,' ').trim().toLowerCase(); }
   function cell(row,i){ return i>=0 ? (row[i] ?? '') : ''; }
   function detectMode(name=""){ const n=String(name).toLowerCase(); if(n.includes('сделано сегодня')) return 'fact'; if(n.includes('задачи на сегодня')) return 'plan'; return 'plan'; }
-
   function extractDate(name=""){ const m=String(name).match(/(\d{1,2})\s*(Янв|Фев|Март|Апр|Май|Июнь|Июль|Авг|Сент|Окт|Ноя|Дек)[^\d]*(\d{1,2})_(\d{2})/i);
     if(!m) return '—'; const d=m[1], mon=m[2], h=m[3], mm=m[4]; return `${d} ${mon}. ${h}:${mm}`; }
 
-  // render (НЕ объявляем isFactGlobal здесь повторно!)
+  // render
   function render(list,isFact,filename){
     isFactGlobal=isFact;
     sumDate.textContent=extractDate(filename);
@@ -406,16 +447,19 @@
   }
 
   function applyLayout(){
+    // меняем сцene класс для правильного зума фона
+    exportStage.classList.toggle('tower', vizMode==='tower');
+
     if(vizMode==='tower'){
-      collage.style.gridTemplateColumns='repeat(1,minmax(0,1fr))';
-      collage.style.width='560px';
+      $("#collage").style.gridTemplateColumns='repeat(1,minmax(0,1fr))';
+      exportStage.style.width='560px';
       colSelect.disabled=true;
     }else{
       colSelect.disabled=false;
       const n=parseInt(colSelect.value||'2',10);
-      collage.style.gridTemplateColumns=`repeat(${n},minmax(0,1fr))`;
+      $("#collage").style.gridTemplateColumns=`repeat(${n},minmax(0,1fr))`;
       const widthPerCol=540;
-      collage.style.width=`${Math.max(700, n*widthPerCol + (n-1)*16)}px`;
+      exportStage.style.width=`${Math.max(700, n*widthPerCol + (n-1)*16) + 48}px`; // +паддинги stage
     }
   }
   colSelect.addEventListener('change', ()=> vizMode==='collage' && applyLayout());
@@ -493,13 +537,24 @@
     lucide.createIcons();
   }
 
-  // Export
+  // Export — рендерим всю сцену (фон + коллаж)
   function enableExports(v){ btnPNG.disabled=btnPDF.disabled=btnCopy.disabled=!v; }
-  async function exportCanvas(){ await new Promise(r=>setTimeout(r,40)); return html2canvas(collage,{ backgroundColor:getComputedStyle(document.body).backgroundColor, scale:2, useCORS:true }); }
-  btnPNG.addEventListener('click', async ()=>{ try{ const c=await exportCanvas(); c.toBlob(b=>{ const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download=`${collageTitle.textContent}.png`; a.click(); URL.revokeObjectURL(a.href); }); }catch(e){ toast('PNG: ошибка'); } });
-  btnPDF.addEventListener('click', async ()=>{ try{ const c=await exportCanvas(); const img=c.toDataURL('image/png'); const { jsPDF }=window.jspdf; const pdf=new jsPDF({unit:'pt',format:'a4',compress:true}); const pageW=pdf.internal.pageSize.getWidth(), margin=24; const w=pageW - margin*2, h=w*(c.height/c.width); pdf.addImage(img,'PNG',margin,margin,w,h); pdf.save(`${collageTitle.textContent}.pdf`); }catch(e){ toast('PDF: ошибка'); } });
-  btnCopy.addEventListener('click', async ()=>{ try{ const c=await exportCanvas(); c.toBlob(async b=>{ try{ await navigator.clipboard.write([new ClipboardItem({'image/png':b})]); toast('Скопировано в буфер ✔'); }catch(_){ toast('Буфер недоступен — скачай PNG'); } }); }catch(e){ toast('Копирование не удалось'); } });
+  async function exportCanvas(){
+    await new Promise(r=>setTimeout(r,40));
+    const bg = getComputedStyle(document.body).backgroundColor; // не нужен, но пусть будет
+    return html2canvas(exportStage,{backgroundColor:null, scale:2, useCORS:true});
+  }
+  btnPNG.addEventListener('click', async ()=>{ try{
+    const c=await exportCanvas(); c.toBlob(b=>{ const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download=`${collageTitle.textContent}.png`; a.click(); URL.revokeObjectURL(a.href); });
+  }catch(e){ console.error(e); toast('PNG: ошибка'); }});
+  btnPDF.addEventListener('click', async ()=>{ try{
+    const c=await exportCanvas(); const img=c.toDataURL('image/png'); const { jsPDF }=window.jspdf;
+    const pdf=new jsPDF({unit:'pt',format:'a4',compress:true}); const pageW=pdf.internal.pageSize.getWidth(), margin=24; const w=pageW - margin*2, h=w*(c.height/c.width);
+    pdf.addImage(img,'PNG',margin,margin,w,h); pdf.save(`${collageTitle.textContent}.pdf`);
+  }catch(e){ console.error(e); toast('PDF: ошибка'); }});
+  btnCopy.addEventListener('click', async ()=>{ try{
+    const c=await exportCanvas(); c.toBlob(async b=>{ try{ await navigator.clipboard.write([new ClipboardItem({'image/png':b})]); toast('Скопировано в буфер ✔'); }catch(_){ toast('Буфер недоступен — скачай PNG'); } });
+  }catch(e){ console.error(e); toast('Копирование не удалось'); }});
 </script>
 </body>
 </html>
-
