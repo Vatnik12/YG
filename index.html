@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>OneScreen План/Факт — by Vatnik</title>
 
-  <!-- Tailwind -->
+  <!-- Tailwind CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -18,7 +18,7 @@
     }
   </script>
 
-  <!-- Fonts + Icons + Libs -->
+  <!-- Fonts / Libs -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://unpkg.com/lucide@latest"></script>
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
@@ -39,7 +39,6 @@
     .pill{ border-radius:9999px; padding:2px 8px; font-size:12px; line-height:18px; display:inline-flex; align-items:center; gap:6px; white-space:nowrap }
     .chip{ border-radius:10px; padding:2px 8px; font-size:12px; line-height:18px; background:#F8FAFC; border:1px solid #E2E8F0; display:inline-flex; align-items:center; gap:6px }
     .dark .chip{ background:#111827; border-color:#1f2937; color:#cbd5e1 }
-    .fade-dim{ filter:saturate(.78) brightness(.92) }
 
     .mode-switch{ position:relative; border-radius:12px; border:1px solid var(--ring); background:rgba(99,102,241,.08); padding:4px; display:flex; gap:4px }
     .mode-thumb{ position:absolute; inset:4px auto 4px 4px; width:calc(50% - 6px); border-radius:8px; background:rgba(99,102,241,.18); transition:transform .25s ease }
@@ -55,7 +54,7 @@
 </head>
 <body class="min-h-screen flex flex-col font-sans bg-slate-50 text-slate-900 dark:bg-slate-900 dark:text-slate-100">
 
-  <!-- ===== SPLASH (как просил, не трогаю, только 2x быстрее) ===== -->
+  <!-- ===== SPLASH (железный, самоуходящий) ===== -->
   <div id="splash" class="fixed inset-0 z-50 grid place-items-center bg-[#0b1020]">
     <div class="relative w-full h-full overflow-hidden">
       <img src="./assets/bg.jpg" alt="" class="absolute inset-0 w-full h-full object-cover opacity-60"/>
@@ -72,12 +71,11 @@
     </div>
   </div>
 
-  <!-- ===== HEADER (flex-wrap + стабильные панели) ===== -->
+  <!-- ===== HEADER ===== -->
   <header class="sticky top-0 z-40">
     <div class="backdrop-blur bg-white/70 dark:bg-slate-900/70 border-b border-slate-200 dark:border-slate-800">
       <div class="max-w-[1200px] mx-auto px-4">
         <div class="py-4 md:py-5 flex flex-wrap items-stretch gap-3">
-          <!-- Лого -->
           <div class="flex items-center gap-3 min-w-[260px]">
             <div class="w-10 h-10 rounded-2xl bg-indigo-600 grid place-items-center text-white font-bold">OS</div>
             <div class="leading-tight">
@@ -86,7 +84,6 @@
             </div>
           </div>
 
-          <!-- Контролы -->
           <div class="flex flex-wrap items-stretch gap-2 flex-1">
             <div class="panel px-3 py-2 flex items-center justify-between min-w-[160px]">
               <span class="text-xs text-slate-500 dark:text-slate-400">Колонки</span>
@@ -111,7 +108,6 @@
               </select>
             </div>
 
-            <!-- Переключатель режима -->
             <div class="panel px-3 py-2 flex-1 min-w-[260px]">
               <div class="text-xs text-slate-500 dark:text-slate-400 mb-1">Режим</div>
               <div id="modeSwitch" class="mode-switch">
@@ -122,7 +118,6 @@
             </div>
           </div>
 
-          <!-- Экспорт -->
           <div class="flex items-center gap-2">
             <button id="btnExportPNG" disabled class="px-4 py-2 rounded-xl panel disabled:opacity-50">PNG</button>
             <button id="btnExportPDF" disabled class="px-4 py-2 rounded-xl panel disabled:opacity-50">PDF</button>
@@ -149,7 +144,6 @@
             </p>
             <input id="fileInput" type="file" accept=".xlsx,.xls" class="hidden"/>
 
-            <!-- Прогресс -->
             <div id="progressWrap" class="mx-auto mt-8 max-w-xl text-left hidden">
               <div class="flex items-center justify-between mb-1">
                 <span id="progressLabel" class="text-xs text-slate-500 dark:text-slate-400">Готово: 0%</span>
@@ -172,7 +166,6 @@
               <div class="panel py-3"><div class="text-xs text-slate-500 dark:text-slate-400">План (ч)</div><div id="sumPlan" class="font-semibold">0</div></div>
               <div class="panel py-3"><div class="text-xs text-slate-500 dark:text-slate-400">Факт (ч)</div><div id="sumFact" class="font-semibold">0</div></div>
             </div>
-
             <div id="whyEmpty" class="hidden mt-4 panel p-4 text-sm text-rose-600 dark:text-rose-400">
               Ничего не отрисовано. Проверь названия колонок в Excel — ключевые поля не найдены.
             </div>
@@ -180,7 +173,6 @@
         </div>
       </div>
 
-      <!-- Коллаж -->
       <section id="collageWrap" class="mt-10 hidden">
         <div class="flex items-center justify-between gap-4">
           <h3 id="collageTitle" class="text-3xl font-extrabold tracking-tight"></h3>
@@ -195,13 +187,11 @@
     </section>
   </main>
 
-  <!-- FOOTER -->
   <footer class="mt-10 border-t border-slate-200 dark:border-slate-800">
     <div class="max-w-[1200px] mx-auto px-4 py-6 flex items-center justify-between">
       <div class="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
         <span class="inline-flex items-center gap-2 px-3 py-1 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
-          <i data-lucide="heart" class="w-4 h-4 text-rose-500"></i>
-          OneScreen
+          <i data-lucide="heart" class="w-4 h-4 text-rose-500"></i> OneScreen
         </span>
         <span class="text-xs">© just vibes</span>
       </div>
@@ -209,7 +199,6 @@
     </div>
   </footer>
 
-  <!-- FAB Support -->
   <button id="supportFab" title="Техподдержка" class="fixed bottom-6 right-6 z-40 rounded-full shadow-lg bg-indigo-600 hover:bg-indigo-500 text-white w-14 h-14 grid place-items-center">
     <i data-lucide="life-buoy" class="w-6 h-6"></i>
   </button>
@@ -231,59 +220,69 @@
     </div>
   </div>
 
-  <!-- Toast -->
   <div id="toast" class="fixed bottom-4 left-1/2 -translate-x-1/2 z-40 hidden">
     <div class="px-4 py-2 rounded-xl bg-slate-900 text-white shadow-lg text-sm"></div>
   </div>
 
 <script>
-  /* === Splash: как прислал, только в 2 раза быстрее === */
-  (function(){
-    try {
-      const tl = gsap.timeline();
-      tl.fromTo("#splashContent",{y:20,opacity:0},{y:0,opacity:1,duration:0.5,ease:"power3.out"})
-        .to("#splash",{opacity:0,pointerEvents:"none",duration:.35,delay:0.55,ease:"power2.inOut"});
-    } catch(_) {
-      requestAnimationFrame(()=>{ const s=document.getElementById('splash'); if(s){ s.style.opacity=0; s.style.pointerEvents='none'; }});
+  /* ====== SPLASH: НЕ ВИСНЕТ НИКОГДА ====== */
+  function endSplash(){
+    const s=document.getElementById('splash');
+    if(!s || s.dataset.closed==='1') return;
+    s.dataset.closed='1';
+    s.style.pointerEvents='none';
+    try{
+      if(window.gsap){
+        gsap.to('#splash',{opacity:0,duration:.35,ease:'power2.inOut',onComplete:()=>s.remove()});
+      }else{
+        s.style.transition='opacity .35s ease';
+        s.style.opacity='0';
+        setTimeout(()=>{ try{s.remove();}catch(_){} }, 400);
+      }
+    }catch(_){ try{s.remove();}catch(_){} }
+  }
+  // красивый вход + автоисчезание через 1.5с
+  try{
+    if(window.gsap){
+      gsap.timeline()
+        .fromTo("#splashContent",{y:20,opacity:0},{y:0,opacity:1,duration:.6,ease:"power3.out"})
+        .to("#splash",{opacity:0,duration:.35,delay:.9,ease:"power2.inOut",onComplete:endSplash});
     }
-  })();
+  }catch(_){}
+  document.addEventListener('DOMContentLoaded', ()=> setTimeout(endSplash,1500));
+  window.addEventListener('load', endSplash);
+  document.getElementById('splash')?.addEventListener('click', endSplash);
 
-  /* === Utils === */
+  /* ====== БАЗА ====== */
   const $=(s,r=document)=>r.querySelector(s); const $$=(s,r=document)=>Array.from(r.querySelectorAll(s));
-  const toast=(m)=>{const b=$("#toast>div"); b.textContent=m; $("#toast").classList.remove("hidden"); setTimeout(()=>$("#toast").classList.add("hidden"),2400);};
+  const toast=(m)=>{const b=$("#toast>div"); b.textContent=m; $("#toast").classList.remove("hidden"); setTimeout(()=>$("#toast").classList.add("hidden"),2200);};
   const esc=(s="")=>String(s).replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
   const num=(v)=>{if(typeof v==='number')return v; if(v==null||v==='')return 0; const s=String(v).replace(",",".").replace(/[^\d.-]/g,""); const n=parseFloat(s); return isNaN(n)?0:n;};
   const prRank=(p="")=>{p=String(p).toLowerCase(); if(p.includes('пожар')||p.includes('alarm')||p.includes('аларм'))return 0; if(p.includes('важно'))return 1; return 2;};
 
-  // Theme + icons
-  const applyStoredTheme=()=>{const t=localStorage.getItem('theme')||'dark'; document.documentElement.classList.toggle('dark', t==='dark');};
-  applyStoredTheme();
-  $("#themeToggle")?.addEventListener('click',()=>{const d=document.documentElement.classList.toggle('dark'); localStorage.setItem('theme', d?'dark':'light');});
-  window.addEventListener('DOMContentLoaded',()=> lucide.createIcons());
+  const applyTheme=()=>{const t=localStorage.getItem('theme')||'dark'; document.documentElement.classList.toggle('dark',t==='dark');};
+  applyTheme(); window.addEventListener('DOMContentLoaded',()=> lucide.createIcons());
 
-  // Refs
-  const modeBadge=$("#modeBadge"), dropzone=$("#dropzone"), fileInput=$("#fileInput");
+  // refs
+  const dropzone=$("#dropzone"), fileInput=$("#fileInput");
   const collage=$("#collage"), collageWrap=$("#collageWrap"), collageTitle=$("#collageTitle"), modeHint=$("#modeHint");
-  const sumDate=$("#sumDate"), sumPlan=$("#sumPlan"), sumFact=$("#sumFact"), sumCount=$("#sumCount");
-  const btnPNG=$("#btnExportPNG"), btnPDF=$("#btnExportPDF"), btnCopy=$("#btnCopy"), colSelect=$("#colSelect"), density=$("#density"), sortBy=$("#sortBy");
+  const sumDate=$("#sumDate"), sumPlan=$("#sumPlan"), sumFact=$("#sumFact"), sumCount=$("#sumCount"), modeBadge=$("#modeBadge");
+  const btnPNG=$("#btnExportPNG"), btnPDF=$("#btnExportPDF"), btnCopy=$("#btnCopy");
+  const colSelect=$("#colSelect"), density=$("#density"), sortBy=$("#sortBy");
   const progressWrap=$("#progressWrap"), progressBar=$("#progressBar"), progressLabel=$("#progressLabel"), progressStep=$("#progressStep"), diag=$("#diag");
 
-  // Support
+  // support
   const supportFab=$("#supportFab"), supportModal=$("#supportModal"), modalClose=$("#modalClose");
-  supportFab.addEventListener('click', ()=>{ supportModal.classList.remove('hidden'); gsap.fromTo("#supportModal .panel",{y:20,opacity:0},{y:0,opacity:1,duration:.35,ease:"power2.out"}); });
+  supportFab.addEventListener('click', ()=>{ supportModal.classList.remove('hidden'); if(window.gsap) gsap.fromTo("#supportModal .panel",{y:20,opacity:0},{y:0,opacity:1,duration:.35}); });
   modalClose.addEventListener('click', ()=> supportModal.classList.add('hidden'));
   supportModal.addEventListener('click', (e)=>{ if(e.target===supportModal) supportModal.classList.add('hidden'); });
 
-  // Mode switch
+  // режимы
   const modeSwitch=$("#modeSwitch"), modeThumb=$("#modeThumb"), modeBtns=$$(".mode-item",modeSwitch);
   let vizMode='collage';
-  const setModeUI=(m)=>{
-    vizMode=m; const i=m==='collage'?0:1; modeThumb.style.transform=`translateX(${i*100}%)`;
-    modeBtns.forEach(b=> b.classList.toggle('inactive', b.dataset.mode!==m));
-    const cont=$("#collage"); if(cont){ cont.style.filter='blur(6px) saturate(.9)'; cont.style.opacity='0.85'; setTimeout(()=>{ cont.style.filter=''; cont.style.opacity='1'; },180); }
-    applyLayout();
-  };
-  modeBtns.forEach(b=> b.addEventListener('click',()=> setModeUI(b.dataset.mode)));
+  const setModeUI=(m)=>{ vizMode=m; modeThumb.style.transform=`translateX(${m==='collage'?0:100}%)`; modeBtns.forEach(b=>b.classList.toggle('inactive', b.dataset.mode!==m)); applyLayout(); blurHint(); };
+  const blurHint=()=>{ const c=$("#collage"); if(!c) return; c.style.filter='blur(6px) saturate(.9)'; c.style.opacity='0.9'; setTimeout(()=>{c.style.filter=''; c.style.opacity='1';},160); };
+  modeBtns.forEach(b=> b.addEventListener('click', ()=> setModeUI(b.dataset.mode)));
 
   // DnD
   ["dragenter","dragover"].forEach(ev=>dropzone.addEventListener(ev,e=>{e.preventDefault();dropzone.classList.add("drop-hover");}));
@@ -292,27 +291,23 @@
   dropzone.addEventListener("click",()=>fileInput.click());
   fileInput.addEventListener("change",e=>{ const f=e.target.files?.[0]; if(f) handleFile(f); });
 
-  // State
-  let tasksRaw=[], tasksView=[], isFact=false;
+  // state
+  let tasksRaw=[], tasksView=[], isFact=false, isFactGlobal=false;
 
-  // Progress
+  // progress
   function showProgress(){ progressWrap.classList.remove('hidden'); setProgress(0,'Старт'); }
   function setProgress(p,step){ progressBar.style.width=p+'%'; progressLabel.textContent=`Готово: ${Math.round(p)}%`; if(step) progressStep.textContent=step; }
   function hideProgress(){ setTimeout(()=>progressWrap.classList.add('hidden'),350); }
   const setDiag=(html)=>{ diag.innerHTML=html; };
 
-  // File flow
   async function handleFile(file){
     try{
       showProgress(); setProgress(10,'Читаю файл');
-
       const mode = detectMode(file.name); isFact = mode==='fact'; modeBadge.textContent = isFact ? 'режим: ФАКТ' : 'режим: ПЛАН';
       const buf = await file.arrayBuffer();
 
       setProgress(25,'Парсю книгу');
       const wb = XLSX.read(buf,{type:'array'});
-
-      // самый плотный лист
       let sheet=wb.Sheets[wb.SheetNames[0]], sheetName=wb.SheetNames[0], best=0;
       wb.SheetNames.forEach(n=>{ const s=wb.Sheets[n]; const r=XLSX.utils.decode_range(s['!ref']||'A1:A1'); const cells=(r.e.r-r.s.r+1)*(r.e.c-r.s.c+1); if(cells>best){best=cells; sheet=s; sheetName=n;} });
 
@@ -320,33 +315,10 @@
       const M=XLSX.utils.sheet_to_json(sheet,{header:1,defval:"",raw:true});
       if(!M.length){ toast('Пустой лист'); hideProgress(); return; }
 
-      const headers=(M[0]||[]).map(h=>canon(h));
-      const rows=M.slice(1);
-
-      const need={
-        id:['id задачи','id'],
-        title:['название задачи','название'],
-        deadline:['дедлайн'],
-        board:['доска'],
-        column:['колонка'],
-        project:['проект'],
-        last_msg:['дата последнего сообщения','последнее сообщение'],
-        msgs:['кол-во сообщений','сообщений'],
-        sticker_priority:['стикер "приоритет"','приоритет'],
-        sticker_stage:['стикер "этап"','этап'],
-        sticker_project:['стикер "проект"','проект (стикер)'],
-        sticker_plan:['стикер "план сегодня"','план сегодня','план'],
-        sticker_fact:['стикер "факт часов"','факт часов','факт'],
-        sticker_category:['стикер "категория"','категория'],
-      };
-      const findCol=(variants)=>{
-        const vs=variants.map(canon);
-        for(const v of vs){ const i=headers.indexOf(v); if(i>=0) return i; }
-        for(const v of vs){ const i=headers.findIndex(h=>h.includes(v)); if(i>=0) return i; }
-        for(const v of vs){ const w=v.split(' ').filter(Boolean); const i=headers.findIndex(h=>w.every(x=>h.includes(x))); if(i>=0) return i; }
-        return -1;
-      };
-      const idx={}; Object.entries(need).forEach(([k,vars])=> idx[k]=findCol(vars));
+      const headers=(M[0]||[]).map(h=>canon(h)); const rows=M.slice(1);
+      const need={ id:['id задачи','id'], title:['название задачи','название'], deadline:['дедлайн'], board:['доска'], column:['колонка'], project:['проект'], last_msg:['дата последнего сообщения','последнее сообщение'], msgs:['кол-во сообщений','сообщений'], sticker_priority:['стикер "приоритет"','приоритет'], sticker_stage:['стикер "этап"','этап'], sticker_project:['стикер "проект"','проект (стикер)'], sticker_plan:['стикер "план сегодня"','план сегодня','план'], sticker_fact:['стикер "факт часов"','факт часов','факт'], sticker_category:['стикер "категория"','категория'] };
+      const findCol=(vars)=>{ const vs=vars.map(canon); for(const v of vs){ const i=headers.indexOf(v); if(i>=0) return i;} for(const v of vs){ const i=headers.findIndex(h=>h.includes(v)); if(i>=0) return i;} for(const v of vs){ const w=v.split(' ').filter(Boolean); const i=headers.findIndex(h=>w.every(x=>h.includes(x))); if(i>=0) return i;} return -1; };
+      const idx={}; Object.entries(need).forEach(([k,v])=>idx[k]=findCol(v));
 
       const found = Object.entries(idx).filter(([_,i])=>i>=0).map(([k,i])=>`${k} → <b>${esc(headers[i]||'?')}</b> (col ${i+1})`).join('<br>');
       const miss  = Object.entries(idx).filter(([_,i])=>i<0).map(([k])=>k).join(', ') || '—';
@@ -356,38 +328,30 @@
       $("#whyEmpty").classList.add('hidden');
 
       setProgress(60,'Готовлю задачи');
-      tasksRaw=rows
-        .map(r=>({
-          id:cell(r,idx.id), title:cell(r,idx.title),
-          deadline:cell(r,idx.deadline), board:cell(r,idx.board), column:cell(r,idx.column),
-          project:cell(r,idx.project), last_msg:cell(r,idx.last_msg), msgs:cell(r,idx.msgs),
-          sticker_priority:cell(r,idx.sticker_priority), sticker_stage:cell(r,idx.sticker_stage),
-          sticker_project:cell(r,idx.sticker_project), sticker_plan:cell(r,idx.sticker_plan),
-          sticker_fact:cell(r,idx.sticker_fact), sticker_category:cell(r,idx.sticker_category),
-        }))
-        .filter(t => (String(t.id||t.title||'').trim()!=='') && !/^сумма значений/i.test(String(t.id||'').trim()));
+      tasksRaw=rows.map(r=>({
+        id:cell(r,idx.id), title:cell(r,idx.title),
+        deadline:cell(r,idx.deadline), board:cell(r,idx.board), column:cell(r,idx.column),
+        project:cell(r,idx.project), last_msg:cell(r,idx.last_msg), msgs:cell(r,idx.msgs),
+        sticker_priority:cell(r,idx.sticker_priority), sticker_stage:cell(r,idx.sticker_stage),
+        sticker_project:cell(r,idx.sticker_project), sticker_plan:cell(r,idx.sticker_plan),
+        sticker_fact:cell(r,idx.sticker_fact), sticker_category:cell(r,idx.sticker_category),
+      })).filter(t => (String(t.id||t.title||'').trim()!=='') && !/^сумма значений/i.test(String(t.id||'').trim()));
 
       if(!tasksRaw.length){ $("#whyEmpty").classList.remove('hidden'); toast('После фильтрации задач не осталось'); hideProgress(); return; }
 
       setProgress(78,'Рисую карточки');
-      render(tasksRaw, isFact, file.name);
+      render(tasksRaw,isFact,file.name);
 
-      setProgress(100,'Готово ✔');
-      hideProgress();
-      enableExports(true);
+      setProgress(100,'Готово ✔'); hideProgress(); enableExports(true);
       $("#collageWrap").scrollIntoView({behavior:'smooth',block:'start'});
-
     }catch(e){ console.error(e); toast('Ошибка обработки файла'); hideProgress(); }
   }
 
-  // helpers
   function canon(s){ return String(s||'').replace(/[“”«»„‟"']/g,'"').replace(/ё/g,'е').replace(/\s+/g,' ').trim().toLowerCase(); }
   function cell(row,i){ return i>=0 ? (row[i] ?? '') : ''; }
   function detectMode(name=""){ const n=String(name).toLowerCase(); if(n.includes('сделано сегодня')) return 'fact'; if(n.includes('задачи на сегодня')) return 'plan'; return 'plan'; }
   function extractDate(name=""){ const m=String(name).match(/сегодня[^\d]*(.+)$/i); return m? m[1].replace(/\.[^.]+$/,'').trim() : '—'; }
 
-  // render
-  let isFactGlobal=false, tasksView=[];
   function render(list,isFact,filename){
     isFactGlobal=isFact;
     sumDate.textContent=extractDate(filename);
@@ -400,24 +364,22 @@
     sumCount.textContent=tasksView.length;
 
     collageTitle.textContent=isFact? 'Сделано сегодня' : 'Задачи на сегодня';
-    modeHint.textContent = vizMode==='tower' ? 'Режим «Башня»: одна вертикальная колонка' : 'Режим «Коллаж»: сетка карточек';
+    modeHint.textContent = vizMode==='tower' ? 'Режим «Башня»: одна колонка' : 'Режим «Коллаж»: сетка карточек';
 
-    applyLayout();
-    drawCards(tasksView,isFact);
-
+    applyLayout(); drawCards(tasksView,isFact);
     collageWrap.classList.remove('hidden');
-    gsap.from($$(".card",collage),{y:12,opacity:0,duration:.45,stagger:.02,ease:"power2.out"});
+    if(window.gsap) gsap.from($$(".card",collage),{y:12,opacity:0,duration:.45,stagger:.02});
   }
 
-  function sortList(arr,how){
-    const a=[...arr];
+  function sortList(a,how){
+    const arr=[...a];
     switch(how){
-      case 'priority': a.sort((x,y)=> prRank(x.sticker_priority)-prRank(y.sticker_priority)); break;
-      case 'deadline': a.sort((x,y)=> String(x.deadline||'').localeCompare(String(y.deadline||''))); break;
-      case 'plan':     a.sort((x,y)=> num(y.sticker_plan)-num(x.sticker_plan)); break;
-      case 'fact':     a.sort((x,y)=> num(y.sticker_fact)-num(x.sticker_fact)); break;
+      case 'priority': arr.sort((x,y)=> prRank(x.sticker_priority)-prRank(y.sticker_priority)); break;
+      case 'deadline': arr.sort((x,y)=> String(x.deadline||'').localeCompare(String(y.deadline||''))); break;
+      case 'plan':     arr.sort((x,y)=> num(y.sticker_plan)-num(x.sticker_plan)); break;
+      case 'fact':     arr.sort((x,y)=> num(y.sticker_fact)-num(x.sticker_fact)); break;
     }
-    return a;
+    return arr;
   }
 
   function applyLayout(){
@@ -441,15 +403,15 @@
     collage.innerHTML='';
     const compact = density.value==='sm';
     const pad = compact? 'p-3 md:p-4' : 'p-4 md:p-5';
-
     const frag=document.createDocumentFragment();
+
     for(const t of items){
       const fact=num(t.sticker_fact), plan=num(t.sticker_plan);
       const ratio=plan>0? Math.min(100, Math.round(fact/plan*100)) : (fact>0?100:0);
       const idStr=String(t.id||'').trim(), titleStr=String(t.title||'Без названия');
 
       const el=document.createElement('article');
-      el.className=`card ${pad} ${isFact?'fade-dim':''}`;
+      el.className=`card ${pad} ${isFact?'opacity-95':''}`;
       el.innerHTML=`
         <div class="flex items-start justify-between gap-3">
           <div class="min-w-0">
@@ -497,13 +459,14 @@
   function colorPriority(p){ const s=String(p||'').toLowerCase(); if(s.includes('пожар')||s.includes('alarm')||s.includes('аларм')) return 'bg-rose-500'; if(s.includes('важно')) return 'bg-amber-500'; return 'bg-slate-400'; }
   function colorStage(s){ s=String(s||'').toLowerCase(); if(s.includes('ждет')||s.includes('очередь')) return 'bg-slate-500'; if(s.includes('в работе')) return 'bg-blue-600'; if(s.includes('выполнено')||s.includes('закончено')) return 'bg-emerald-600'; return 'bg-slate-400'; }
 
-  // Export
   function enableExports(v){ btnPNG.disabled=btnPDF.disabled=btnCopy.disabled=!v; }
   async function exportCanvas(){ await new Promise(r=>setTimeout(r,40)); return html2canvas(collage,{ backgroundColor:getComputedStyle(document.body).backgroundColor, scale:2, useCORS:true }); }
-  btnPNG.addEventListener('click', async ()=>{ try{ const c=await exportCanvas(); c.toBlob(b=>{ const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download=`${collageTitle.textContent}.png`; a.click(); URL.revokeObjectURL(a.href); }); }catch(e){ console.error(e); toast('PNG: ошибка'); } });
-  btnPDF.addEventListener('click', async ()=>{ try{ const c=await exportCanvas(); const img=c.toDataURL('image/png'); const { jsPDF }=window.jspdf; const pdf=new jsPDF({unit:'pt',format:'a4',compress:true}); const pageW=pdf.internal.pageSize.getWidth(), margin=24; const w=pageW - margin*2, h=w*(c.height/c.width); pdf.addImage(img,'PNG',margin,margin,w,h); pdf.save(`${collageTitle.textContent}.pdf`); }catch(e){ console.error(e); toast('PDF: ошибка'); } });
-  btnCopy.addEventListener('click', async ()=>{ try{ const c=await exportCanvas(); c.toBlob(async b=>{ try{ await navigator.clipboard.write([new ClipboardItem({'image/png':b})]); toast('Скопировано в буфер ✔'); }catch(_){ toast('Буфер недоступен — скачай PNG'); } }); }catch(e){ console.error(e); toast('Копирование не удалось'); } });
+  btnPNG.addEventListener('click', async ()=>{ try{ const c=await exportCanvas(); c.toBlob(b=>{ const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download=`${collageTitle.textContent}.png`; a.click(); URL.revokeObjectURL(a.href); }); }catch(e){ toast('PNG: ошибка'); } });
+  btnPDF.addEventListener('click', async ()=>{ try{ const c=await exportCanvas(); const img=c.toDataURL('image/png'); const { jsPDF }=window.jspdf; const pdf=new jsPDF({unit:'pt',format:'a4',compress:true}); const pageW=pdf.internal.pageSize.getWidth(), margin=24; const w=pageW - margin*2, h=w*(c.height/c.width); pdf.addImage(img,'PNG',margin,margin,w,h); pdf.save(`${collageTitle.textContent}.pdf`); }catch(e){ toast('PDF: ошибка'); } });
+  btnCopy.addEventListener('click', async ()=>{ try{ const c=await exportCanvas(); c.toBlob(async b=>{ try{ await navigator.clipboard.write([new ClipboardItem({'image/png':b})]); toast('Скопировано в буфер ✔'); }catch(_){ toast('Буфер недоступен — скачай PNG'); } }); }catch(e){ toast('Копирование не удалось'); } });
 
+  // helpers
+  function chipTxt(x){return x?`<span class="chip">${esc(x)}</span>`:''}
 </script>
 </body>
 </html>
