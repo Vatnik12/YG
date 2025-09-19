@@ -4,8 +4,6 @@
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>OneScreen План/Факт — by Vatnik</title>
-
-  <!-- Tailwind (CDN для GH Pages ок) -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -17,87 +15,57 @@
       }}
     }
   </script>
-
-  <!-- Libs -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://unpkg.com/lucide@latest"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
-
   <style>
     :root{ --ring:#e5e7eb }
     *{ scrollbar-width:thin; scrollbar-color:#CBD5E1 transparent }
     *::-webkit-scrollbar{ width:8px;height:8px }*::-webkit-scrollbar-thumb{ background:#CBD5E1;border-radius:9999px }
-
-    /* Панели/карточки */
     .panel{ border:1px solid var(--ring); border-radius:14px; background:#fff; box-shadow:0 10px 30px rgba(0,0,0,.04)}
     .dark .panel{ background:#0b1220; border-color:#1f2937}
-    .card{
-      position:relative; border:1px solid var(--ring); border-radius:14px;
-      background:#fff;
-      box-shadow:inset 0 0 0 1px rgba(0,0,0,.02), inset 0 0 80px rgba(0,0,0,.05), 0 10px 30px rgba(0,0,0,.04);
-    }
-    .dark .card{
-      background:#0b1220; border-color:#1f2937;
-      box-shadow:inset 0 0 0 1px rgba(255,255,255,.03), inset 0 0 120px rgba(255,255,255,.03), 0 10px 30px rgba(0,0,0,.35);
-    }
-
-    /* Чипы/бейджи — фиксированные метрики, чтобы не «ехать» на снимке */
+    .card{ position:relative; border:1px solid var(--ring); border-radius:14px; background:#0f172a; color:#e5e7eb }
+    .light .card{ background:#fff; color:#0f172a; border:1px solid #e5e7eb; }
     .yg-chip,.yg-badge{
-      display:inline-flex; align-items:center; gap:6px;
-      height:28px; min-height:28px; padding:0 12px; border-radius:9999px;
-      font-size:13px; line-height:28px; vertical-align:middle;
-      white-space:nowrap; letter-spacing:0; transform:translateZ(0);
+      display:inline-flex; align-items:center; gap:6px; height:26px; padding:0 10px;
+      border-radius:9999px; font-size:12px; line-height:26px; vertical-align:middle; white-space:nowrap;
     }
-    .yg-chip{ background:#F1F5F9; border:1px solid #E2E8F0; color:#0f172a }
-    .dark .yg-chip{ background:#0f172a; border-color:#1f2937; color:#cbd5e1 }
-    .yg-badge{ color:#fff; font-weight:600 }
+    .yg-chip{ background:#0b1220; border:1px solid #23314f; color:#dbeafe }
+    .light .yg-chip{ background:#F1F5F9; border:1px solid #E2E8F0; color:#0f172a }
+    .yg-badge{ color:#fff }
     .badge-red{ background:#ef4444 } .badge-amber{ background:#f59e0b } .badge-slate{ background:#94a3b8 }
     .badge-blue{ background:#3b82f6 } .badge-emerald{ background:#10b981 }
-
-    .title{ font-weight:700; line-height:1.25; word-break:break-word; overflow-wrap:anywhere;
-      display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
-
+    .title{ font-weight:700; line-height:1.3; word-break:break-word; overflow-wrap:anywhere; }
     .mode-switch{ position:relative; border-radius:12px; border:1px solid var(--ring); background:rgba(99,102,241,.08); padding:4px; display:flex; gap:4px }
     .mode-thumb{ position:absolute; inset:4px auto 4px 4px; width:calc(50% - 6px); border-radius:8px; background:rgba(99,102,241,.18); transition:transform .25s ease }
     .mode-item{ position:relative; z-index:1; flex:1; padding:8px 10px; font-size:12px; border-radius:8px; display:flex; align-items:center; gap:6px; justify-content:center; cursor:pointer }
-    .mode-item.inactive{ filter:saturate(.8) opacity:.65 }
-
+    .mode-item.inactive{ filter:saturate(.8) opacity(.65) }
     .theme-switch{ position:relative; width:64px; height:30px; border-radius:9999px; border:1px solid var(--ring); background:#eef2ff }
     .dark .theme-switch{ background:#0f172a; border-color:#1f2937 }
     .theme-thumb{ position:absolute; top:3px; left:3px; width:24px; height:24px; border-radius:9999px; background:#fff; transition:transform .25s ease, background .25s ease }
     .dark .theme-thumb{ background:#111827 }
     .theme-switch.on .theme-thumb{ transform:translateX(34px) }
-
     .drop-hover{ outline:3px dashed #4f46e5; outline-offset:-10px }
-
-    /* Splash */
     #splash{ transition:opacity .6s ease, filter .6s ease }
     #splash.splash-hide{ opacity:0; filter:blur(8px) saturate(.9); pointer-events:none }
-
-    /* СЦЕНА экспорта/предпросмотра */
-    #exportStage{ position:relative; border-radius:16px; overflow:hidden }
-    #exportStage .bg-img{
-      position:absolute; inset:0; width:100%; height:100%;
-      object-fit:cover; transform:scale(1.08);
-    }
-    #exportStage.tower .bg-img{ transform:scale(1.45); }
-    #exportStage .stage-overlay{ position:absolute; inset:0; background:linear-gradient(180deg,rgba(15,23,42,.28),rgba(15,23,42,.28)); }
-    #exportStage .stage-pad{ position:relative; padding:24px; }
-
-    /* Светлая тема fix (фон страницы) */
-    body{ background:#f8fafc }
-    .dark body, body.dark{ background:#0b1020 }
-
-    @media print{ @page{ size:A4 portrait; margin:10mm } }
+    /* сцена рендера */
+    #renderRoot{ position:relative; border-radius:16px; overflow:hidden; background: #fff; }
+    #renderRoot .bg-img{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; transform:scale(1.08); }
+    #renderRoot.tower .bg-img{ transform:scale(1.45); }
+    #renderRoot .bg-overlay{ position:absolute; inset:0; background:linear-gradient(180deg,rgba(15,23,42,.25),rgba(15,23,42,.25)); }
+    #renderRoot .stage-pad{ position:relative; padding:24px; }
+    .kpi{ border-radius:14px; background:rgba(15,23,42,.8); border:1px solid rgba(148,163,184,.18); color:#e5e7eb; padding:18px 20px; min-width:150px }
+    .light .kpi{ background:rgba(241,245,249,.8); color:#0f172a; }
+    .kpi .v{ font-size:28px; font-weight:800; line-height:1; }
+    .kpi .t{ font-size:13px; opacity:.85 }
   </style>
 </head>
-<body class="min-h-screen flex flex-col font-sans text-slate-900 dark:bg-slate-900 dark:text-slate-100">
-
+<body class="min-h-screen flex flex-col font-sans bg-slate-900 text-slate-100 dark:bg-slate-900 dark:text-slate-100">
   <!-- SPLASH -->
   <div id="splash" class="fixed inset-0 z-50 grid place-items-center bg-[#0b1020]">
     <div class="relative w-full h-full overflow-hidden">
-      <img src="./assets/bg.jpg" alt="" class="absolute inset-0 w-full h-full object-cover opacity-60"/>
+      <img src="./assets/bg.jpg" alt="" class="absolute inset-0 w-full h-full object-cover opacity-60" crossOrigin="anonymous"/>
       <div class="absolute inset-0 bg-gradient-to-b from-indigo-900/20 via-slate-900/30 to-slate-900/70"></div>
       <div class="relative h-full w-full flex items-center justify-center">
         <div class="text-center">
@@ -110,39 +78,35 @@
       </div>
     </div>
   </div>
-
   <!-- HEADER -->
   <header class="sticky top-0 z-40">
-    <div class="backdrop-blur bg-white/70 dark:bg-slate-900/70 border-b border-slate-200 dark:border-slate-800">
+    <div class="backdrop-blur bg-slate-900/70 border-b border-slate-800">
       <div class="max-w-[1200px] mx-auto px-4">
         <div class="py-4 md:py-5 flex flex-wrap items-stretch gap-3">
           <div class="flex items-center gap-3 min-w-[260px]">
             <div class="w-10 h-10 rounded-2xl bg-indigo-600 grid place-items-center text-white font-bold">OS</div>
             <div class="leading-tight">
               <div class="font-semibold text-lg">OneScreen: План/Факт</div>
-              <div id="modeBadge" class="text-xs text-slate-500 dark:text-slate-400">режим не выбран</div>
+              <div id="modeBadge" class="text-xs text-slate-400">режим не выбран</div>
             </div>
           </div>
-
           <div class="flex flex-wrap items-stretch gap-2 flex-1">
             <div class="panel px-3 py-2 flex items-center justify-between min-w-[160px]">
-              <span class="text-xs text-slate-500 dark:text-slate-400">Колонки</span>
-              <select id="colSelect" class="px-2 py-1 text-sm rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+              <span class="text-xs text-slate-400">Колонки</span>
+              <select id="colSelect" class="px-2 py-1 text-sm rounded-lg bg-slate-800 border border-slate-700">
                 <option value="2">2</option><option value="3">3</option><option value="4">4</option>
               </select>
             </div>
-
-            <div class="panel px-3 py-2 flex items-center justify-between min-w-[200px]">
-              <span class="text-xs text-slate-500 dark:text-slate-400">Дизайн</span>
-              <select id="density" class="px-2 py-1 text-sm rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
-                <option value="vibe">Вайб</option>
-                <option value="yg">YouGile</option>
+            <div class="panel px-3 py-2 flex items-center justify-between min-w-[180px]">
+              <span class="text-xs text-slate-400">Дизайн</span>
+              <select id="design" class="px-2 py-1 text-sm rounded-lg bg-slate-800 border border-slate-700">
+                <option value="yougile">YouGile</option>
+                <option value="vibe">Vibe</option>
               </select>
             </div>
-
             <div class="panel px-3 py-2 flex items-center justify-between min-w-[200px]">
-              <span class="text-xs text-slate-500 dark:text-slate-400">Сорт</span>
-              <select id="sortBy" class="px-2 py-1 text-sm rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+              <span class="text-xs text-slate-400">Сорт</span>
+              <select id="sortBy" class="px-2 py-1 text-sm rounded-lg bg-slate-800 border border-slate-700">
                 <option value="none">Без сортировки</option>
                 <option value="deadline">Дедлайн</option>
                 <option value="priority">Приоритет</option>
@@ -150,99 +114,97 @@
                 <option value="fact">Факт (ч)</option>
               </select>
             </div>
-
-            <!-- Mode -->
             <div class="panel px-3 py-2 flex-1 min-w-[260px]">
-              <div class="text-xs text-slate-500 dark:text-slate-400 mb-1">Режим</div>
+              <div class="text-xs text-slate-400 mb-1">Режим</div>
               <div id="modeSwitch" class="mode-switch">
                 <div id="modeThumb" class="mode-thumb"></div>
                 <button data-mode="collage" class="mode-item"><i data-lucide="grid-3x3" class="w-4 h-4"></i>Коллаж</button>
                 <button data-mode="tower"   class="mode-item inactive"><i data-lucide="panel-right" class="w-4 h-4"></i>Башня</button>
               </div>
             </div>
-
-            <!-- Theme -->
             <div class="panel px-3 py-2 flex items-center justify-between min-w-[160px]">
-              <span class="text-xs text-slate-500 dark:text-slate-400">Тема</span>
+              <span class="text-xs text-slate-400">Тема</span>
               <button id="themeSwitch" class="theme-switch"><span class="theme-thumb"></span></button>
             </div>
           </div>
-
           <div class="flex items-center gap-2">
             <button id="btnExportPNG" disabled class="px-4 py-2 rounded-xl panel disabled:opacity-50">PNG</button>
-            <button id="btnCopy"      disabled class="px-4 py-2 rounded-xl bg-slate-900 text-white dark:bg-white dark:text-slate-900 disabled:opacity-50">Копировать</button>
+            <button id="btnCopy"      disabled class="px-4 py-2 rounded-xl bg-white/10 text-white border border-white/10 disabled:opacity-50">Копировать</button>
           </div>
         </div>
       </div>
     </div>
   </header>
-
   <!-- MAIN -->
   <main class="flex-1 w-full">
     <section class="max-w-[1200px] mx-auto px-4 py-10">
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
         <div class="lg:col-span-8">
-          <div id="dropzone" class="panel p-10 md:p-14 text-center bg-gradient-to-b from-white to-slate-50 dark:from-slate-900 dark:to-slate-900/40">
-            <div class="mx-auto w-20 h-20 rounded-3xl bg-indigo-50 dark:bg-indigo-900/40 grid place-items-center text-indigo-600 dark:text-indigo-300 shadow-soft">
+          <div id="dropzone" class="panel p-10 md:p-14 text-center bg-gradient-to-b from-slate-900 to-slate-900/40">
+            <div class="mx-auto w-20 h-20 rounded-3xl bg-indigo-900/40 grid place-items-center text-indigo-300 shadow-soft">
               <i data-lucide="upload" class="w-10 h-10"></i>
             </div>
             <h2 class="mt-5 text-2xl md:text-3xl font-extrabold">Перетащи .xlsx сюда</h2>
-            <p class="mt-2 text-slate-500 dark:text-slate-400">
-              или <label for="fileInput" class="text-indigo-600 dark:text-indigo-300 cursor-pointer underline decoration-dotted">выбери файл</label>.
+            <p class="mt-2 text-slate-400">
+              или <label for="fileInput" class="text-indigo-300 cursor-pointer underline decoration-dotted">выбери файл</label>.
               «Задачи на сегодня …» → План, «Сделано сегодня …» → Факт.
             </p>
             <input id="fileInput" type="file" accept=".xlsx,.xls" class="hidden"/>
-
             <div id="progressWrap" class="mx-auto mt-8 max-w-xl text-left hidden">
               <div class="flex items-center justify-between mb-1">
-                <span id="progressLabel" class="text-xs text-slate-500 dark:text-slate-400">Готово: 0%</span>
-                <span id="progressStep"  class="text-xs text-slate-500 dark:text-slate-400">—</span>
+                <span id="progressLabel" class="text-xs text-slate-400">Готово: 0%</span>
+                <span id="progressStep"  class="text-xs text-slate-400">—</span>
               </div>
-              <div class="h-3 rounded-full bg-slate-200 dark:bg-slate-800 overflow-hidden">
+              <div class="h-3 rounded-full bg-slate-800 overflow-hidden">
                 <div id="progressBar" class="h-full w-0 bg-indigo-600 transition-all duration-300"></div>
               </div>
-              <div id="diag" class="mt-3 text-[12px] text-slate-500 dark:text-slate-400"></div>
+              <div id="diag" class="mt-3 text-[12px] text-slate-400"></div>
             </div>
           </div>
         </div>
-
         <div class="lg:col-span-4">
           <div class="panel p-5">
-            <div class="text-sm text-slate-500 dark:text-slate-400 mb-2">Сводка</div>
+            <div class="text-sm text-slate-400 mb-2">Сводка</div>
             <div class="grid grid-cols-2 gap-3 text-center">
-              <div class="panel py-3"><div class="text-xs text-slate-500 dark:text-slate-400">Дата</div><div id="sumDate" class="font-semibold">—</div></div>
-              <div class="panel py-3"><div class="text-xs text-slate-500 dark:text-slate-400">Задач</div><div id="sumCount" class="font-semibold">0</div></div>
-              <div class="panel py-3"><div class="text-xs text-slate-500 dark:text-slate-400">План (ч)</div><div id="sumPlan" class="font-semibold">0</div></div>
-              <div class="panel py-3"><div class="text-xs text-slate-500 dark:text-slate-400">Факт (ч)</div><div id="sumFact" class="font-semibold">0</div></div>
+              <div class="panel py-3"><div class="text-xs text-slate-400">Дата</div><div id="sumDate" class="font-semibold">—</div></div>
+              <div class="panel py-3"><div class="text-xs text-slate-400">Задач</div><div id="sumCount" class="font-semibold">0</div></div>
+              <div class="panel py-3"><div class="text-xs text-slate-400">План (ч)</div><div id="sumPlan" class="font-semibold">0</div></div>
+              <div class="panel py-3"><div class="text-xs text-slate-400">Факт (ч)</div><div id="sumFact" class="font-semibold">0</div></div>
             </div>
-            <div id="whyEmpty" class="hidden mt-4 panel p-4 text-sm text-rose-600 dark:text-rose-400">
+            <div id="whyEmpty" class="hidden mt-4 panel p-4 text-sm text-rose-400">
               Ничего не отрисовано. Проверь названия колонок в Excel — ключевые поля не найдены.
             </div>
           </div>
         </div>
       </div>
-
-      <!-- СЦЕНА (видишь = то и экспортится) -->
+      <!-- РЕНДЕР -->
       <section id="collageWrap" class="mt-10 hidden">
-        <div class="flex items-center justify-between gap-4 mb-3">
+        <div class="flex items-center justify-between gap-4">
           <h3 id="collageTitle" class="text-3xl font-extrabold tracking-tight"></h3>
-          <div id="modeHint" class="text-sm text-slate-500 dark:text-slate-400"></div>
+          <div id="modeHint" class="text-sm text-slate-400"></div>
         </div>
-
-        <div class="panel p-4">
+        <div class="mt-4 panel p-4">
           <div class="overflow-auto">
-            <div id="exportStage" class="relative" style="width:1123px;">
-              <img src="./assets/bg_blur.jpg" alt="" class="bg-img select-none pointer-events-none" crossorigin="anonymous">
-              <div class="stage-overlay"></div>
+            <div id="renderRoot" style="width:1123px;">
+              <img src="./assets/bg_blur.jpg" alt="" class="bg-img select-none pointer-events-none" crossOrigin="anonymous">
+              <div class="bg-overlay"></div>
               <div class="stage-pad">
-                <!-- Top summary в самой сцене -->
-                <div id="topSummary" class="grid grid-cols-4 gap-4 mb-4">
-                  <div class="card p-4"><div class="text-sm text-slate-400">Дата</div><div id="s_date" class="text-2xl font-extrabold">—</div></div>
-                  <div class="card p-4"><div class="text-sm text-slate-400">Задач</div><div id="s_tasks" class="text-2xl font-extrabold">0</div></div>
-                  <div class="card p-4"><div class="text-sm text-slate-400">План (ч)</div><div id="s_plan" class="text-2xl font-extrabold">0</div></div>
-                  <div class="card p-4"><div class="text-sm text-slate-400">Факт (ч)</div><div id="s_fact" class="text-2xl font-extrabold">0</div></div>
+                <div id="topSummary" class="mb-4 grid grid-cols-12 gap-3">
+                  <div class="col-span-5 md:col-span-4 kpi flex items-center justify-start p-6">
+                    <div>
+                      <div id="summaryTitle" class="text-4xl md:text-5xl font-extrabold leading-[1.05]">Сделано сегодня</div>
+                      <div id="factBadge" class="mt-3 inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-600 text-white text-sm hidden">
+                        <i data-lucide="check-circle" class="w-4 h-4"></i><span id="factBadgeText"></span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-span-7 md:col-span-8 grid grid-cols-4 gap-3">
+                    <div class="kpi text-center"><div class="t">Дата</div><div class="v" id="kpiDate">—</div></div>
+                    <div class="kpi text-center"><div class="t">Задач</div><div class="v" id="kpiTasks">0</div></div>
+                    <div class="kpi text-center"><div class="t">План (ч)</div><div class="v" id="kpiPlan">0</div></div>
+                    <div class="kpi text-center"><div class="t">Факт (ч)</div><div class="v" id="kpiFact">0</div></div>
+                  </div>
                 </div>
-
                 <div id="collage" class="grid gap-4" style="grid-template-columns:repeat(2,minmax(0,1fr));"></div>
               </div>
             </div>
@@ -251,98 +213,103 @@
       </section>
     </section>
   </main>
-
-  <!-- Toast -->
+  <!-- FOOTER -->
+  <footer class="mt-10 border-t border-slate-800">
+    <div class="max-w-[1200px] mx-auto px-4 py-6 flex items-center justify-between">
+      <div class="flex items-center gap-2 text-sm text-slate-400">
+        <span class="inline-flex items-center gap-2 px-3 py-1 rounded-xl bg-slate-800 border border-slate-700">
+          <i data-lucide="heart" class="w-4 h-4 text-rose-500"></i> OneScreen
+        </span>
+        <span class="text-xs">© just vibes</span>
+      </div>
+      <div class="text-xs text-slate-400">План/Факт by Vatnik</div>
+    </div>
+  </footer>
   <div id="toast" class="fixed bottom-4 left-1/2 -translate-x-1/2 z-40 hidden">
     <div class="px-4 py-2 rounded-xl bg-slate-900 text-white shadow-lg text-sm"></div>
   </div>
-
 <script>
 /* ===== Splash ===== */
 document.addEventListener('DOMContentLoaded', ()=>{
   const s=document.getElementById('splash');
   if(!s) return;
-  setTimeout(()=>{ s.classList.add('splash-hide'); }, 1200);
-  setTimeout(()=>{ if(document.body.contains(s)) s.remove(); }, 3000);
+  setTimeout(()=>{ s.classList.add('splash-hide'); },1500);
+  setTimeout(()=>{ if(document.body.contains(s)) s.remove(); },3500);
 });
-
 /* ===== Utils ===== */
 const $=(s,r=document)=>r.querySelector(s); const $$=(s,r=document)=>Array.from(r.querySelectorAll(s));
 const toast=(m)=>{const b=$("#toast>div"); b.textContent=m; $("#toast").classList.remove("hidden"); setTimeout(()=>$("#toast").classList.add("hidden"),2200);};
 const esc=(s="")=>String(s).replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
 const num=(v)=>{if(typeof v==='number')return v; if(v==null||v==='')return 0; const s=String(v).replace(",",".").replace(/[^\d.-]/g,""); const n=parseFloat(s); return isNaN(n)?0:n;};
 const prRank=(p="")=>{p=String(p).toLowerCase(); if(p.includes('пожар')||p.includes('alarm')||p.includes('аларм'))return 0; if(p.includes('важно'))return 1; return 2;};
-
-/* Theme */
+const cleanTitle=(t="")=> String(t).replace(/^\s*[A-ZА-Я]{2,}-?\d+\s*[—-]\s*/i,'').trim();
+// Theme
 const themeSwitch=$("#themeSwitch");
-const applyTheme=()=>{ const t=localStorage.getItem('theme')||'dark'; document.documentElement.classList.toggle('dark',t==='dark'); themeSwitch.classList.toggle('on', t==='dark'); };
+const applyTheme=()=>{ const t=localStorage.getItem('theme')||'dark'; document.documentElement.classList.toggle('dark',t==='dark'); themeSwitch.classList.toggle('on', t==='dark'); document.body.classList.toggle('light', t!=='dark'); };
 applyTheme();
 themeSwitch.addEventListener('click',()=>{
   const dark=document.documentElement.classList.toggle('dark');
   localStorage.setItem('theme', dark?'dark':'light');
   themeSwitch.classList.toggle('on',dark);
-  const b=document.body; b.style.filter='blur(6px) saturate(.95)'; setTimeout(()=>b.style.filter='',140);
+  document.body.classList.toggle('light', !dark);
 });
 window.addEventListener('DOMContentLoaded',()=> lucide.createIcons());
-
-/* Refs */
+// Refs
 const dropzone=$("#dropzone"), fileInput=$("#fileInput");
-const exportStage=$("#exportStage"), collage=$("#collage"), collageWrap=$("#collageWrap"),
+const renderRoot=$("#renderRoot"), collage=$("#collage"), collageWrap=$("#collageWrap"),
       collageTitle=$("#collageTitle"), modeHint=$("#modeHint");
 const sumDate=$("#sumDate"), sumPlan=$("#sumPlan"), sumFact=$("#sumFact"), sumCount=$("#sumCount"), modeBadge=$("#modeBadge");
-const sDate=$("#s_date"), sTasks=$("#s_tasks"), sPlan=$("#s_plan"), sFact=$("#s_fact");
 const btnPNG=$("#btnExportPNG"), btnCopy=$("#btnCopy");
-const colSelect=$("#colSelect"), density=$("#density"), sortBy=$("#sortBy");
+const colSelect=$("#colSelect"), design=$("#design"), sortBy=$("#sortBy");
 const progressWrap=$("#progressWrap"), progressBar=$("#progressBar"), progressLabel=$("#progressLabel"), progressStep=$("#progressStep"), diag=$("#diag");
-
-/* Mode switch */
+// Mode switch
 const modeSwitch=$("#modeSwitch"), modeThumb=$("#modeThumb"), modeBtns=$$(".mode-item",modeSwitch);
 let vizMode='collage';
-const setModeUI=(m)=>{ vizMode=m; modeThumb.style.transform=`translateX(${m==='collage'?0:100}%)`; modeBtns.forEach(b=>b.classList.toggle('inactive', b.dataset.mode!==m)); applyLayout(); blurHint(); };
-const blurHint=()=>{ const c=$("#exportStage"); if(!c) return; c.style.filter='blur(6px) saturate(.95)'; c.style.opacity='0.95'; setTimeout(()=>{c.style.filter=''; c.style.opacity='1';},160); };
+const setModeUI=(m)=>{ vizMode=m; modeThumb.style.transform=`translateX(${m==='collage'?0:100}%)`; modeBtns.forEach(b=>b.classList.toggle('inactive', b.dataset.mode!==m)); applyLayout(); };
 modeBtns.forEach(b=> b.addEventListener('click', ()=> setModeUI(b.dataset.mode)));
-
-/* DnD */
+// DnD
 ["dragenter","dragover"].forEach(ev=>dropzone.addEventListener(ev,e=>{e.preventDefault();dropzone.classList.add("drop-hover");}));
 ["dragleave","drop"].forEach(ev=>dropzone.addEventListener(ev,e=>{e.preventDefault();dropzone.classList.remove("drop-hover");}));
 dropzone.addEventListener("drop",e=>{ const f=e.dataTransfer.files?.[0]; if(f) handleFile(f); });
 dropzone.addEventListener("click",()=>fileInput.click());
 fileInput.addEventListener("change",e=>{ const f=e.target.files?.[0]; if(f) handleFile(f); });
-
-/* State */
-let tasksRaw=[], tasksView=[], isFact=false, isFactGlobal=false;
-
-/* Progress */
+// ===== State =====
+let tasksRaw=[], tasksView=[], isFact=false, isFactGlobal=false, designStyle='yougile';
+// Progress
 function showProgress(){ progressWrap.classList.remove('hidden'); setProgress(0,'Старт'); }
 function setProgress(p,step){ progressBar.style.width=p+'%'; progressLabel.textContent=`Готово: ${Math.round(p)}%`; if(step) progressStep.textContent=step; }
 function hideProgress(){ setTimeout(()=>progressWrap.classList.add('hidden'),350); }
 const setDiag=(html)=>{ diag.innerHTML=html; };
-
-/* File flow */
+// File flow
 async function handleFile(file){
   try{
     showProgress(); setProgress(10,'Читаю файл');
-    const mode = detectMode(file.name); isFact = mode==='fact'; modeBadge.textContent = isFact ? 'режим: ФАКТ' : 'режим: ПЛАН';
+    const mode = detectMode(file.name); isFact = mode==='fact'; isFactGlobal=isFact;
+    modeBadge.textContent = isFact ? 'режим: ФАКТ' : 'режим: ПЛАН';
     const buf = await file.arrayBuffer();
-
     setProgress(25,'Парсю книгу');
     const wb = XLSX.read(buf,{type:'array'});
     let sheet=wb.Sheets[wb.SheetNames[0]], sheetName=wb.SheetNames[0], best=0;
     wb.SheetNames.forEach(n=>{ const s=wb.Sheets[n]; const r=XLSX.utils.decode_range(s['!ref']||'A1:A1'); const cells=(r.e.r-r.s.r+1)*(r.e.c-r.s.c+1); if(cells>best){best=cells; sheet=s; sheetName=n;} });
-
     setProgress(40,'Читаю строки');
     const M=XLSX.utils.sheet_to_json(sheet,{header:1,defval:"",raw:true});
     if(!M.length){ toast('Пустой лист'); hideProgress(); return; }
-
     const headers=(M[0]||[]).map(h=>canon(h)); const rows=M.slice(1);
-
     const need={
-      id:['id задачи','id'], title:['название задачи','название'], deadline:['дедлайн'],
-      board:['доска'], column:['колонка'], project:['проект'],
-      last_msg:['последнее сообщение'], msgs:['сообщений','кол-во сообщений'],
-      sticker_priority:['приоритет'], sticker_stage:['этап'],
-      sticker_plan:['план сегодня','план'], sticker_fact:['факт часов','факт'],
-      sticker_category:['категория']
+      id:['id задачи','id'],
+      title:['название задачи','название'],
+      deadline:['дедлайн'],
+      board:['доска'],
+      column:['колонка'],
+      project:['проект'],
+      last_msg:['дата последнего сообщения','последнее сообщение'],
+      msgs:['кол-во сообщений','сообщений'],
+      sticker_priority:['стикер "приоритет"','приоритет'],
+      sticker_stage:['стикер "этап"','этап'],
+      sticker_project:['стикер "проект"','проект (стикер)'],
+      sticker_plan:['стикер "план сегодня"','план сегодня','план'],
+      sticker_fact:['стикер "факт часов"','факт часов','факт'],
+      sticker_category:['стикер "категория"','категория']
     };
     const findCol=(vars)=>{ const vs=vars.map(canon);
       for(const v of vs){ const i=headers.indexOf(v); if(i>=0) return i;}
@@ -351,202 +318,176 @@ async function handleFile(file){
       return -1;
     };
     const idx={}; Object.entries(need).forEach(([k,v])=>idx[k]=findCol(v));
-
     const found = Object.entries(idx).filter(([_,i])=>i>=0).map(([k,i])=>`${k} → <b>${esc(headers[i]||'?')}</b> (col ${i+1})`).join('<br>');
     const miss  = Object.entries(idx).filter(([_,i])=>i<0).map(([k])=>k).join(', ') || '—';
     setDiag(`Лист: <b>${esc(sheetName)}</b><br>Строк: <b>${rows.length}</b>, Колонок: <b>${headers.length}</b><br><br><u>Найдены:</u><br>${found||'—'}<br><br><u>Отсутствуют:</u> ${miss}`);
-
     if(idx.title<0 && idx.id<0){ $("#whyEmpty").classList.remove('hidden'); toast('Не найдены колонки ID/Название'); hideProgress(); return; }
     $("#whyEmpty").classList.add('hidden');
-
     setProgress(60,'Готовлю задачи');
     tasksRaw=rows.map(r=>({
       id:cell(r,idx.id), title:cell(r,idx.title),
       deadline:cell(r,idx.deadline), board:cell(r,idx.board), column:cell(r,idx.column),
       project:cell(r,idx.project), last_msg:cell(r,idx.last_msg), msgs:cell(r,idx.msgs),
       sticker_priority:cell(r,idx.sticker_priority), sticker_stage:cell(r,idx.sticker_stage),
-      sticker_plan:cell(r,idx.sticker_plan), sticker_fact:cell(r,idx.sticker_fact), sticker_category:cell(r,idx.sticker_category),
-    })).filter(t => (String(t.title||t.id||'').trim()!=='') && !/^сумма значений/i.test(String(t.id||'').trim()));
-
+      sticker_project:cell(r,idx.sticker_project), sticker_plan:cell(r,idx.sticker_plan),
+      sticker_fact:cell(r,idx.sticker_fact), sticker_category:cell(r,idx.sticker_category),
+    })).filter(t => (String(t.id||t.title||'').trim()!=='') && !/^сумма значений/i.test(String(t.id||'').trim()));
     if(!tasksRaw.length){ $("#whyEmpty").classList.remove('hidden'); toast('После фильтрации задач не осталось'); hideProgress(); return; }
-
     setProgress(78,'Рисую карточки');
     render(tasksRaw,isFact,file.name);
-
     setProgress(100,'Готово ✔'); hideProgress(); enableExports(true);
-    $("#collageWrap").classList.remove("hidden");
     $("#collageWrap").scrollIntoView({behavior:'smooth',block:'start'});
   }catch(e){ console.error(e); toast('Ошибка обработки файла'); hideProgress(); }
 }
-
-/* helpers */
+// helpers
 function canon(s){ return String(s||'').replace(/[“”«»„‟"']/g,'"').replace(/ё/g,'е').replace(/\s+/g,' ').trim().toLowerCase(); }
 function cell(row,i){ return i>=0 ? (row[i] ?? '') : ''; }
 function detectMode(name=""){ const n=String(name).toLowerCase(); if(n.includes('сделано сегодня')) return 'fact'; if(n.includes('задачи на сегодня')) return 'plan'; return 'plan'; }
-function extractDate(name=""){ const m=String(name).match(/(\d{1,2})\s*(Янв|Фев|Март|Апр|Май|Июнь|Июль|Авг|Сент|Окт|Ноя|Дек)[^\d]*(\d{1,2})_(\d{2})/i);
-  if(!m) return '—'; const d=m[1], mon=m[2], h=m[3], mm=m[4]; return `${d} ${mon}. ${h}:${mm}`; }
-
-/* render */
+function extractDate(name=""){ const m=String(name).match(/(\d{1,2})\s*(Янв|Фев|Март|Апр|Май|Июнь|Июль|Авг|Сент|Окт|Ноя|Дек)[^\d]*(\d{1,2})_(\d{2})/i); if(!m) return '—'; const d=m[1], mon=m[2], h=m[3], mm=m[4]; return `${d} ${mon}. ${h}:${mm}`; }
+// render
 function render(list,isFact,filename){
   isFactGlobal=isFact;
-  const dt=extractDate(filename);
-  sumDate.textContent=dt; sDate.textContent=dt;
-
+  const when = extractDate(filename);
+  sumDate.textContent=when;
+  $("#kpiDate").textContent = when;
+  const titleText = isFact ? 'Сделано сегодня' : 'Задачи на сегодня';
+  $("#summaryTitle").textContent = titleText;
+  collageTitle.textContent = titleText;
+  modeHint.textContent = vizMode==='tower' ? 'Режим «Башня»: одна колонка' : 'Режим «Коллаж»: сетка карточек';
   tasksView=sortList(list,sortBy.value);
   const sp=tasksView.reduce((a,t)=>a+num(t.sticker_plan),0);
   const sf=tasksView.reduce((a,t)=>a+num(t.sticker_fact),0);
   sumPlan.textContent=String(sp).replace('.',',');
   sumFact.textContent=String(sf).replace('.',',');
   sumCount.textContent=tasksView.length;
-
-  sPlan.textContent=sumPlan.textContent;
-  sFact.textContent=sumFact.textContent;
-  sTasks.textContent=String(tasksView.length);
-
-  collageTitle.textContent=isFact? 'Сделано сегодня' : 'Задачи на сегодня';
-  modeHint.textContent = vizMode==='tower' ? 'Режим «Башня»: одна колонка' : 'Режим «Коллаж»: сетка карточек';
-
+  $("#kpiPlan").textContent = String(sp).replace('.',',');
+  $("#kpiFact").textContent = String(sf).replace('.',',');
+  $("#kpiTasks").textContent = tasksView.length;
+  const factBadge=$("#factBadge"); const factBadgeText=$("#factBadgeText");
+  if(isFact){ factBadge.classList.remove('hidden'); factBadgeText.textContent=`ФАКТ на ${String(sf).replace('.',',')} ч`; } else { factBadge.classList.add('hidden'); }
   applyLayout(); drawCards(tasksView,isFact);
+  collageWrap.classList.remove('hidden');
+  renderRoot.classList.toggle('tower', vizMode==='tower');
 }
-
 function sortList(a,how){
   const arr=[...a];
   switch(how){
-    case 'deadline': arr.sort((x,y)=> String(x.deadline||'').localeCompare(String(y.deadline||''))); break;
     case 'priority': arr.sort((x,y)=> prRank(x.sticker_priority)-prRank(y.sticker_priority)); break;
+    case 'deadline': arr.sort((x,y)=> String(x.deadline||'').localeCompare(String(y.deadline||''))); break;
     case 'plan':     arr.sort((x,y)=> num(y.sticker_plan)-num(x.sticker_plan)); break;
     case 'fact':     arr.sort((x,y)=> num(y.sticker_fact)-num(x.sticker_fact)); break;
   }
   return arr;
 }
-
 function applyLayout(){
-  exportStage.classList.toggle('tower', vizMode==='tower');
   if(vizMode==='tower'){
     $("#collage").style.gridTemplateColumns='repeat(1,minmax(0,1fr))';
-    exportStage.style.width='700px';
+    renderRoot.style.width='860px';
     colSelect.disabled=true;
   }else{
     colSelect.disabled=false;
     const n=parseInt(colSelect.value||'2',10);
     $("#collage").style.gridTemplateColumns=`repeat(${n},minmax(0,1fr))`;
     const widthPerCol=540;
-    exportStage.style.width=`${Math.max(700, n*widthPerCol + (n-1)*16) + 48}px`;
+    renderRoot.style.width=`${Math.max(700, n*widthPerCol + (n-1)*16) + 48}px`;
   }
 }
 colSelect.addEventListener('change', ()=> vizMode==='collage' && applyLayout());
-density.addEventListener('change', ()=> drawCards(tasksView,isFactGlobal));
+design.addEventListener('change', ()=>{ designStyle=design.value; drawCards(tasksView,isFactGlobal); });
 sortBy.addEventListener('change', ()=>{ tasksView=sortList(tasksView, sortBy.value); drawCards(tasksView,isFactGlobal); });
-
-function stickerBadge(text){
+// chips/badges
+function badge(txt, cls='badge-slate'){ if(!txt) return ''; return `<span class="yg-badge ${cls}">${esc(txt)}</span>`; }
+function chip(icon, text){ if(!text) return ''; return `<span class="yg-chip"><i data-lucide="${icon}" class="w-3.5 h-3.5"></i>${esc(text)}</span>`; }
+function priorityBadge(text){
   if(!text) return '';
   const t=String(text).toLowerCase();
-  let cls='badge-slate', icon='tag';
-  if(t.includes('пожар')||t.includes('alarm')||t.includes('аларм')) { cls='badge-red'; icon='flame'; }
-  else if(t.includes('важно')) { cls='badge-amber'; icon='alert-triangle'; }
-  else if(t.includes('в работе')) { cls='badge-blue'; icon='play'; }
-  else if(t.includes('выполнено')||t.includes('закончено')) { cls='badge-emerald'; icon='check-circle-2'; }
-  return `<span class="yg-badge ${cls}"><i data-lucide="${icon}" class="w-3.5 h-3.5"></i>${esc(text)}</span>`;
+  if(t.includes('пожар')||t.includes('alarm')||t.includes('аларм')) return badge('Аларм сейчас ПОЖАР','badge-red');
+  if(t.includes('важно')) return badge('Важно сегодня','badge-amber');
+  return badge(text,'badge-slate');
 }
-function chip(icon, text){ if(!text) return ''; return `<span class="yg-chip"><i data-lucide="${icon}" class="w-3.5 h-3.5"></i>${esc(text)}</span>`; }
-
 function drawCards(items,isFact){
   collage.innerHTML='';
-  const compact = density.value==='yg'; // для yg немного плотнее
-  const pad = compact? 'p-4' : 'p-5';
+  const pad = 'p-4 md:p-5';
   const frag=document.createDocumentFragment();
-
   for(const t of items){
     const fact=num(t.sticker_fact), plan=num(t.sticker_plan);
     const ratio=plan>0? Math.min(100, Math.round(fact/plan*100)) : (fact>0?100:0);
-    const titleStr=String(t.title||t.id||'Без названия');
-
+    const titleStr=cleanTitle(String(t.title||'Без названия'));
     const el=document.createElement('article');
     el.className=`card ${pad}`;
-
-    const firstRow = `
+    const lead = isFact ? `<i data-lucide="check-circle" class="w-5 h-5 text-emerald-400"></i>`
+                        : `<i data-lucide="circle" class="w-5 h-5 text-slate-500"></i>`;
+    // порядок чипов
+    const projectName = t.sticker_project || t.project || t.board || '';
+    const chipsTop = [
+      chip('calendar', t.deadline || ''),
+      priorityBadge(t.sticker_priority),
+      chip('activity', t.sticker_stage || ''),
+      chip('boxes', projectName) // Проект — именно отсюда
+    ].filter(Boolean).join(' ');
+    const chipsBottom = [
+      chip('tag', t.sticker_category || ''),
+      chip('target', t.sticker_plan? `План сегодня: ${num(t.sticker_plan)}` : ''),
+      chip('clock', t.sticker_fact? `Факт часов: ${num(t.sticker_fact)}` : '')
+      // без "Сообщений" — он снизу рядом с прогрессом
+    ].filter(Boolean).join(' ');
+    const html = `
       <div class="flex items-start gap-2">
-        ${isFact ? '<i data-lucide="check-circle-2" class="w-5 h-5 text-emerald-500 shrink-0 mt-0.5"></i>' : '<i data-lucide="circle" class="w-5 h-5 text-slate-400 shrink-0 mt-0.5"></i>'}
-        <h4 class="title text-[18px] md:text-[19px]">${esc(titleStr)}</h4>
-      </div>`;
-
-    // порядок: дедлайн → приоритет → этап → проект → категория → план → факт
-    const chipsRow = `
-      <div class="mt-3 flex flex-wrap gap-2">
-        ${chip('calendar', t.deadline)}
-        ${stickerBadge(t.sticker_priority)}
-        ${stickerBadge(t.sticker_stage)}
-        ${chip('briefcase', t.project)}
-        ${t.sticker_category ? chip('bookmark', t.sticker_category) : ''}
-        ${plan? chip('target', `План сегодня: ${plan}`) : ''}
-        ${fact? chip('clock', `Факт часов: ${fact}`) : ''}
-      </div>`;
-
-    const bottom = `
-      <div class="mt-3">
-        <div class="h-2 rounded-full bg-slate-200 dark:bg-slate-800 overflow-hidden">
-          <div class="h-full bg-indigo-500" style="width:${ratio}%"></div>
-        </div>
-        <div class="mt-2 text-xs flex items-center justify-between text-slate-500 dark:text-slate-400">
-          <div class="inline-flex items-center gap-1"><i data-lucide="message-square" class="w-3.5 h-3.5"></i> Сообщений: ${esc(t.msgs||'0')}</div>
-          <div class="flex items-center gap-4">
-            ${plan? `<span class="inline-flex items-center gap-1"><i data-lucide="target" class="w-3.5 h-3.5"></i>${esc(plan)}</span>`:''}
-            ${fact? `<span class="inline-flex items-center gap-1"><i data-lucide="clock" class="w-3.5 h-3.5"></i>${esc(fact)}</span>`:''}
+        <div class="mt-1">${lead}</div>
+        <div class="flex-1">
+          <h4 class="title text-lg md:text-xl">${esc(titleStr)}</h4>
+          <div class="mt-3 flex flex-wrap gap-2">${chipsTop}</div>
+          <div class="mt-2 flex flex-wrap gap-2">${chipsBottom}</div>
+          <div class="mt-3">
+            <div class="h-2 rounded-full bg-slate-800 overflow-hidden"><div class="h-full" style="background:#6366f1;width:${ratio}%"></div></div>
+            <div class="mt-2 text-xs flex items-center justify-between text-slate-400">
+              <div class="inline-flex items-center gap-1"><i data-lucide="message-circle" class="w-3.5 h-3.5"></i> Сообщений: ${esc(t.msgs||'0')}</div>
+              <div class="flex items-center gap-4">
+                ${plan? `<span class="inline-flex items-center gap-1"><i data-lucide="target" class="w-3.5 h-3.5"></i>${esc(plan)}</span>`:''}
+                ${fact?  `<span class="inline-flex items-center gap-1"><i data-lucide="clock" class="w-3.5 h-3.5"></i>${esc(fact)}</span>`:''}
+              </div>
+            </div>
           </div>
         </div>
       </div>`;
-
-    el.innerHTML = firstRow + chipsRow + bottom;
+    el.innerHTML = html;
     frag.appendChild(el);
   }
   collage.appendChild(frag);
   lucide.createIcons();
 }
-
-/* Export — делаем СНИМОК ТОГО, ЧТО НА СЦЕНЕ */
+// Export — ровно renderRoot; фиксы пустого кадра
 function enableExports(v){ btnPNG.disabled=btnCopy.disabled=!v; }
-
-async function exportCanvas(){
-  // гарантируем шрифты/иконки
-  await document.fonts.ready;
-  await new Promise(r=>setTimeout(r,30));
-  lucide.createIcons();
-
-  // html2canvas опции — максимально приближённый DOM-рендер
-  return await html2canvas(exportStage,{
+async function grabCanvas(){
+  if(document.fonts && document.fonts.ready){ try{ await document.fonts.ready; }catch(_){} }
+  await new Promise(r=>setTimeout(r,500));
+  const node = renderRoot;
+  return html2canvas(node,{
     backgroundColor:null,
     useCORS:true,
-    allowTaint:false,
-    foreignObjectRendering:true,
-    imageTimeout:0,
+    allowTaint:true,
     scale:2,
-    logging:false
+    logging: true,
+    letterRendering: true,
+    foreignObjectRendering: true,
+    imageTimeout: 15000,
   });
 }
-
 btnPNG.addEventListener('click', async ()=>{
   try{
-    const c=await exportCanvas();
-    c.toBlob(b=>{
-      const a=document.createElement('a');
-      a.href=URL.createObjectURL(b);
-      a.download=`${collageTitle.textContent}.png`;
-      a.click(); URL.revokeObjectURL(a.href);
-    });
-  }catch(e){ console.error(e); toast('PNG: ошибка'); }
+    const canvas=await grabCanvas();
+    canvas.toBlob(b=>{ const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download=`${collageTitle.textContent}.png`; a.click(); URL.revokeObjectURL(a.href); });
+  }catch(e){ console.error(e); toast('Ошибка при экспорте PNG'); }
 });
-
 btnCopy.addEventListener('click', async ()=>{
   try{
-    const c=await exportCanvas();
-    c.toBlob(async b=>{
-      try{
-        await navigator.clipboard.write([new ClipboardItem({'image/png':b})]);
-        toast('Скопировано в буфер ✔');
-      }catch(_){ toast('Буфер недоступен — скачай PNG'); }
-    });
-  }catch(e){ console.error(e); toast('Копирование не удалось'); }
+    const canvas=await grabCanvas();
+    canvas.toBlob(async b=>{ try{ await navigator.clipboard.write([new ClipboardItem({'image/png':b})]); toast('Скопировано в буфер ✔'); }catch(_){ toast('Буфер недоступен — скачай PNG'); } });
+  }catch(e){ console.error(e); toast('Ошибка при копировании'); }
 });
+// helpers cont.
+function canon(s){ return String(s||'').replace(/[“”«»„‟"']/g,'"').replace(/ё/g,'е').replace(/\s+/g,' ').trim().toLowerCase(); }
+function detectMode(name=""){ const n=String(name).toLowerCase(); if(n.includes('сделано сегодня')) return 'fact'; if(n.includes('задачи на сегодня')) return 'plan'; return 'plan'; }
 </script>
 </body>
 </html>
