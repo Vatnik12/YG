@@ -69,6 +69,12 @@
     #renderRoot.tower #topSummary { display: block; }
     #renderRoot.tower #topSummary > div { display: block; margin-bottom: 16px; }
     #renderRoot.tower #topSummary .kpi { width: 100%; }
+    /* Светлая тема для всего body */
+    body.light { background-color: #f8fafc; color: #1e293b; }
+    body.light .panel { background: #fff; color: #1e293b; }
+    body.light .card { background: #fff; color: #1e293b; border: 1px solid #e2e8f0; }
+    body.light .kpi { background: rgba(241, 245, 249, .8); color: #1e293b; }
+    body.light .yg-chip { background: #f1f5f9; border: 1px solid #e2e8f0; color: #1e293b; }
   </style>
 </head>
 <body class="min-h-screen flex flex-col font-sans bg-slate-900 text-slate-100 dark:bg-slate-900 dark:text-slate-100">
@@ -255,13 +261,13 @@ const prRank=(p="")=>{p=String(p).toLowerCase(); if(p.includes('пожар')||p.
 const cleanTitle=(t="")=> String(t).replace(/^\s*[A-ZА-Я]{2,}-?\d+\s*[—-]\s*/i,'').trim();
 // Theme
 const themeSwitch=$("#themeSwitch");
-const applyTheme=()=>{ const t=localStorage.getItem('theme')||'dark'; document.documentElement.classList.toggle('dark',t==='dark'); themeSwitch.classList.toggle('on', t==='dark'); document.body.classList.toggle('light', t!=='dark'); };
+const applyTheme=()=>{ const t=localStorage.getItem('theme')||'dark'; document.documentElement.classList.toggle('dark',t==='dark'); document.body.classList.toggle('light', t!=='dark'); themeSwitch.classList.toggle('on', t==='dark'); };
 applyTheme();
 themeSwitch.addEventListener('click',()=>{
   const dark=document.documentElement.classList.toggle('dark');
+  document.body.classList.toggle('light', !dark);
   localStorage.setItem('theme', dark?'dark':'light');
   themeSwitch.classList.toggle('on',dark);
-  document.body.classList.toggle('light', !dark);
 });
 window.addEventListener('DOMContentLoaded',()=> lucide.createIcons());
 // Refs
@@ -470,13 +476,13 @@ function drawCards(items,isFact){
   collage.appendChild(frag);
   lucide.createIcons();
 }
-// Export — ровно renderRoot; фиксы пустого кадра
+// Export
 function enableExports(v){ btnPNG.disabled=btnCopy.disabled=!v; }
-async function grabCanvas(){
-  await new Promise(resolve => {
-    setTimeout(resolve, 1000);
-  });
-  const node = renderRoot;
+
+async function grabCanvas() {
+  await new Promise(resolve => setTimeout(resolve, 1000));
+
+  const node = document.querySelector("#renderRoot");
   const canvas = await html2canvas(node, {
     backgroundColor: null,
     useCORS: true,
@@ -487,9 +493,11 @@ async function grabCanvas(){
     foreignObjectRendering: true,
     imageTimeout: 15000,
   });
+
   return canvas;
 }
-btnPNG.addEventListener('click', async ()=>{
+
+btnPNG.addEventListener('click', async () => {
   try {
     const canvas = await grabCanvas();
     canvas.toBlob(blob => {
@@ -504,7 +512,8 @@ btnPNG.addEventListener('click', async ()=>{
     toast('Ошибка при экспорте PNG');
   }
 });
-btnCopy.addEventListener('click', async ()=>{
+
+btnCopy.addEventListener('click', async () => {
   try {
     const canvas = await grabCanvas();
     canvas.toBlob(async blob => {
@@ -520,6 +529,7 @@ btnCopy.addEventListener('click', async ()=>{
     toast('Ошибка при копировании');
   }
 });
+
 // helpers cont.
 function canon(s){ return String(s||'').replace(/[“”«»„‟"']/g,'"').replace(/ё/g,'е').replace(/\s+/g,' ').trim().toLowerCase(); }
 function detectMode(name=""){ const n=String(name).toLowerCase(); if(n.includes('сделано сегодня')) return 'fact'; if(n.includes('задачи на сегодня')) return 'plan'; return 'plan'; }
