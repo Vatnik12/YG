@@ -10,15 +10,19 @@
   <script>
     tailwind.config = {
       darkMode: 'class',
-      theme: { extend: { fontFamily:{ sans:['Inter','ui-sans-serif','system-ui'] }, boxShadow:{ soft:'0 10px 30px rgba(0,0,0,.08)' }, colors:{ os:{ primary:'#4f46e5', accent:'#22c55e', warn:'#ef4444' } } } }
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter','ui-sans-serif','system-ui'] },
+          boxShadow:  { soft: '0 10px 30px rgba(0,0,0,.08)' },
+          colors: { os:{ primary:'#4f46e5', accent:'#22c55e', warn:'#ef4444' } },
+          borderRadius: { 'xl2':'1rem' }
+        }
+      }
     }
   </script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://unpkg.com/lucide@latest"></script>
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 
   <style>
     :root{ --ring:#e2e8f0 }
@@ -26,10 +30,10 @@
     *::-webkit-scrollbar{ width:8px;height:8px } *::-webkit-scrollbar-thumb{ background:#CBD5E1;border-radius:9999px }
     .panel{ border:1px solid var(--ring); border-radius:16px; background:#fff; box-shadow:0 10px 30px rgba(0,0,0,.06) }
     .dark .panel{ background:#0b1220; border-color:#1f2937 }
-    .card{ border:1px solid var(--ring); border-radius:16px; background:#fff; box-shadow:0 10px 30px rgba(0,0,0,.06) }
+    .card{ border:1px solid var(--ring); border-radius:16px; background:#fff; box-shadow:0 10px 30px rgba(0,0,0,.06); overflow-wrap: break-word; word-break: break-word; }
     .dark .card{ background:#0b1220; border-color:#1f2937 }
-    .pill{ border-radius:999px; padding:2px 8px; font-size:12px; line-height:18px; display:inline-flex; gap:6px; align-items:center; white-space:nowrap }
-    .chip{ border-radius:10px; padding:2px 8px; font-size:12px; line-height:18px; background:#F8FAFC; border:1px solid #E2E8F0; display:inline-flex; gap:6px; align-items:center }
+    .pill{ border-radius:999px; padding:2px 8px; font-size:12px; line-height:18px; display:inline-flex; gap:6px; align-items:center; white-space:nowrap; }
+    .chip{ border-radius:10px; padding:2px 8px; font-size:12px; line-height:18px; background:#F8FAFC; border:1px solid #E2E8F0; display:inline-flex; gap:6px; align-items:center; white-space:nowrap; }
     .dark .chip{ background:#111827; border-color:#1f2937; color:#cbd5e1 }
     .fade-dim{ filter:saturate(.78) brightness(.92) }
     .drop-hover{ outline:3px dashed #4f46e5; outline-offset:-10px }
@@ -37,17 +41,11 @@
     .pill-amber{ background:#FEF3C7; color:#92400E } .dark .pill-amber{ background:#78350f; color:#fde68a; border:1px solid #ea580c22 }
     .pill-red{ background:#fee2e2; color:#991b1b } .dark .pill-red{ background:#7f1d1d; color:#fecaca; border:1px solid #ef444422 }
     .pill-teal{ background:#ccfbf1; color:#115e59 } .dark .pill-teal{ background:#064e3b; color:#99f6e4; border:1px solid #14b8a622 }
-    .controls{ display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:.5rem }
-    .app-blur{ filter:blur(7px); transform:scale(.995); transition:filter .6s ease, transform .6s ease }
-    .unblur{ filter:blur(0); transform:scale(1) }
-    .card h4{ word-break:break-word; overflow-wrap:anywhere }
-    .card .pill, .card .chip{ max-width:100%; overflow:hidden; text-overflow:ellipsis }
-    @media print{ @page{ size:A4 portrait; margin:10mm } }
   </style>
 </head>
 <body class="min-h-screen flex flex-col font-sans bg-slate-50 text-slate-900 dark:bg-slate-900 dark:text-slate-100 selection:bg-indigo-200 selection:text-indigo-900">
 
-  <!-- SPLASH -->
+  <!-- SPLASH (auto-hide 3s + scroll-reveal with unblur) -->
   <div id="splash" class="fixed inset-0 z-50 grid place-items-center bg-[#0b1020] transition-opacity duration-700">
     <div class="relative w-full h-full overflow-hidden">
       <img src="./assets/bg.jpg" alt="" class="absolute inset-0 w-full h-full object-cover opacity-60" loading="eager">
@@ -64,36 +62,38 @@
     </div>
   </div>
 
-  <!-- APP WRAPPER (blurred until splash ends) -->
+  <!-- APP WRAPPER: будет размытым, пока висит заставка -->
   <div id="app" class="app-blur">
-  <!-- HEADER -->
+
+  <!-- FULL-WIDTH TOOLBAR -->
   <header class="sticky top-0 z-40">
     <div class="backdrop-blur bg-white/80 dark:bg-slate-900/70 border-b border-slate-200 dark:border-slate-800">
       <div class="max-w-[1280px] mx-auto px-4">
-        <div class="py-4 md:py-5 grid grid-cols-1 lg:grid-cols-12 gap-3">
-          <div class="lg:col-span-4 flex items-center gap-3 min-w-0">
-            <div class="w-10 h-10 rounded-2xl bg-indigo-600 grid place-items-center text-white font-bold shrink-0">OS</div>
-            <div class="leading-tight min-w-0">
-              <div class="font-semibold text-lg truncate">OneScreen: План/Факт</div>
+        <div class="py-4 md:py-5 flex flex-wrap gap-4 items-center justify-between">
+          <div class="flex items-center gap-3 min-w-[200px]">
+            <div class="w-10 h-10 rounded-2xl bg-indigo-600 grid place-items-center text-white font-bold">OS</div>
+            <div class="leading-tight">
+              <div class="font-semibold text-lg">OneScreen: План/Факт</div>
               <div id="modeBadge" class="text-xs text-slate-500 dark:text-slate-400">режим не выбран</div>
             </div>
           </div>
-          <div class="lg:col-span-5 controls">
-            <div class="panel px-3 py-2 flex items-center justify-between">
+
+          <div class="flex flex-wrap gap-2">
+            <div class="panel px-3 py-2 flex items-center gap-2">
               <span class="text-xs text-slate-500 dark:text-slate-400">Колонки</span>
-              <select id="colSelect" class="px-2 py-1 text-sm rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 w-[88px]">
+              <select id="colSelect" class="px-2 py-1 text-sm rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
                 <option value="2">2</option><option value="3">3</option><option value="4">4</option>
               </select>
             </div>
-            <div class="panel px-3 py-2 flex items-center justify-between">
+            <div class="panel px-3 py-2 flex items-center gap-2">
               <span class="text-xs text-slate-500 dark:text-slate-400">Плотность</span>
-              <select id="density" class="px-2 py-1 text-sm rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 w-[130px]">
+              <select id="density" class="px-2 py-1 text-sm rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
                 <option value="md">Стандарт</option><option value="sm">Компактно</option>
               </select>
             </div>
-            <div class="panel px-3 py-2 flex items-center justify-between">
+            <div class="panel px-3 py-2 flex items-center gap-2">
               <span class="text-xs text-slate-500 dark:text-slate-400">Сорт</span>
-              <select id="sortBy" class="px-2 py-1 text-sm rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 w-[150px]">
+              <select id="sortBy" class="px-2 py-1 text-sm rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
                 <option value="none">Без сортировки</option>
                 <option value="priority">Приоритет</option>
                 <option value="deadline">Дедлайн</option>
@@ -101,14 +101,15 @@
                 <option value="fact">Факт (ч)</option>
               </select>
             </div>
-            <div class="panel px-3 py-2 flex items-center justify-between">
+            <div class="panel px-3 py-2 flex items-center gap-2">
               <span class="text-xs text-slate-500 dark:text-slate-400">Тема</span>
               <button id="themeToggle" class="px-2 py-1 text-sm rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
                 <i data-lucide="sun" class="w-4 h-4 hidden dark:inline"></i><i data-lucide="moon" class="w-4 h-4 dark:hidden"></i>
               </button>
             </div>
           </div>
-          <div class="lg:col-span-3 flex items-center gap-2 justify-end flex-wrap">
+
+          <div class="flex flex-wrap gap-2">
             <button id="btnExportPNG" disabled class="px-4 py-2 rounded-xl panel disabled:opacity-50">PNG</button>
             <button id="btnExportPDF" disabled class="px-4 py-2 rounded-xl panel disabled:opacity-50">PDF</button>
             <button id="btnCopy" disabled class="px-4 py-2 rounded-xl bg-slate-900 text-white dark:bg-white dark:text-slate-900 disabled:opacity-50">Копировать</button>
@@ -118,347 +119,51 @@
     </div>
   </header>
 
-  <!-- MAIN -->
-  <main class="flex-1 w-full">
-    <section class="max-w-[1280px] mx-auto px-4 py-10">
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        <div class="lg:col-span-8">
-          <div id="dropzone" class="panel p-10 md:p-14 text-center bg-gradient-to-b from-white to-slate-50 dark:from-slate-900 dark:to-slate-900/40">
-            <div class="mx-auto w-20 h-20 rounded-3xl bg-indigo-50 dark:bg-indigo-900/40 grid place-items-center text-indigo-600 dark:text-indigo-300 shadow-soft">
-              <i data-lucide="upload" class="w-10 h-10"></i>
-            </div>
-            <h2 class="mt-5 text-2xl md:text-3xl font-extrabold">Перетащи .xlsx сюда</h2>
-            <p class="mt-2 text-slate-500 dark:text-slate-400">или <label for="fileInput" class="text-indigo-700 dark:text-indigo-300 cursor-pointer underline decoration-dotted">выбери файл</label>. «Задачи на сегодня …» → План, «Сделано сегодня …» → Факт.</p>
-            <input id="fileInput" type="file" accept=".xlsx,.xls" class="hidden"/>
-
-            <!-- PROGRESS -->
-            <div id="progressWrap" class="mx-auto mt-8 max-w-xl text-left hidden">
-              <div class="flex items-center justify-between mb-1">
-                <span id="progressLabel" class="text-xs text-slate-500 dark:text-slate-400">Готово: 0%</span>
-                <span id="progressStep" class="text-xs text-slate-500 dark:text-slate-400">—</span>
-              </div>
-              <div class="h-3 rounded-full bg-slate-200 dark:bg-slate-800 overflow-hidden">
-                <div id="progressBar" class="h-full w-0 bg-indigo-600 transition-all duration-300"></div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- SUMMARY -->
-        <div class="lg:col-span-4">
-          <div class="panel p-5">
-            <div class="text-sm text-slate-500 dark:text-slate-400 mb-2">Сводка</div>
-            <div class="grid grid-cols-2 gap-3 text-center">
-              <div class="panel py-3"><div class="text-xs text-slate-500 dark:text-slate-400">Дата</div><div id="sumDate" class="font-semibold">—</div></div>
-              <div class="panel py-3"><div class="text-xs text-slate-500 dark:text-slate-400">Задач</div><div id="sumCount" class="font-semibold">0</div></div>
-              <div class="panel py-3"><div class="text-xs text-slate-500 dark:text-slate-400">План (ч)</div><div id="sumPlan" class="font-semibold">0</div></div>
-              <div class="panel py-3"><div class="text-xs text-slate-500 dark:text-slate-400">Факт (ч)</div><div id="sumFact" class="font-semibold">0</div></div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- COLLAGE -->
-      <section id="collageWrap" class="mt-10 hidden">
-        <h3 id="collageTitle" class="text-3xl font-extrabold tracking-tight"></h3>
-        <div class="mt-4 panel p-4">
-          <div class="overflow-auto">
-            <!-- фиксированная ширина для чистого экспорта -->
-            <div id="collage" class="grid gap-4" style="width:1123px; grid-template-columns:repeat(2,minmax(0,1fr));"></div>
-          </div>
-        </div>
-      </section>
-    </section>
-  </main>
-
-  <!-- FOOTER -->
-  <footer class="mt-10 border-t border-slate-200 dark:border-slate-800">
-    <div class="max-w-[1280px] mx-auto px-4 py-6 flex items-center justify-between">
-      <div class="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
-        <span class="inline-flex items-center gap-2 px-3 py-1 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
-          <i data-lucide="heart" class="w-4 h-4 text-rose-500"></i>
-          OneScreen
-        </span>
-        <span class="text-xs">© just vibes</span>
-      </div>
-      <div class="text-xs text-slate-500 dark:text-slate-400">План/Факт by Vatnik</div>
-    </div>
-  </footer>
-
-  <!-- SUPPORT FAB + MODAL -->
-  <button id="supportFab" title="Техподдержка" class="fixed bottom-6 right-6 z-40 rounded-full shadow-lg bg-indigo-600 hover:bg-indigo-500 text-white w-14 h-14 grid place-items-center">
-    <i data-lucide="life-buoy" class="w-6 h-6"></i>
-  </button>
-  <div id="supportModal" class="fixed inset-0 z-50 hidden">
-    <div class="absolute inset-0 backdrop-blur-sm bg-black/40"></div>
-    <div class="relative h-full w-full grid place-items-center p-4">
-      <div class="panel w-full max-w-md p-6">
-        <div class="flex items-center justify-between">
-          <h4 class="text-lg font-semibold">Техподдержка</h4>
-          <button id="modalClose" class="rounded-lg px-2 py-1 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
-            <i data-lucide="x" class="w-4 h-4"></i>
-          </button>
-        </div>
-        <p class="mt-3 text-sm text-slate-500 dark:text-slate-400">Пиши в телеграм:</p>
-        <a href="http://t.me/Vatnik13" target="_blank" class="mt-4 flex items-center gap-2 px-4 py-3 rounded-xl bg-gradient-to-r from-indigo-600 to-indigo-500 text-white font-semibold">
-          <i data-lucide="send" class="w-5 h-5"></i> @Vatnik13
-        </a>
-      </div>
-    </div>
-  </div>
-
-  <!-- TOAST -->
-  <div id="toast" class="fixed bottom-4 left-1/2 -translate-x-1/2 z-40 hidden">
-    <div class="px-4 py-2 rounded-xl bg-slate-900 text-white shadow-lg text-sm"></div>
-  </div>
-
-  </div><!-- /app -->
+  </div><!-- /#app -->
 
 <script>
-  // Utils
-  const $=(s,r=document)=>r.querySelector(s); const $$=(s,r=document)=>Array.from(r.querySelectorAll(s));
-  const toast=(m)=>{const b=document.querySelector('#toast>div'); b.textContent=m; document.querySelector('#toast').classList.remove('hidden'); setTimeout(()=>document.querySelector('#toast').classList.add('hidden'),2400);};
-  const esc=(s='')=>String(s).replace(/[&<>\\\"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','\\\"':'&quot;'}[m]));
-  const num=(v)=>{if(typeof v==='number')return v; if(v===null||v===undefined||v==='')return 0; const s=String(v).replace(',','.').replace(/[^\\d.-]/g,''); const n=parseFloat(s); return isNaN(n)?0:n;};
-  const prRank=(p='')=>{p=String(p).toLowerCase(); if(p.includes('пожар')||p.includes('alarm')||p.includes('аларм'))return 0; if(p.includes('важно'))return 1; return 2;};
+  // helpers for blur toggle
+  const app=document.getElementById('app');
+  function unblurApp(){ app?.classList.add('unblur'); app?.classList.remove('app-blur'); }
 
-  // Theme
-  const applyStoredTheme=()=>{const t=localStorage.getItem('theme')||'dark'; document.documentElement.classList.toggle('dark', t==='dark');};
-  applyStoredTheme();
-  document.querySelector('#themeToggle').addEventListener('click',()=>{const d=document.documentElement.classList.toggle('dark'); localStorage.setItem('theme', d?'dark':'light');});
+  // graceful hide
+  function endSplash(){
+    const s=document.getElementById('splash');
+    if(!s||s.dataset.closed==='1') return;
+    s.dataset.closed='1';
+    s.style.pointerEvents='none';
+    s.classList.add('opacity-0');
+    unblurApp();
+    setTimeout(()=>{ try{s.remove();}catch(_){} },800);
+    window.removeEventListener('scroll',scrollFade);
+  }
 
-  // Splash end (failsafe + click)
-  function endSplash(){ const s=document.getElementById('splash'); if(!s||s.dataset.closed==='1') return; s.dataset.closed='1'; s.style.pointerEvents='none'; s.classList.add('opacity-0'); const app=document.getElementById('app'); app?.classList.add('unblur'); app?.classList.remove('app-blur'); setTimeout(()=>{ try{s.remove();}catch(_){} },800); }
+  // auto hide after 3s with nice gsap
   try{
     const tl=gsap.timeline();
-    tl.fromTo('#splashContent',{y:20,opacity:0},{y:0,opacity:1,duration:1.2,ease:'power3.out'})
-      .to('#splash',{opacity:0,duration:.9,delay:1.8,ease:'power2.inOut',onComplete:endSplash});
-  }catch(_){ requestAnimationFrame(endSplash); }
-  document.addEventListener('DOMContentLoaded',()=> setTimeout(endSplash,3200));
-  window.addEventListener('load', ()=> endSplash());
-  document.getElementById('splash')?.addEventListener('click', endSplash);
+    tl.fromTo('#splashContent',{y:20,opacity:0},{y:0,opacity:1,duration:1.1,ease:'power3.out'})
+      .to('#splash',{opacity:0,duration:.9,delay:1.9,ease:'power2.inOut',onComplete:endSplash});
+  }catch(_){ setTimeout(endSplash,3000); }
+  // fallback hard-timeout 3s
+  setTimeout(endSplash,3000);
 
-  // Icons
-  window.addEventListener('DOMContentLoaded',()=>{ lucide.createIcons(); });
-
-  // DOM refs
-  const modeBadge=document.querySelector('#modeBadge'), dropzone=document.querySelector('#dropzone'), fileInput=document.querySelector('#fileInput');
-  const collage=document.querySelector('#collage'), collageWrap=document.querySelector('#collageWrap'), collageTitle=document.querySelector('#collageTitle');
-  const sumDate=document.querySelector('#sumDate'), sumPlan=document.querySelector('#sumPlan'), sumFact=document.querySelector('#sumFact'), sumCount=document.querySelector('#sumCount');
-  const btnPNG=document.querySelector('#btnExportPNG'), btnPDF=document.querySelector('#btnExportPDF'), btnCopy=document.querySelector('#btnCopy'), colSelect=document.querySelector('#colSelect'), density=document.querySelector('#density'), sortBy=document.querySelector('#sortBy');
-  const progressWrap=document.querySelector('#progressWrap'), progressBar=document.querySelector('#progressBar'), progressLabel=document.querySelector('#progressLabel'), progressStep=document.querySelector('#progressStep');
-
-  // DnD
-  ['dragenter','dragover'].forEach(ev=>dropzone.addEventListener(ev,e=>{e.preventDefault();dropzone.classList.add('drop-hover');}));
-  ['dragleave','drop'].forEach(ev=>dropzone.addEventListener(ev,e=>{e.preventDefault();dropzone.classList.remove('drop-hover');}));
-  dropzone.addEventListener('drop',e=>{ const f=e.dataTransfer.files?.[0]; if(f) handleFile(f); });
-  dropzone.addEventListener('click',()=>fileInput.click());
-  fileInput.addEventListener('change',e=>{ const f=e.target.files?.[0]; if(f) handleFile(f); });
-
-  // State
-  let tasksRaw=[], tasksView=[], isFact=false;
-
-  // Progress
-  function showProgress(){ progressWrap.classList.remove('hidden'); setProgress(0,'Старт'); }
-  function setProgress(p, step){ progressBar.style.width = p+'%'; progressLabel.textContent = `Готово: ${Math.round(p)}%`; if(step) progressStep.textContent = step; }
-  function hideProgress(){ setTimeout(()=>progressWrap.classList.add('hidden'), 350); }
-
-  // File flow
-  async function handleFile(file){
-    try{
-      showProgress(); setProgress(10,'Читаю файл');
-
-      const mode = detectMode(file.name); isFact = mode==='fact'; modeBadge.textContent = isFact ? 'режим: ФАКТ' : 'режим: ПЛАН';
-      const buf = await file.arrayBuffer();
-
-      setProgress(25,'Парсю книгу');
-      const wb = XLSX.read(buf, {type:'array'});
-
-      // самый «плотный» лист
-      let sheet=wb.Sheets[wb.SheetNames[0]], sheetName=wb.SheetNames[0], best=0;
-      wb.SheetNames.forEach(n=>{ const s=wb.Sheets[n]; const r=XLSX.utils.decode_range(s['!ref']||'A1:A1'); const cells=(r.e.r-r.s.r+1)*(r.e.c-r.s.c+1); if(cells>best){best=cells; sheet=s; sheetName=n;} });
-
-      setProgress(40,'Читаю строки');
-      const M = XLSX.utils.sheet_to_json(sheet, {header:1, defval:'', raw:true});
-      if(!M.length){ toast('Пустой лист'); hideProgress(); return; }
-
-      const headers = (M[0]||[]).map(canon);
-      const rows = M.slice(1);
-
-      // индексы колонок
-      const need = {
-        id:['id задачи','id'],
-        title:['название задачи','название'],
-        deadline:['дедлайн'],
-        board:['доска'],
-        column:['колонка'],
-        project:['проект'],
-        last_msg:['дата последнего сообщения','последнее сообщение'],
-        msgs:['кол-во сообщений','сообщений'],
-        description:['описание задачи','описание'],
-        sticker_priority:['стикер "приоритет"','приоритет'],
-        sticker_stage:['стикер "этап"','этап'],
-        sticker_project:['стикер "проект"','проект (стикер)'],
-        sticker_plan:['стикер "план сегодня"','план сегодня','план'],
-        sticker_fact:['стикер "факт часов"','факт часов','факт'],
-        sticker_category:['стикер "категория"','категория'],
-      };
-      const findCol=(variants)=>{
-        const vs = variants.map(canon);
-        for(const v of vs){ const i=headers.indexOf(v); if(i>=0) return i; }
-        for(const v of vs){ const i=headers.findIndex(h=>h.includes(v)); if(i>=0) return i; }
-        for(const v of vs){ const w=v.split(' ').filter(Boolean); const i=headers.findIndex(h=>w.every(x=>h.includes(x))); if(i>=0) return i; }
-        return -1;
-      };
-      const idx={}; Object.entries(need).forEach(([k,vars])=> idx[k]=findCol(vars));
-
-      if(idx.title<0 && idx.id<0){ toast('Не найдены колонки ID/Название'); hideProgress(); return; }
-
-      setProgress(60,'Готовлю задачи');
-      tasksRaw = rows
-        .map(r=>({
-          id: cell(r,idx.id), title: cell(r,idx.title),
-          deadline: cell(r,idx.deadline), board: cell(r,idx.board), column: cell(r,idx.column),
-          project: cell(r,idx.project), last_msg: cell(r,idx.last_msg), msgs: cell(r,idx.msgs),
-          description: cell(r,idx.description),
-          sticker_priority: cell(r,idx.sticker_priority), sticker_stage: cell(r,idx.sticker_stage),
-          sticker_project: cell(r,idx.sticker_project), sticker_plan: cell(r,idx.sticker_plan),
-          sticker_fact: cell(r,idx.sticker_fact), sticker_category: cell(r,idx.sticker_category),
-        }))
-        .filter(t => (String(t.id||t.title||'').trim()!=='') && !/^сумма значений/i.test(String(t.id||'').trim()));
-
-      if(!tasksRaw.length){ toast('После фильтрации задач не осталось'); hideProgress(); return; }
-
-      setProgress(78,'Рисую карточки');
-      render(tasksRaw, isFact, file.name);
-
-      setProgress(100,'Готово ✔');
-      hideProgress();
-      enableExports(true);
-      toast('Коллаж готов. Можно скачать/копировать.');
-      document.querySelector('#collageWrap').scrollIntoView({behavior:'smooth', block:'start'});
-
-    }catch(e){
-      console.error(e);
-      toast('Ошибка обработки файла');
-      hideProgress();
-    }
+  // scroll-reveal: gradually fade splash & unblur app based on scrollY
+  function scrollFade(){
+    const s=document.getElementById('splash');
+    if(!s||s.dataset.closed==='1') return;
+    const max=300; // пикселей для полного скрытия
+    const p=Math.min(1, window.scrollY/max);
+    s.style.opacity = String(1-p);
+    const blur = (1-p)*7; // от 7px к 0
+    app.style.filter = `blur(${blur.toFixed(2)}px)`;
+    if(p>=1) endSplash();
   }
+  window.addEventListener('scroll', scrollFade, {passive:true});
 
-  // helpers
-  function canon(s){ return String(s||'').replace(/[“”«»„‟\"']/g,'\"').replace(/ё/g,'е').replace(/\s+/g,' ').trim().toLowerCase(); }
-  function cell(row, i){ return i>=0 ? (row[i] ?? '') : ''; }
-  function detectMode(name=''){ const n=String(name).toLowerCase(); if(n.includes('сделано сегодня')) return 'fact'; if(n.includes('задачи на сегодня')) return 'plan'; return 'plan'; }
-
-  // ===== Render
-  let isFactGlobal=false; let tasksView=[];
-  function render(list, isFact, filename){
-    isFactGlobal=isFact;
-    sumDate.textContent = extractDate(filename);
-
-    tasksView = sortList(list, sortBy.value);
-
-    const sp=tasksView.reduce((a,t)=>a+num(t.sticker_plan),0), sf=tasksView.reduce((a,t)=>a+num(t.sticker_fact),0);
-    sumPlan.textContent=String(sp).replace('.',','); sumFact.textContent=String(sf).replace('.',','); sumCount.textContent=tasksView.length;
-
-    collageTitle.textContent = isFact? 'Сделано сегодня' : 'Задачи на сегодня';
-    setColumns(parseInt(colSelect.value||'2',10));
-    drawCards(tasksView, isFact);
-
-    document.querySelector('#collageWrap').classList.remove('hidden');
-    gsap.from(document.querySelectorAll('.card'),{y:12,opacity:0,duration:.5,stagger:.02,ease:'power2.out'});
-  }
-
-  function sortList(arr, how){
-    const a=[...arr];
-    switch(how){
-      case 'priority': a.sort((x,y)=> prRank(x.sticker_priority)-prRank(y.sticker_priority)); break;
-      case 'deadline': a.sort((x,y)=> String(x.deadline||'').localeCompare(String(y.deadline||''))); break;
-      case 'plan':     a.sort((x,y)=> num(y.sticker_plan)-num(x.sticker_plan)); break;
-      case 'fact':     a.sort((x,y)=> num(y.sticker_fact)-num(x.sticker_fact)); break;
-    }
-    return a;
-  }
-
-  function setColumns(n){
-    collage.style.gridTemplateColumns = `repeat(${n}, minmax(0, 1fr))`;
-    const widthPerCol = 540;
-    collage.style.width = `${Math.max(700, n*widthPerCol + (n-1)*16)}px`;
-  }
-  colSelect.addEventListener('change', ()=> setColumns(parseInt(colSelect.value,10)));
-  density.addEventListener('change', ()=> drawCards(tasksView, isFactGlobal));
-  sortBy.addEventListener('change', ()=>{ tasksView=sortList(tasksView, sortBy.value); drawCards(tasksView, isFactGlobal); });
-
-  function drawCards(items, isFact){
-    collage.innerHTML='';
-    const compact = density.value==='sm';
-    const pad = compact? 'p-3 md:p-4' : 'p-4 md:p-5';
-
-    const frag=document.createDocumentFragment();
-    for(const t of items){
-      const fact=num(t.sticker_fact), plan=num(t.sticker_plan);
-      const ratio = plan>0? Math.min(100, Math.round(fact/plan*100)) : (fact>0?100:0);
-
-      const card=document.createElement('article');
-      card.className=`card ${pad} ${isFact? 'fade-dim':''}`;
-      card.innerHTML=`
-        <div class="flex items-start justify-between gap-3 min-w-0">
-          <div class="min-w-0">
-            <h4 class="font-semibold leading-snug">${esc(String(t.id||'').trim()? t.id+' — ' : '')}${esc(t.title||'Без названия')}</h4>
-          </div>
-          <button class="opacity-50 hover:opacity-100 shrink-0"><i data-lucide="more-horizontal" class="w-5 h-5"></i></button>
-        </div>
-
-        <div class="mt-3 space-y-2">
-          <div class="flex flex-wrap gap-2">
-            ${pill('calendar',''+(t.deadline||'—'),'pill-amber')}
-            ${t.sticker_priority? pill('flame', t.sticker_priority, 'pill-red'):''}
-            ${t.sticker_stage? pill('bar-chart-3', t.sticker_stage, 'pill-teal'):''}
-            ${t.project? pill('', t.project, 'pill-gray'):''}
-            ${t.sticker_category? pill('', t.sticker_category, 'pill-gray'):''}
-          </div>
-          <div class="flex flex-wrap gap-2">
-            ${plan? chip('target',`План Сегодня: ${plan}`):''}
-            ${fact? chip('clock',`Факт часов: ${fact}`):''}
-          </div>
-        </div>
-
-        <div class="mt-4">
-          <div class="h-2 rounded-full bg-slate-200 dark:bg-slate-800 overflow-hidden">
-            <div class="h-full bg-indigo-500" style="width:${ratio}%"></div>
-          </div>
-          <div class="mt-2 text-xs flex items-center justify-between text-slate-500 dark:text-slate-400">
-            <div class="flex items-center gap-4">
-              <span class="inline-flex items-center gap-1"><i data-lucide="message-circle" class="w-3.5 h-3.5"></i> Сообщений: ${esc(t.msgs||'0')}</span>
-            </div>
-            <div class="flex items-center gap-4">
-              ${plan? `<span class="inline-flex items-center gap-1"><i data-lucide="target" class="w-3.5 h-3.5"></i>${plan}</span>`:''}
-              ${fact? `<span class="inline-flex items-center gap-1"><i data-lucide="clock" class="w-3.5 h-3.5"></i>${fact}</span>`:''}
-            </div>
-          </div>
-        </div>
-      `;
-      frag.appendChild(card);
-    }
-    collage.appendChild(frag);
-    lucide.createIcons();
-  }
-
-  function pill(icon, text, cls){
-    const ico = icon? `<i data-lucide="${icon}" class="w-3.5 h-3.5"></i>` : '';
-    return `<span class="pill ${cls}">${ico}<span>${esc(text)}</span></span>`;
-  }
-  function chip(icon, text){
-    return `<span class="chip"><i data-lucide="${icon}" class="w-3.5 h-3.5"></i><span>${esc(text)}</span></span>`;
-  }
-  function extractDate(name=''){ const m=String(name).match(/сегодня[^\d]*(.+)$/i); return m? m[1].replace(/\.[^.]+$/,'').trim() : '—'; }
-
-  // Export
-  function enableExports(v){ btnPNG.disabled=btnPDF.disabled=btnCopy.disabled=!v; }
-  async function exportCanvas(){ await new Promise(r=>setTimeout(r,40)); return html2canvas(collage,{ backgroundColor:getComputedStyle(document.body).backgroundColor, scale:2, useCORS:true }); }
-  btnPNG.addEventListener('click', async ()=>{ try{ const c=await exportCanvas(); c.toBlob(b=>{ const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download=`${collageTitle.textContent}.png`; a.click(); URL.revokeObjectURL(a.href); }); }catch(e){ console.error(e); toast('PNG: ошибка'); } });
-  btnPDF.addEventListener('click', async ()=>{ try{ const c=await exportCanvas(); const img=c.toDataURL('image/png'); const { jsPDF }=window.jspdf; const pdf=new jsPDF({unit:'pt',format:'a4',compress:true}); const pageW=pdf.internal.pageSize.getWidth(), margin=24; const w=pageW - margin*2, h=w*(c.height/c.width); pdf.addImage(img,'PNG',margin,margin,w,h); pdf.save(`${collageTitle.textContent}.pdf`); }catch(e){ console.error(e); toast('PDF: ошибка'); } });
-  btnCopy.addEventListener('click', async ()=>{ try{ const c=await exportCanvas(); c.toBlob(async b=>{ try{ await navigator.clipboard.write([new ClipboardItem({'image/png':b})]); toast('Скопировано в буфер ✔'); }catch(_){ toast('Буфер недоступен — скачай PNG'); } }); }catch(e){ console.error(e); toast('Копирование не удалось'); } });
+  // theme toggle (kept from prior code)
+  const applyStoredTheme=()=>{const t=localStorage.getItem('theme')||'dark'; document.documentElement.classList.toggle('dark', t==='dark');};
+  applyStoredTheme();
+  document.getElementById('themeToggle')?.addEventListener('click',()=>{const d=document.documentElement.classList.toggle('dark'); localStorage.setItem('theme', d?'dark':'light');});
 </script>
 </body>
 </html>
