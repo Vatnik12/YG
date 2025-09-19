@@ -60,36 +60,12 @@
 
     .drop-hover{ outline:3px dashed #4f46e5; outline-offset:-10px }
 
-    /* ---- Toolbar layout (fixed) ---- */
-    .toolbar { 
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 12px;
-      align-items: stretch;
-    }
-    @media (min-width: 900px){
-      .toolbar { grid-template-columns: 320px 1fr 280px; }
-    }
-    .controls-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(160px, 1fr));
-      gap: 8px;
-    }
-    @media (min-width: 640px){
-      .controls-grid { grid-template-columns: repeat(4, minmax(160px, 1fr)); }
-    }
-    .ctrl { height: 44px; }
-    .ctrl select{ height: 28px; }
-    .mode-wrap{ height: auto; }
-    .theme-ctrl{ height: 44px; }
-    .export-row{ display:flex; gap:8px; justify-content:flex-end; align-items:center; }
-
     @media print{ @page{ size:A4 portrait; margin:10mm } }
   </style>
 </head>
 <body class="min-h-screen flex flex-col font-sans bg-slate-50 text-slate-900 dark:bg-slate-900 dark:text-slate-100">
 
-  <!-- ===== SPLASH (готовая, авто-уход 1.5с + клик) ===== -->
+  <!-- ===== SPLASH (авто 1.5с, без кликов/скроллов) ===== -->
   <div id="splash" class="fixed inset-0 z-50 grid place-items-center bg-[#0b1020]">
     <div class="relative w-full h-full overflow-hidden">
       <img src="./assets/bg.jpg" alt="" class="absolute inset-0 w-full h-full object-cover opacity-60"/>
@@ -106,13 +82,12 @@
     </div>
   </div>
 
-  <!-- ===== HEADER (grid, не едет) ===== -->
+  <!-- ===== HEADER ===== -->
   <header class="sticky top-0 z-40">
     <div class="backdrop-blur bg-white/70 dark:bg-slate-900/70 border-b border-slate-200 dark:border-slate-800">
       <div class="max-w-[1200px] mx-auto px-4">
-        <div class="py-4 md:py-5 toolbar">
-          <!-- Левый блок -->
-          <div class="flex items-center gap-3">
+        <div class="py-4 md:py-5 flex flex-wrap items-stretch gap-3">
+          <div class="flex items-center gap-3 min-w-[260px]">
             <div class="w-10 h-10 rounded-2xl bg-indigo-600 grid place-items-center text-white font-bold">OS</div>
             <div class="leading-tight">
               <div class="font-semibold text-lg">OneScreen: План/Факт</div>
@@ -120,23 +95,20 @@
             </div>
           </div>
 
-          <!-- Контролы -->
-          <div class="controls-grid">
-            <div class="panel px-3 py-2 flex items-center justify-between ctrl">
+          <div class="flex flex-wrap items-stretch gap-2 flex-1">
+            <div class="panel px-3 py-2 flex items-center justify-between min-w-[160px]">
               <span class="text-xs text-slate-500 dark:text-slate-400">Колонки</span>
               <select id="colSelect" class="px-2 py-1 text-sm rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
                 <option value="2">2</option><option value="3">3</option><option value="4">4</option>
               </select>
             </div>
-
-            <div class="panel px-3 py-2 flex items-center justify-between ctrl">
+            <div class="panel px-3 py-2 flex items-center justify-between min-w-[180px]">
               <span class="text-xs text-slate-500 dark:text-slate-400">Плотность</span>
               <select id="density" class="px-2 py-1 text-sm rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
                 <option value="md">Стандарт</option><option value="sm">Компактно</option>
               </select>
             </div>
-
-            <div class="panel px-3 py-2 flex items-center justify-between ctrl">
+            <div class="panel px-3 py-2 flex items-center justify-between min-w-[200px]">
               <span class="text-xs text-slate-500 dark:text-slate-400">Сорт</span>
               <select id="sortBy" class="px-2 py-1 text-sm rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
                 <option value="none">Без сортировки</option>
@@ -147,8 +119,8 @@
               </select>
             </div>
 
-            <!-- Режимы -->
-            <div class="panel px-3 py-2 mode-wrap">
+            <!-- Mode -->
+            <div class="panel px-3 py-2 flex-1 min-w-[260px]">
               <div class="text-xs text-slate-500 dark:text-slate-400 mb-1">Режим</div>
               <div id="modeSwitch" class="mode-switch">
                 <div id="modeThumb" class="mode-thumb"></div>
@@ -157,15 +129,14 @@
               </div>
             </div>
 
-            <!-- Тема -->
-            <div class="panel px-3 py-2 flex items-center justify-between theme-ctrl">
+            <!-- Theme -->
+            <div class="panel px-3 py-2 flex items-center justify-between min-w-[160px]">
               <span class="text-xs text-slate-500 dark:text-slate-400">Тема</span>
               <button id="themeSwitch" class="theme-switch"><span class="theme-thumb"></span></button>
             </div>
           </div>
 
-          <!-- Экспорт -->
-          <div class="export-row">
+          <div class="flex items-center gap-2">
             <button id="btnExportPNG" disabled class="px-4 py-2 rounded-xl panel disabled:opacity-50">PNG</button>
             <button id="btnExportPDF" disabled class="px-4 py-2 rounded-xl panel disabled:opacity-50">PDF</button>
             <button id="btnCopy"      disabled class="px-4 py-2 rounded-xl bg-slate-900 text-white dark:bg-white dark:text-slate-900 disabled:opacity-50">Копировать</button>
@@ -275,24 +246,22 @@
   </div>
 
 <script>
-  /* ===== Splash: гарантированное скрытие ===== */
+  /* ===== Splash: ТОЛЬКО авто-уход ===== */
   function endSplash(){
     const s=document.getElementById('splash');
     if(!s||s.dataset.closed==='1') return;
     s.dataset.closed='1'; s.style.pointerEvents='none';
-    if(window.gsap){ gsap.to('#splash',{opacity:0,duration:.35,ease:'power2.inOut',onComplete:()=>s.remove()}); }
-    else { s.style.transition='opacity .35s ease'; s.style.opacity='0'; setTimeout(()=>{ try{s.remove()}catch(_){} },400); }
-  }
-  try{
     if(window.gsap){
       gsap.timeline()
-        .fromTo("#splashContent",{y:20,opacity:0},{y:0,opacity:1,duration:.6,ease:"power3.out"})
-        .to("#splash",{opacity:0,duration:.35,delay:.9,ease:"power2.inOut",onComplete:endSplash});
+        .fromTo('#splashContent',{y:18,opacity:0},{y:0,opacity:1,duration:.6,ease:'power3.out'})
+        .to('#splash',{opacity:0,filter:'blur(6px)',duration:.6,ease:'power2.inOut',onComplete:()=>s.remove()});
+    }else{
+      s.style.transition='opacity .6s ease, filter .6s ease';
+      s.style.opacity='0'; s.style.filter='blur(6px)';
+      setTimeout(()=>{ try{s.remove()}catch(_){} },650);
     }
-  }catch(_){}
+  }
   document.addEventListener('DOMContentLoaded',()=> setTimeout(endSplash,1500));
-  window.addEventListener('load', endSplash);
-  document.getElementById('splash')?.addEventListener('click', endSplash);
 
   /* ===== Utils ===== */
   const $=(s,r=document)=>r.querySelector(s); const $$=(s,r=document)=>Array.from(r.querySelectorAll(s));
@@ -545,7 +514,6 @@
   btnPNG.addEventListener('click', async ()=>{ try{ const c=await exportCanvas(); c.toBlob(b=>{ const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download=`${collageTitle.textContent}.png`; a.click(); URL.revokeObjectURL(a.href); }); }catch(e){ toast('PNG: ошибка'); } });
   btnPDF.addEventListener('click', async ()=>{ try{ const c=await exportCanvas(); const img=c.toDataURL('image/png'); const { jsPDF }=window.jspdf; const pdf=new jsPDF({unit:'pt',format:'a4',compress:true}); const pageW=pdf.internal.pageSize.getWidth(), margin=24; const w=pageW - margin*2, h=w*(c.height/c.width); pdf.addImage(img,'PNG',margin,margin,w,h); pdf.save(`${collageTitle.textContent}.pdf`); }catch(e){ toast('PDF: ошибка'); } });
   btnCopy.addEventListener('click', async ()=>{ try{ const c=await exportCanvas(); c.toBlob(async b=>{ try{ await navigator.clipboard.write([new ClipboardItem({'image/png':b})]); toast('Скопировано в буфер ✔'); }catch(_){ toast('Буфер недоступен — скачай PNG'); } }); }catch(e){ toast('Копирование не удалось'); } });
-
 </script>
 </body>
 </html>
