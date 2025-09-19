@@ -10,14 +10,7 @@
   <script>
     tailwind.config = {
       darkMode: 'class',
-      theme: {
-        extend: {
-          fontFamily: { sans: ['Inter','ui-sans-serif','system-ui'] },
-          boxShadow:  { soft: '0 10px 30px rgba(0,0,0,.08)' },
-          colors: { os:{ primary:'#4f46e5', accent:'#22c55e', warn:'#ef4444' } },
-          borderRadius: { 'xl2':'1rem' }
-        }
-      }
+      theme: { extend: { fontFamily:{ sans:['Inter','ui-sans-serif','system-ui'] }, boxShadow:{ soft:'0 10px 30px rgba(0,0,0,.08)' }, colors:{ os:{ primary:'#4f46e5', accent:'#22c55e', warn:'#ef4444' } } } }
     }
   </script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -54,7 +47,7 @@
 </head>
 <body class="min-h-screen flex flex-col font-sans bg-slate-50 text-slate-900 dark:bg-slate-900 dark:text-slate-100 selection:bg-indigo-200 selection:text-indigo-900">
 
-  <!-- SPLASH (longer + robust auto-hide) -->
+  <!-- SPLASH -->
   <div id="splash" class="fixed inset-0 z-50 grid place-items-center bg-[#0b1020] transition-opacity duration-700">
     <div class="relative w-full h-full overflow-hidden">
       <img src="./assets/bg.jpg" alt="" class="absolute inset-0 w-full h-full object-cover opacity-60" loading="eager">
@@ -71,9 +64,9 @@
     </div>
   </div>
 
-  <!-- PAGE WRAPPER (blur until splash ends) -->
+  <!-- APP WRAPPER (blurred until splash ends) -->
   <div id="app" class="app-blur">
-  <!-- FULL-WIDTH TOOLBAR -->
+  <!-- HEADER -->
   <header class="sticky top-0 z-40">
     <div class="backdrop-blur bg-white/80 dark:bg-slate-900/70 border-b border-slate-200 dark:border-slate-800">
       <div class="max-w-[1280px] mx-auto px-4">
@@ -85,7 +78,6 @@
               <div id="modeBadge" class="text-xs text-slate-500 dark:text-slate-400">режим не выбран</div>
             </div>
           </div>
-
           <div class="lg:col-span-5 controls">
             <div class="panel px-3 py-2 flex items-center justify-between">
               <span class="text-xs text-slate-500 dark:text-slate-400">Колонки</span>
@@ -116,7 +108,6 @@
               </button>
             </div>
           </div>
-
           <div class="lg:col-span-3 flex items-center gap-2 justify-end flex-wrap">
             <button id="btnExportPNG" disabled class="px-4 py-2 rounded-xl panel disabled:opacity-50">PNG</button>
             <button id="btnExportPDF" disabled class="px-4 py-2 rounded-xl panel disabled:opacity-50">PDF</button>
@@ -132,7 +123,6 @@
     <section class="max-w-[1280px] mx-auto px-4 py-10">
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
         <div class="lg:col-span-8">
-          <!-- DROPZONE -->
           <div id="dropzone" class="panel p-10 md:p-14 text-center bg-gradient-to-b from-white to-slate-50 dark:from-slate-900 dark:to-slate-900/40">
             <div class="mx-auto w-20 h-20 rounded-3xl bg-indigo-50 dark:bg-indigo-900/40 grid place-items-center text-indigo-600 dark:text-indigo-300 shadow-soft">
               <i data-lucide="upload" class="w-10 h-10"></i>
@@ -222,12 +212,14 @@
     <div class="px-4 py-2 rounded-xl bg-slate-900 text-white shadow-lg text-sm"></div>
   </div>
 
+  </div><!-- /app -->
+
 <script>
-  // ===== Basics
+  // Utils
   const $=(s,r=document)=>r.querySelector(s); const $$=(s,r=document)=>Array.from(r.querySelectorAll(s));
   const toast=(m)=>{const b=document.querySelector('#toast>div'); b.textContent=m; document.querySelector('#toast').classList.remove('hidden'); setTimeout(()=>document.querySelector('#toast').classList.add('hidden'),2400);};
-  const esc=(s='')=>String(s).replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
-  const num=(v)=>{if(typeof v==='number')return v; if(v===null||v===undefined||v==='')return 0; const s=String(v).replace(',','.').replace(/[^\d.-]/g,''); const n=parseFloat(s); return isNaN(n)?0:n;};
+  const esc=(s='')=>String(s).replace(/[&<>\\\"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','\\\"':'&quot;'}[m]));
+  const num=(v)=>{if(typeof v==='number')return v; if(v===null||v===undefined||v==='')return 0; const s=String(v).replace(',','.').replace(/[^\\d.-]/g,''); const n=parseFloat(s); return isNaN(n)?0:n;};
   const prRank=(p='')=>{p=String(p).toLowerCase(); if(p.includes('пожар')||p.includes('alarm')||p.includes('аларм'))return 0; if(p.includes('важно'))return 1; return 2;};
 
   // Theme
@@ -235,8 +227,8 @@
   applyStoredTheme();
   document.querySelector('#themeToggle').addEventListener('click',()=>{const d=document.documentElement.classList.toggle('dark'); localStorage.setItem('theme', d?'dark':'light');});
 
-  // Splash: reliable auto-hide (longer dwell + blur-to-clear)
-  function endSplash(){ const s=document.getElementById('splash'); if(!s||s.dataset.closed==='1') return; s.dataset.closed='1'; s.style.pointerEvents='none'; s.classList.add('opacity-0'); setTimeout(()=>{ try{s.remove();}catch(_){} },800); const app=document.getElementById('app'); app?.classList.add('unblur'); app?.classList.remove('app-blur'); }
+  // Splash end (failsafe + click)
+  function endSplash(){ const s=document.getElementById('splash'); if(!s||s.dataset.closed==='1') return; s.dataset.closed='1'; s.style.pointerEvents='none'; s.classList.add('opacity-0'); const app=document.getElementById('app'); app?.classList.add('unblur'); app?.classList.remove('app-blur'); setTimeout(()=>{ try{s.remove();}catch(_){} },800); }
   try{
     const tl=gsap.timeline();
     tl.fromTo('#splashContent',{y:20,opacity:0},{y:0,opacity:1,duration:1.2,ease:'power3.out'})
@@ -255,11 +247,6 @@
   const sumDate=document.querySelector('#sumDate'), sumPlan=document.querySelector('#sumPlan'), sumFact=document.querySelector('#sumFact'), sumCount=document.querySelector('#sumCount');
   const btnPNG=document.querySelector('#btnExportPNG'), btnPDF=document.querySelector('#btnExportPDF'), btnCopy=document.querySelector('#btnCopy'), colSelect=document.querySelector('#colSelect'), density=document.querySelector('#density'), sortBy=document.querySelector('#sortBy');
   const progressWrap=document.querySelector('#progressWrap'), progressBar=document.querySelector('#progressBar'), progressLabel=document.querySelector('#progressLabel'), progressStep=document.querySelector('#progressStep');
-
-  const supportFab=document.querySelector('#supportFab'), supportModal=document.querySelector('#supportModal'), modalClose=document.querySelector('#modalClose');
-  supportFab.addEventListener('click', ()=>{ supportModal.classList.remove('hidden'); gsap.fromTo('#supportModal .panel',{y:20,opacity:0},{y:0,opacity:1,duration:.35,ease:'power2.out'}); });
-  modalClose.addEventListener('click', ()=> supportModal.classList.add('hidden'));
-  supportModal.addEventListener('click', (e)=>{ if(e.target===supportModal) supportModal.classList.add('hidden'); });
 
   // DnD
   ['dragenter','dragover'].forEach(ev=>dropzone.addEventListener(ev,e=>{e.preventDefault();dropzone.classList.add('drop-hover');}));
@@ -359,7 +346,7 @@
   }
 
   // helpers
-  function canon(s){ return String(s||'').replace(/[“”«»„‟"']/g,'"').replace(/ё/g,'е').replace(/\s+/g,' ').trim().toLowerCase(); }
+  function canon(s){ return String(s||'').replace(/[“”«»„‟\"']/g,'\"').replace(/ё/g,'е').replace(/\s+/g,' ').trim().toLowerCase(); }
   function cell(row, i){ return i>=0 ? (row[i] ?? '') : ''; }
   function detectMode(name=''){ const n=String(name).toLowerCase(); if(n.includes('сделано сегодня')) return 'fact'; if(n.includes('задачи на сегодня')) return 'plan'; return 'plan'; }
 
@@ -445,8 +432,8 @@
               <span class="inline-flex items-center gap-1"><i data-lucide="message-circle" class="w-3.5 h-3.5"></i> Сообщений: ${esc(t.msgs||'0')}</span>
             </div>
             <div class="flex items-center gap-4">
-              ${plan? `<span class=\"inline-flex items-center gap-1\"><i data-lucide=\"target\" class=\"w-3.5 h-3.5\"></i>${plan}</span>`:''}
-              ${fact? `<span class=\"inline-flex items-center gap-1\"><i data-lucide=\"clock\" class=\"w-3.5 h-3.5\"></i>${fact}</span>`:''}
+              ${plan? `<span class="inline-flex items-center gap-1"><i data-lucide="target" class="w-3.5 h-3.5"></i>${plan}</span>`:''}
+              ${fact? `<span class="inline-flex items-center gap-1"><i data-lucide="clock" class="w-3.5 h-3.5"></i>${fact}</span>`:''}
             </div>
           </div>
         </div>
@@ -458,11 +445,11 @@
   }
 
   function pill(icon, text, cls){
-    const ico = icon? `<i data-lucide=\"${icon}\" class=\"w-3.5 h-3.5\"></i>` : '';
-    return `<span class=\"pill ${cls}\">${ico}<span>${esc(text)}</span></span>`;
+    const ico = icon? `<i data-lucide="${icon}" class="w-3.5 h-3.5"></i>` : '';
+    return `<span class="pill ${cls}">${ico}<span>${esc(text)}</span></span>`;
   }
   function chip(icon, text){
-    return `<span class=\"chip\"><i data-lucide=\"${icon}\" class=\"w-3.5 h-3.5\"></i><span>${esc(text)}</span></span>`;
+    return `<span class="chip"><i data-lucide="${icon}" class="w-3.5 h-3.5"></i><span>${esc(text)}</span></span>`;
   }
   function extractDate(name=''){ const m=String(name).match(/сегодня[^\d]*(.+)$/i); return m? m[1].replace(/\.[^.]+$/,'').trim() : '—'; }
 
@@ -473,6 +460,5 @@
   btnPDF.addEventListener('click', async ()=>{ try{ const c=await exportCanvas(); const img=c.toDataURL('image/png'); const { jsPDF }=window.jspdf; const pdf=new jsPDF({unit:'pt',format:'a4',compress:true}); const pageW=pdf.internal.pageSize.getWidth(), margin=24; const w=pageW - margin*2, h=w*(c.height/c.width); pdf.addImage(img,'PNG',margin,margin,w,h); pdf.save(`${collageTitle.textContent}.pdf`); }catch(e){ console.error(e); toast('PDF: ошибка'); } });
   btnCopy.addEventListener('click', async ()=>{ try{ const c=await exportCanvas(); c.toBlob(async b=>{ try{ await navigator.clipboard.write([new ClipboardItem({'image/png':b})]); toast('Скопировано в буфер ✔'); }catch(_){ toast('Буфер недоступен — скачай PNG'); } }); }catch(e){ console.error(e); toast('Копирование не удалось'); } });
 </script>
-</div> <!-- /#app -->
 </body>
 </html>
