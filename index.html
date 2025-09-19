@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>OneScreen План/Факт — by Vatnik</title>
 
-  <!-- Tailwind -->
+  <!-- Tailwind (CDN ok для GitHub Pages; предупреждение можно игнорить) -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -252,9 +252,7 @@
   document.addEventListener('DOMContentLoaded', ()=>{
     const s=document.getElementById('splash');
     if(!s) return;
-    // Основное скрытие через 1.5 сек
     setTimeout(()=>{ s.classList.add('splash-hide'); }, 1500);
-    // Жёсткая подстраховка — удалить из DOM через 3.5 сек
     setTimeout(()=>{ if(document.body.contains(s)) s.remove(); }, 3500);
   });
 
@@ -287,7 +285,7 @@
   const progressWrap=$("#progressWrap"), progressBar=$("#progressBar"), progressLabel=$("#progressLabel"), progressStep=$("#progressStep"), diag=$("#diag");
 
   // Support modal
-  const supportFab=$("#supportFab"), supportModal=$("#supportModal"), modalClose=$("#modalClose");
+  const supportFab=$("#supportFab"), supportModal=$("#supportModal"), modalClose=$("#modalClose"]);
   supportFab.addEventListener('click', ()=>{ supportModal.classList.remove('hidden'); });
   modalClose.addEventListener('click', ()=> supportModal.classList.add('hidden'));
   supportModal.addEventListener('click', (e)=>{ if(e.target===supportModal) supportModal.classList.add('hidden'); });
@@ -306,7 +304,7 @@
   dropzone.addEventListener("click",()=>fileInput.click());
   fileInput.addEventListener("change",e=>{ const f=e.target.files?.[0]; if(f) handleFile(f); });
 
-  // State
+  // ===== State (единственное объявление!) =====
   let tasksRaw=[], tasksView=[], isFact=false, isFactGlobal=false;
 
   // Progress
@@ -374,15 +372,10 @@
   function cell(row,i){ return i>=0 ? (row[i] ?? '') : ''; }
   function detectMode(name=""){ const n=String(name).toLowerCase(); if(n.includes('сделано сегодня')) return 'fact'; if(n.includes('задачи на сегодня')) return 'plan'; return 'plan'; }
 
-  function extractDate(name=""){ // "19 Сент. 16:38"
-    const m=String(name).match(/(\d{1,2})\s*(Янв|Фев|Март|Апр|Май|Июнь|Июль|Авг|Сент|Окт|Ноя|Дек)[^\d]*(\d{1,2})_(\d{2})/i);
-    if(!m) return '—';
-    const d=m[1], mon=m[2], h=m[3], mm=m[4];
-    return `${d} ${mon}. ${h}:${mm}`;
-  }
+  function extractDate(name=""){ const m=String(name).match(/(\d{1,2})\s*(Янв|Фев|Март|Апр|Май|Июнь|Июль|Авг|Сент|Окт|Ноя|Дек)[^\d]*(\d{1,2})_(\d{2})/i);
+    if(!m) return '—'; const d=m[1], mon=m[2], h=m[3], mm=m[4]; return `${d} ${mon}. ${h}:${mm}`; }
 
-  // render
-  let isFactGlobal=false, tasksView=[];
+  // render (НЕ объявляем isFactGlobal здесь повторно!)
   function render(list,isFact,filename){
     isFactGlobal=isFact;
     sumDate.textContent=extractDate(filename);
@@ -427,7 +420,7 @@
   }
   colSelect.addEventListener('change', ()=> vizMode==='collage' && applyLayout());
   density.addEventListener('change', ()=> drawCards(tasksView,isFactGlobal));
-  sortBy.addEventListener('change', ()=>{ tasksView=sortList(tasksView,sortBy.value); drawCards(tasksView,isFactGlobal); });
+  sortBy.addEventListener('change', ()=>{ tasksView=sortList(tasksView, sortBy.value); drawCards(tasksView,isFactGlobal); });
 
   function stickerBadge(text){
     if(!text) return '';
