@@ -4,7 +4,7 @@
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>OneScreen План/Факт — by Vatnik</title>
-  <!-- Tailwind (CDN ок для GH Pages) -->
+  <!-- Tailwind (CDN) -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -27,21 +27,54 @@
     *::-webkit-scrollbar{ width:8px;height:8px }*::-webkit-scrollbar-thumb{ background:#CBD5E1;border-radius:9999px }
     .panel{ border:1px solid var(--ring); border-radius:14px; background:#fff; box-shadow:0 10px 30px rgba(0,0,0,.04)}
     .dark .panel{ background:#0b1220; border-color:#1f2937}
-    /* ---------- Карточки: только YOU GILE ---------- */
-    .card-yg{
-      position:relative; border:1px solid #eaeef4; border-radius:16px; background:#fff;
-      box-shadow: 0 1px 0 rgba(32,48,80,.04), 0 8px 28px rgba(32,48,80,.08);
+    /* YOU GILE */
+    .card-yg {
+      position: relative;
+      border: 1px solid #eaeef4;
+      border-radius: 12px;
+      background: #fff;
+      box-shadow: 0 1px 0 rgba(32, 48, 80, 0.04), 0 8px 28px rgba(32, 48, 80, 0.08);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
     }
-    .dark .card-yg{ background:#0b1220; border-color:#1f2937 }
-    .title-yg{
-      font-weight:700; font-size:15px; line-height:1.25; overflow-wrap:anywhere; word-break:break-word;
+    .dark .card-yg {
+      background: #0b1220;
+      border-color: #1f2937;
     }
-    /* общий «блик/виньетка» */
+    .card-yg .title-yg {
+      font-weight: 700;
+      line-height: 1.25;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+      font-size: 16px;
+    }
+    .card-yg .stickers {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: auto;
+    }
+    /* VAIB */
+    .card-vibe{
+      position:relative; border:1px solid var(--ring); border-radius:14px; background:#fff;
+      box-shadow: inset 0 0 0 1px rgba(0,0,0,0.02), inset 0 0 80px rgba(0,0,0,0.05), 0 10px 30px rgba(0,0,0,.06);
+    }
+    .dark .card-vibe{
+      background:#0b1220; border-color:#1f2937;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.03), inset 0 0 120px rgba(255,255,255,0.04), 0 10px 30px rgba(0,0,0,.35);
+    }
+    .title-vibe{
+      font-weight:800; line-height:1.2; overflow-wrap:anywhere; word-break:break-word;
+      display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden;
+    }
+    /* Общий блик/виньетка */
     .card-glow:before{
       content:""; position:absolute; inset:-1px; border-radius:inherit; pointer-events:none;
       background:radial-gradient(1200px 200px at 50% -60px, rgba(99,102,241,.12), transparent 70%);
     }
-    /* чипы */
+    /* Чипы */
     .yg-chip,.yg-badge{
       display:inline-flex; align-items:center; gap:6px;
       height:26px; padding:0 10px; border-radius:9999px;
@@ -55,7 +88,7 @@
     .mode-switch{ position:relative; border-radius:12px; border:1px solid var(--ring); background:rgba(99,102,241,.08); padding:4px; display:flex; gap:4px }
     .mode-thumb{ position:absolute; inset:4px auto 4px 4px; width:calc(50% - 6px); border-radius:8px; background:rgba(99,102,241,.18); transition:transform .25s ease }
     .mode-item{ position:relative; z-index:1; flex:1; padding:8px 10px; font-size:12px; border-radius:8px; display:flex; align-items:center; gap:6px; justify-content:center; cursor:pointer }
-    .mode-item.inactive{ filter:saturate(.8) opacity:.65 }
+    .mode-item.inactive{ filter:saturate(.8) opacity(.65) }
     .theme-switch{ position:relative; width:64px; height:30px; border-radius:9999px; border:1px solid var(--ring); background:#eef2ff }
     .dark .theme-switch{ background:#0f172a; border-color:#1f2937 }
     .theme-thumb{ position:absolute; top:3px; left:3px; width:24px; height:24px; border-radius:9999px; background:#fff; transition:transform .25s ease, background .25s ease }
@@ -65,19 +98,17 @@
     /* Splash */
     #splash{ transition:opacity .6s ease, filter .6s ease }
     #splash.splash-hide{ opacity:0; filter:blur(8px) saturate(.9); pointer-events:none }
-    /* Экспорт-сцена (фон под коллажем) */
+    /* Экспорт-сцена */
     #exportStage{ position:relative; border-radius:12px; overflow:hidden }
     #exportStage .bg-img{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; transform:scale(1.08); filter:blur(8px) saturate(0.95); }
-    #exportStage.tower .bg-img{ transform:scale(1.45); } /* в Башне сильнее зум */
+    #exportStage.tower .bg-img{ transform:scale(1.45); }
     #exportStage .bg-overlay{ position:absolute; inset:0; background:linear-gradient(180deg,rgba(15,23,42,.22),rgba(15,23,42,.22)); }
     #exportStage .stage-pad{ position:relative; padding:24px; }
-    .summary-export { background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); border-radius: 12px; padding: 16px; color: #fff; }
-    .summary-export h2 { font-size: 24px; font-weight: bold; }
     @media print{ @page{ size:A4 portrait; margin:10mm } }
   </style>
 </head>
 <body class="min-h-screen flex flex-col font-sans bg-slate-50 text-slate-900 dark:bg-slate-900 dark:text-slate-100">
-  <!-- ===== SPLASH (авто 1.5с) ===== -->
+  <!-- ===== SPLASH ===== -->
   <div id="splash" class="fixed inset-0 z-50 grid place-items-center bg-[#0b1020]">
     <div class="relative w-full h-full overflow-hidden">
       <img src="./assets/bg.jpg" alt="" class="absolute inset-0 w-full h-full object-cover opacity-60"/>
@@ -113,6 +144,13 @@
               </select>
             </div>
             <div class="panel px-3 py-2 flex items-center justify-between min-w-[200px]">
+              <span class="text-xs text-slate-500 dark:text-slate-400">Дизайн</span>
+              <select id="design" class="px-2 py-1 text-sm rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+                <option value="vibe">Вайб</option>
+                <option value="yg">YouGile</option>
+              </select>
+            </div>
+            <div class="panel px-3 py-2 flex items-center justify-between min-w-[200px]">
               <span class="text-xs text-slate-500 dark:text-slate-400">Сорт</span>
               <select id="sortBy" class="px-2 py-1 text-sm rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
                 <option value="none">Без сортировки</option>
@@ -122,7 +160,6 @@
                 <option value="fact">Факт (ч)</option>
               </select>
             </div>
-            <!-- Mode -->
             <div class="panel px-3 py-2 flex-1 min-w-[260px]">
               <div class="text-xs text-slate-500 dark:text-slate-400 mb-1">Режим</div>
               <div id="modeSwitch" class="mode-switch">
@@ -131,7 +168,6 @@
                 <button data-mode="tower" class="mode-item inactive"><i data-lucide="panel-right" class="w-4 h-4"></i>Башня</button>
               </div>
             </div>
-            <!-- Theme -->
             <div class="panel px-3 py-2 flex items-center justify-between min-w-[160px]">
               <span class="text-xs text-slate-500 dark:text-slate-400">Тема</span>
               <button id="themeSwitch" class="theme-switch"><span class="theme-thumb"></span></button>
@@ -187,7 +223,7 @@
           </div>
         </div>
       </div>
-      <!-- СЦЕНА ЭКСПОРТА: фон + коллаж -->
+      <!-- СЦЕНА ЭКСПОРТА -->
       <section id="collageWrap" class="mt-10 hidden">
         <div class="flex items-center justify-between gap-4">
           <h3 id="collageTitle" class="text-3xl font-extrabold tracking-tight"></h3>
@@ -199,7 +235,6 @@
               <img src="./assets/bg.jpg" alt="" class="bg-img select-none pointer-events-none">
               <div class="bg-overlay"></div>
               <div class="stage-pad">
-                <div id="summaryExport" class="summary-export mb-6"></div>
                 <div id="collage" class="grid gap-4" style="grid-template-columns:repeat(2,minmax(0,1fr));"></div>
               </div>
             </div>
@@ -246,7 +281,7 @@
     <div class="px-4 py-2 rounded-xl bg-slate-900 text-white shadow-lg text-sm"></div>
   </div>
 <script>
-  /* ===== Splash: авто-скрытие гарантированно ===== */
+  /* ===== Splash ===== */
   document.addEventListener('DOMContentLoaded', ()=>{
     const s=document.getElementById('splash');
     if(!s) return;
@@ -254,7 +289,8 @@
     setTimeout(()=>{ if(document.body.contains(s)) s.remove(); }, 3500);
   });
   /* ===== Utils ===== */
-  const $=(s,r=document)=>r.querySelector(s); const $$=(s,r=document)=>Array.from(r.querySelectorAll(s));
+  const $=(s,r=document)=>r.querySelector(s);
+  const $$=(s,r=document)=>Array.from(r.querySelectorAll(s));
   const toast=(m)=>{const b=$("#toast>div"); b.textContent=m; $("#toast").classList.remove("hidden"); setTimeout(()=>$("#toast").classList.add("hidden"),2200);};
   const esc=(s="")=>String(s).replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
   const num=(v)=>{if(typeof v==='number')return v; if(v==null||v==='')return 0; const s=String(v).replace(",",".").replace(/[^\d.-]/g,""); const n=parseFloat(s); return isNaN(n)?0:n;};
@@ -276,10 +312,9 @@
         collageTitle=$("#collageTitle"), modeHint=$("#modeHint");
   const sumDate=$("#sumDate"), sumPlan=$("#sumPlan"), sumFact=$("#sumFact"), sumCount=$("#sumCount"), modeBadge=$("#modeBadge");
   const btnPNG=$("#btnExportPNG"), btnCopy=$("#btnCopy");
-  const colSelect=$("#colSelect"), sortBy=$("#sortBy");
+  const colSelect=$("#colSelect"), design=$("#design"), sortBy=$("#sortBy");
   const progressWrap=$("#progressWrap"), progressBar=$("#progressBar"), progressLabel=$("#progressLabel"), progressStep=$("#progressStep"), diag=$("#diag");
   const supportFab=$("#supportFab"), supportModal=$("#supportModal"), modalClose=$("#modalClose");
-  const summaryExport=$("#summaryExport");
   supportFab.addEventListener('click', ()=>{ supportModal.classList.remove('hidden'); });
   modalClose.addEventListener('click', ()=> supportModal.classList.add('hidden'));
   supportModal.addEventListener('click', (e)=>{ if(e.target===supportModal) supportModal.classList.add('hidden'); });
@@ -355,7 +390,7 @@
   function cell(row,i){ return i>=0 ? (row[i] ?? '') : ''; }
   function detectMode(name=""){ const n=String(name).toLowerCase(); if(n.includes('сделано сегодня')) return 'fact'; if(n.includes('задачи на сегодня')) return 'plan'; return 'plan'; }
   function extractDate(name=""){ const m=String(name).match(/(\d{1,2})\s*(Янв|Фев|Март|Апр|Май|Июнь|Июль|Авг|Сент|Окт|Ноя|Дек)[^\d]*(\d{1,2})_(\d{2})/i);
-    if(!m) return '—'; const d=m[1], mon=m[2].slice(0,3), h=m[3], mm=m[4]; return `${d}.${mon.toLowerCase()}.2025`; }
+    if(!m) return '—'; const d=m[1], mon=m[2], h=m[3], mm=m[4]; return `${d} ${mon}. ${h}:${mm}`; }
   // render
   function render(list,isFact,filename){
     isFactGlobal=isFact;
@@ -366,9 +401,13 @@
     sumPlan.textContent=String(sp).replace('.',',');
     sumFact.textContent=String(sf).replace('.',',');
     sumCount.textContent=tasksView.length;
-    collageTitle.textContent=isFact? `Сделано на ${sumDate.textContent}` : 'Задачи на сегодня';
+    collageTitle.textContent=isFact? 'Сделано сегодня' : 'Задачи на сегодня';
+    if (isFact) {
+      const factDate = extractDate(filename);
+      collageTitle.innerHTML = `Факт на ${factDate} <i data-lucide="check" class="w-6 h-6 text-emerald-500 inline-block"></i>`;
+    }
     modeHint.textContent = vizMode==='tower' ? 'Режим «Башня»: одна колонка' : 'Режим «Коллаж»: сетка карточек';
-    applyLayout(); drawCards(tasksView,isFact); drawSummaryExport(isFact);
+    applyLayout(); drawCards(tasksView,isFact);
     collageWrap.classList.remove('hidden');
   }
   function sortList(a,how){
@@ -396,6 +435,7 @@
     }
   }
   colSelect.addEventListener('change', ()=> vizMode==='collage' && applyLayout());
+  design.addEventListener('change', ()=> drawCards(tasksView,isFactGlobal));
   sortBy.addEventListener('change', ()=>{ tasksView=sortList(tasksView, sortBy.value); drawCards(tasksView,isFactGlobal); });
   // badges & chips
   function stickerBadge(text){
@@ -409,74 +449,61 @@
     return `<span class="yg-badge ${cls}"><i data-lucide="${icon}" class="w-3.5 h-3.5"></i>${esc(text)}</span>`;
   }
   function chip(icon, text){ if(!text) return ''; return `<span class="yg-chip"><i data-lucide="${icon}" class="w-3.5 h-3.5"></i>${esc(text)}</span>`; }
-  function drawSummaryExport(isFact){
-    summaryExport.innerHTML = `
-      <div class="flex justify-between items-center">
-        <h2>${collageTitle.textContent}</h2>
-        <div>Дата: ${sumDate.textContent}</div>
-      </div>
-      <div class="grid grid-cols-3 gap-4 mt-4 text-sm">
-        <div>Задач: ${sumCount.textContent}</div>
-        <div>План (ч): ${sumPlan.textContent}</div>
-        <div>Факт (ч): ${sumFact.textContent}</div>
-      </div>
-    `;
-  }
   function drawCards(items,isFact){
     collage.innerHTML='';
-    const pad = 'p-4';
-    const cardCls = 'card-yg card-glow';
-    const titleCls = 'title-yg';
+    const vibe = design.value==='vibe';
+    const cardCls = vibe ? 'card-vibe card-glow' : 'card-yg card-glow';
+    const titleCls = vibe ? 'title-vibe' : 'title-yg';
     const frag=document.createDocumentFragment();
     for(const t of items){
       const fact=num(t.sticker_fact), plan=num(t.sticker_plan);
       const ratio=plan>0? Math.min(100, Math.round(fact/plan*100)) : (fact>0?100:0);
       const idStr=String(t.id||'').trim(), titleStr=String(t.title||'Без названия');
-      const completed = isFact && fact >= plan;
+
       const el=document.createElement('article');
-      el.className=`${cardCls} ${pad}`;
-      // Порядок стикеров: клиент (project), тип (board), задачи (column), приоритет, этап
+      el.className=`${cardCls} ${isFact?'opacity-95':''}`;
+
+      // Стикеры снизу
       const stickers = [
-        chip('user', t.project || t.sticker_project),
-        chip('briefcase', t.board),
-        chip('clipboard-list', t.column),
+        chip('briefcase-business', t.project),
+        chip('layout-grid', t.board),
+        chip('columns-3', t.column),
         stickerBadge(t.sticker_priority),
-        stickerBadge(t.sticker_stage)
+        stickerBadge(t.sticker_stage),
+        chip('calendar-days', t.deadline ? `Дедлайн: ${t.deadline}` : ''),
+        chip('messages-square', `Сообщений: ${t.msgs||0}`),
+        plan ? chip('target', `План: ${plan} ч`) : '',
+        fact ? chip('clock', `Факт: ${fact} ч`) : '',
+        t.sticker_category ? chip('bookmark', `Категория: ${t.sticker_category}`) : ''
       ].filter(Boolean).join(' ');
-      // Мета: дедлайн, сообщения, план, факт, категория
-      const metaRow = [
-        chip('calendar-days', t.deadline),
-        chip('messages-square', t.msgs||0),
-        chip('target', plan ? plan : ''),
-        chip('clock', fact ? fact : ''),
-        chip('bookmark', t.sticker_category)
-      ].filter(Boolean).join(' ');
+
       el.innerHTML=`
-        <div class="flex flex-col gap-3 relative">
-          ${completed ? '<span class="absolute -top-2 -left-2 text-emerald-500 bg-white rounded-full p-1 shadow"><i data-lucide="check-circle" class="w-5 h-5"></i></span>' : ''}
-          <h4 class="${titleCls}">${esc(idStr)} — ${esc(titleStr)}</h4>
-          <div class="flex flex-wrap gap-2">${stickers}</div>
-          <div class="flex flex-wrap gap-2">${metaRow}</div>
-          <div class="mt-3">
-            <div class="h-2 rounded-full bg-slate-200 dark:bg-slate-800 overflow-hidden">
-              <div class="h-full bg-indigo-500" style="width:${ratio}%"></div>
-            </div>
-            <div class="mt-2 text-xs flex items-center justify-end gap-4 text-slate-500 dark:text-slate-400">
-              ${plan? `<span class="inline-flex items-center gap-1"><i data-lucide="target" class="w-3.5 h-3.5"></i>${esc(plan)}</span>`:''}
-              ${fact? `<span class="inline-flex items-center gap-1"><i data-lucide="clock" class="w-3.5 h-3.5"></i>${esc(fact)}</span>`:''}
-            </div>
+        <div class="flex flex-col gap-2">
+          <div class="flex items-center gap-2">
+            ${isFact ? '<i data-lucide="check" class="w-5 h-5 text-emerald-500"></i>' : ''}
+            <h4 class="${titleCls}">${esc(idStr? idStr+' — ' : '')}${esc(titleStr)}</h4>
           </div>
-        </div>`;
+          <div class="stickers">${stickers}</div>
+          ${ratio > 0 ? `
+            <div class="mt-2">
+              <div class="h-2 rounded-full bg-slate-200 dark:bg-slate-800 overflow-hidden">
+                <div class="h-full bg-indigo-500" style="width:${ratio}%"></div>
+              </div>
+            </div>
+          ` : ''}
+        </div>
+      `;
+
       frag.appendChild(el);
     }
     collage.appendChild(frag);
-    lucide.createIcons(); // SVG инлайн — стабильно для html2canvas
+    lucide.createIcons();
   }
-  // Export — вся сцена (фон + коллаж). Ждём шрифты, чтобы текст не «плыл».
+  // Export
   function enableExports(v){ btnPNG.disabled=btnCopy.disabled=!v; }
   async function exportCanvas(){
-    await document.fonts.ready; // дождаться Inter
-    await new Promise(r=>setTimeout(r,100)); // дать дорисоваться SVG и тексту
+    await document.fonts.ready;
+    await new Promise(r=>setTimeout(r,30));
     return html2canvas(exportStage,{backgroundColor:null, scale:2, useCORS:true});
   }
   btnPNG.addEventListener('click', async ()=>{ try{
