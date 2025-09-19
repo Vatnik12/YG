@@ -35,7 +35,7 @@
       border-radius: 9999px; font-size: 12px; line-height: 26px; vertical-align: middle; white-space: nowrap;
     }
     .yg-chip { background: #0b1220; border: 1px solid #23314f; color: #dbeafe; }
-    .light .yg-chip { background: #F1F5F9; border: 1px solid #E2E8F0; color: #0f172a; }
+    .light .yg-chip { background: #f1f5f9; border: 1px solid #e2e8f0; color: #0f172a; }
     .yg-badge { color: #fff; }
     .badge-red { background: #ef4444; }
     .badge-amber { background: #f59e0b; }
@@ -66,8 +66,9 @@
     .kpi .v { font-size: 28px; font-weight: 800; line-height: 1; }
     .kpi .t { font-size: 13px; opacity: .85; }
     /* Исправление наложения карточек сводки в режиме "Башня" */
-    #renderRoot.tower #topSummary { grid-template-columns: 1fr; }
-    #renderRoot.tower #topSummary .kpi { margin-bottom: 16px; }
+    #renderRoot.tower #topSummary { display: block; }
+    #renderRoot.tower #topSummary > div { display: block; margin-bottom: 16px; }
+    #renderRoot.tower #topSummary .kpi { width: 100%; }
   </style>
 </head>
 <body class="min-h-screen flex flex-col font-sans bg-slate-900 text-slate-100 dark:bg-slate-900 dark:text-slate-100">
@@ -472,10 +473,11 @@ function drawCards(items,isFact){
 // Export — ровно renderRoot; фиксы пустого кадра
 function enableExports(v){ btnPNG.disabled=btnCopy.disabled=!v; }
 async function grabCanvas(){
-  if(document.fonts && document.fonts.ready){ try{ await document.fonts.ready; }catch(_){} }
-  await new Promise(r=>setTimeout(r,1000));
+  await new Promise(resolve => {
+    setTimeout(resolve, 1000);
+  });
   const node = renderRoot;
-  return html2canvas(node,{
+  const canvas = await html2canvas(node, {
     backgroundColor: null,
     useCORS: true,
     allowTaint: true,
@@ -485,18 +487,38 @@ async function grabCanvas(){
     foreignObjectRendering: true,
     imageTimeout: 15000,
   });
+  return canvas;
 }
 btnPNG.addEventListener('click', async ()=>{
-  try{
-    const canvas=await grabCanvas();
-    canvas.toBlob(b=>{ const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download=`${collageTitle.textContent}.png`; a.click(); URL.revokeObjectURL(a.href); });
-  }catch(e){ console.error(e); toast('Ошибка при экспорте PNG'); }
+  try {
+    const canvas = await grabCanvas();
+    canvas.toBlob(blob => {
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = `${collageTitle.textContent}.png`;
+      link.click();
+      URL.revokeObjectURL(link.href);
+    });
+  } catch (e) {
+    console.error(e);
+    toast('Ошибка при экспорте PNG');
+  }
 });
 btnCopy.addEventListener('click', async ()=>{
-  try{
-    const canvas=await grabCanvas();
-    canvas.toBlob(async b=>{ try{ await navigator.clipboard.write([new ClipboardItem({'image/png':b})]); toast('Скопировано в буфер ✔'); }catch(_){ toast('Буфер недоступен — скачай PNG'); } });
-  }catch(e){ console.error(e); toast('Ошибка при копировании'); }
+  try {
+    const canvas = await grabCanvas();
+    canvas.toBlob(async blob => {
+      try {
+        await navigator.clipboard.write([new ClipboardItem({'image/png': blob})]);
+        toast('Скопировано в буфер ✔');
+      } catch (_) {
+        toast('Буфер недоступен — скачай PNG');
+      }
+    });
+  } catch (e) {
+    console.error(e);
+    toast('Ошибка при копировании');
+  }
 });
 // helpers cont.
 function canon(s){ return String(s||'').replace(/[“”«»„‟"']/g,'"').replace(/ё/g,'е').replace(/\s+/g,' ').trim().toLowerCase(); }
