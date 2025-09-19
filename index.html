@@ -4,7 +4,8 @@
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>OneScreen План/Факт — by Vatnik</title>
-  <!-- Tailwind (CDN) -->
+
+  <!-- Tailwind -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -16,136 +17,67 @@
       }}
     }
   </script>
+
   <!-- Libs -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://unpkg.com/lucide@latest"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+
   <style>
-    :root{ --ring:#e5e7eb }
-    *{ scrollbar-width:thin; scrollbar-color:#CBD5E1 transparent }
-    *::-webkit-scrollbar{ width:8px;height:8px }*::-webkit-scrollbar-thumb{ background:#CBD5E1;border-radius:9999px }
-    .panel{ border:1px solid var(--ring); border-radius:14px; background:#fff; box-shadow:0 10px 30px rgba(0,0,0,.04)}
-    .dark .panel{ background:#0b1220; border-color:#1f2937}
-    /* YOU GILE */
-    .card-yg {
-      position: relative;
-      border: 1px solid #eaeef4;
-      border-radius: 12px;
-      background: #fff;
-      box-shadow: 0 1px 0 rgba(32, 48, 80, 0.04), 0 8px 28px rgba(32, 48, 80, 0.08);
-      padding: 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      opacity: 1 !important;
-    }
-    .dark .card-yg {
-      background: #1a2332;
-      border-color: #1f2937;
-    }
-    .card-yg .title-yg {
-      font-weight: 700;
-      line-height: 1.25;
-      overflow-wrap: anywhere;
-      word-break: break-word;
-      font-size: 16px;
-      color: #fff;
-    }
-    .card-yg .stickers {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      margin-top: auto;
-    }
-    .card-yg .progress {
-      margin-top: 12px;
-      height: 6px;
-      background: rgba(255, 255, 255, 0.1);
-      border-radius: 3px;
-      overflow: hidden;
-    }
-    .card-yg .progress-bar {
-      height: 100%;
-      background: linear-gradient(90deg, #3b82f6, #1d4ed8);
-      border-radius: 3px;
-    }
-    /* Чипы */
-    .yg-chip,.yg-badge{
-      display:inline-flex; align-items:center; gap:4px;
-      height:24px; padding:0 8px; border-radius:9999px;
-      font-size:11px; line-height:24px; vertical-align:middle; white-space:nowrap; font-weight:500;
-    }
-    .yg-chip{ background:#2d3748; border:1px solid #4a5568; color:#a0aec0; }
-    .yg-badge{ color:#fff; padding:0 10px; }
-    .badge-red{ background:#ef4444; }
-    .badge-amber{ background:#f59e0b; }
-    .badge-slate{ background:#64748b; }
-    .badge-blue{ background:#3b82f6; }
-    .badge-emerald{ background:#10b981; }
-    .badge-purple{ background:#8b5cf6; }
+    :root{ --ring:#1f2937 }
+    *{ scrollbar-width:thin; scrollbar-color:#475569 transparent }
+    *::-webkit-scrollbar{ width:8px;height:8px }*::-webkit-scrollbar-thumb{ background:#475569;border-radius:9999px }
+
+    .panel{ border:1px solid var(--ring); border-radius:14px; background:#0b1220; box-shadow:0 10px 30px rgba(0,0,0,.25)}
+    .card{ position:relative; border:1px solid var(--ring); border-radius:14px; background:#0b1423;
+           box-shadow:inset 0 0 0 1px rgba(255,255,255,.04), 0 10px 30px rgba(0,0,0,.35) }
+
+    .yg-chip,.yg-badge{ display:inline-flex; align-items:center; gap:6px; height:26px; padding:0 10px; border-radius:9999px;
+      font-size:12px; line-height:26px; white-space:nowrap }
+    .yg-chip{ background:#0f172a; border:1px solid #1f2937; color:#cbd5e1 }
+    .yg-badge{ color:#fff }
+    .badge-red{ background:#ef4444 } .badge-amber{ background:#f59e0b } .badge-slate{ background:#94a3b8 }
+
+    .title{ font-weight:700; line-height:1.25; overflow-wrap:anywhere; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden }
+
     .mode-switch{ position:relative; border-radius:12px; border:1px solid var(--ring); background:rgba(99,102,241,.08); padding:4px; display:flex; gap:4px }
     .mode-thumb{ position:absolute; inset:4px auto 4px 4px; width:calc(50% - 6px); border-radius:8px; background:rgba(99,102,241,.18); transition:transform .25s ease }
     .mode-item{ position:relative; z-index:1; flex:1; padding:8px 10px; font-size:12px; border-radius:8px; display:flex; align-items:center; gap:6px; justify-content:center; cursor:pointer }
-    .mode-item.inactive{ filter:saturate(.8) opacity(.65) }
-    .theme-switch{ position:relative; width:64px; height:30px; border-radius:9999px; border:1px solid var(--ring); background:#eef2ff }
-    .dark .theme-switch{ background:#0f172a; border-color:#1f2937 }
-    .theme-thumb{ position:absolute; top:3px; left:3px; width:24px; height:24px; border-radius:9999px; background:#fff; transition:transform .25s ease, background .25s ease }
-    .dark .theme-thumb{ background:#111827 }
+    .mode-item.inactive{ filter:saturate(.8) opacity:.65 }
+
+    .theme-switch{ position:relative; width:64px; height:30px; border-radius:9999px; border:1px solid var(--ring); background:#0f172a }
+    .theme-thumb{ position:absolute; top:3px; left:3px; width:24px; height:24px; border-radius:9999px; background:#111827; transition:transform .25s ease, background .25s ease }
     .theme-switch.on .theme-thumb{ transform:translateX(34px) }
+
     .drop-hover{ outline:3px dashed #4f46e5; outline-offset:-10px }
+
     /* Splash */
     #splash{ transition:opacity .6s ease, filter .6s ease }
     #splash.splash-hide{ opacity:0; filter:blur(8px) saturate(.9); pointer-events:none }
-    /* Экспорт-сцена */
+
+    /* Сцена */
     #exportStage{ position:relative; border-radius:12px; overflow:hidden }
-    #exportStage .bg-img{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; transform:scale(1.08); filter:blur(8px) saturate(0.95); }
-    #exportStage.tower .bg-img{ transform:scale(1.45); }
-    #exportStage .bg-overlay{ position:absolute; inset:0; background:linear-gradient(180deg,rgba(15,23,42,.42),rgba(15,23,42,.42)); }
-    #exportStage .stage-pad{ position:relative; padding:24px; }
-    @media print{ @page{ size:A4 portrait; margin:10mm } }
+    #exportStage .bg-img{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; transform:scale(1.08); filter:blur(8px) saturate(0.95) }
+    #exportStage.tower .bg-img{ transform:scale(1.45) }
+    #exportStage .bg-overlay{ position:absolute; inset:0; background:linear-gradient(180deg,rgba(15,23,42,.28),rgba(15,23,42,.28)) }
+    #exportStage .stage-pad{ position:relative; padding:24px }
+
     /* Сводка */
-    #summaryPanel {
-      background: rgba(26, 35, 50, 0.8);
-      backdrop-filter: blur(12px);
-      border-radius: 12px;
-      padding: 16px;
-      color: white;
-      margin-bottom: 20px;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-    }
-    #summaryPanel .stat {
-      text-align: center;
-      padding: 8px;
-    }
-    #summaryPanel .stat-value {
-      font-weight: 700;
-      font-size: 18px;
-    }
-    #summaryPanel .stat-label {
-      font-size: 12px;
-      color: #a0aec0;
-    }
-    /* Контейнер для экспорта */
-    #exportContainer {
-      position: relative;
-      background: transparent;
-    }
-    #exportHeader {
-      position: relative;
-      z-index: 10;
-      padding: 16px;
-      color: white;
-      font-size: 24px;
-      font-weight: 700;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
+    .stats{ display:grid; grid-template-columns: 1fr repeat(5, 170px); gap:16px; align-items:stretch; margin-bottom:18px }
+    #exportStage.tower .stats{ grid-template-columns: 1fr repeat(5, 200px); gap:20px; margin-bottom:22px }
+    .stats h2{ font-size:34px; line-height:1.1; font-weight:800; color:#fff; text-shadow:0 2px 24px rgba(0,0,0,.45) }
+    .stat{ background:rgba(15,23,42,.55); border:1px solid rgba(255,255,255,.08); border-radius:14px; color:#e5e7eb; padding:14px 16px; backdrop-filter: blur(6px) }
+    .stat .k{ font-size:12px; opacity:.8 } .stat .v{ font-size:22px; font-weight:800; margin-top:6px }
+
+    /* снапшот для html2canvas */
+    .snapshot, .snapshot *{ -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility; animation:none!important; transition:none!important }
+    .snapshot .bg-img{ filter:blur(8px) saturate(0.95)!important }
   </style>
 </head>
-<body class="min-h-screen flex flex-col font-sans bg-slate-50 text-slate-900 dark:bg-slate-900 dark:text-slate-100">
-  <!-- ===== SPLASH ===== -->
+<body class="min-h-screen flex flex-col font-sans bg-slate-900 text-slate-100">
+
+  <!-- SPLASH -->
   <div id="splash" class="fixed inset-0 z-50 grid place-items-center bg-[#0b1020]">
     <div class="relative w-full h-full overflow-hidden">
       <img src="./assets/bg.jpg" alt="" class="absolute inset-0 w-full h-full object-cover opacity-60"/>
@@ -161,120 +93,133 @@
       </div>
     </div>
   </div>
-  <!-- ===== HEADER ===== -->
+
+  <!-- HEADER -->
   <header class="sticky top-0 z-40">
-    <div class="backdrop-blur bg-white/70 dark:bg-slate-900/70 border-b border-slate-200 dark:border-slate-800">
+    <div class="backdrop-blur bg-slate-900/70 border-b border-slate-800">
       <div class="max-w-[1200px] mx-auto px-4">
         <div class="py-4 md:py-5 flex flex-wrap items-stretch gap-3">
           <div class="flex items-center gap-3 min-w-[260px]">
             <div class="w-10 h-10 rounded-2xl bg-indigo-600 grid place-items-center text-white font-bold">OS</div>
             <div class="leading-tight">
               <div class="font-semibold text-lg">OneScreen: План/Факт</div>
-              <div id="modeBadge" class="text-xs text-slate-500 dark:text-slate-400">режим не выбран</div>
+              <div id="modeBadge" class="text-xs text-slate-400">режим не выбран</div>
             </div>
           </div>
+
           <div class="flex flex-wrap items-stretch gap-2 flex-1">
             <div class="panel px-3 py-2 flex items-center justify-between min-w-[160px]">
-              <span class="text-xs text-slate-500 dark:text-slate-400">Колонки</span>
-              <select id="colSelect" class="px-2 py-1 text-sm rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+              <span class="text-xs text-slate-400">Колонки</span>
+              <select id="colSelect" class="px-2 py-1 text-sm rounded-lg bg-slate-800 border border-slate-700">
                 <option value="2">2</option><option value="3">3</option><option value="4">4</option>
               </select>
             </div>
-            <div class="panel px-3 py-2 flex items-center justify-between min-w-[200px]">
-              <span class="text-xs text-slate-500 dark:text-slate-400">Сорт</span>
-              <select id="sortBy" class="px-2 py-1 text-sm rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
-                <option value="deadline">Дедлайн</option>
-                <option value="priority">Приоритет</option>
-                <option value="stage">Этап</option>
-                <option value="project">Проект</option>
+
+            <div class="panel px-3 py-2 flex items-center justify-between min-w-[180px]">
+              <span class="text-xs text-slate-400">Дизайн</span>
+              <select id="density" class="px-2 py-1 text-sm rounded-lg bg-slate-800 border border-slate-700">
+                <option value="yg">YouGile</option>
+                <option value="vibe">Вайб</option>
               </select>
             </div>
+
+            <div class="panel px-3 py-2 flex items-center justify-between min-w-[200px]">
+              <span class="text-xs text-slate-400">Сорт</span>
+              <select id="sortBy" class="px-2 py-1 text-sm rounded-lg bg-slate-800 border border-slate-700">
+                <option value="none">Без сортировки</option>
+                <option value="priority">Приоритет</option>
+                <option value="deadline">Дедлайн</option>
+                <option value="plan">План (ч)</option>
+                <option value="fact">Факт (ч)</option>
+              </select>
+            </div>
+
             <div class="panel px-3 py-2 flex-1 min-w-[260px]">
-              <div class="text-xs text-slate-500 dark:text-slate-400 mb-1">Режим</div>
+              <div class="text-xs text-slate-400 mb-1">Режим</div>
               <div id="modeSwitch" class="mode-switch">
                 <div id="modeThumb" class="mode-thumb"></div>
                 <button data-mode="collage" class="mode-item"><i data-lucide="grid-3x3" class="w-4 h-4"></i>Коллаж</button>
-                <button data-mode="tower" class="mode-item inactive"><i data-lucide="panel-right" class="w-4 h-4"></i>Башня</button>
+                <button data-mode="tower"   class="mode-item inactive"><i data-lucide="panel-right" class="w-4 h-4"></i>Башня</button>
               </div>
             </div>
+
             <div class="panel px-3 py-2 flex items-center justify-between min-w-[160px]">
-              <span class="text-xs text-slate-500 dark:text-slate-400">Тема</span>
-              <button id="themeSwitch" class="theme-switch"><span class="theme-thumb"></span></button>
+              <span class="text-xs text-slate-400">Тема</span>
+              <button id="themeSwitch" class="theme-switch on"><span class="theme-thumb"></span></button>
             </div>
           </div>
+
           <div class="flex items-center gap-2">
-            <button id="btnExportPNG" disabled class="px-4 py-2 rounded-xl panel disabled:opacity-50">PNG</button>
-            <button id="btnCopy" disabled class="px-4 py-2 rounded-xl bg-slate-900 text-white dark:bg-white dark:text-slate-900 disabled:opacity-50">Копировать</button>
+            <button id="btnExportPNG" disabled class="px-4 py-2 rounded-xl panel text-slate-100 disabled:opacity-50">PNG</button>
+            <button id="btnCopy"      disabled class="px-4 py-2 rounded-xl bg-white text-slate-900 disabled:opacity-50">Копировать</button>
           </div>
         </div>
       </div>
     </div>
   </header>
-  <!-- ===== MAIN ===== -->
+
+  <!-- MAIN -->
   <main class="flex-1 w-full">
     <section class="max-w-[1200px] mx-auto px-4 py-10">
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
         <div class="lg:col-span-8">
-          <div id="dropzone" class="panel p-10 md:p-14 text-center bg-gradient-to-b from-white to-slate-50 dark:from-slate-900 dark:to-slate-900/40">
-            <div class="mx-auto w-20 h-20 rounded-3xl bg-indigo-50 dark:bg-indigo-900/40 grid place-items-center text-indigo-600 dark:text-indigo-300 shadow-soft">
+          <div id="dropzone" class="panel p-10 md:p-14 text-center">
+            <div class="mx-auto w-20 h-20 rounded-3xl bg-indigo-900/40 grid place-items-center text-indigo-300 shadow-soft">
               <i data-lucide="upload" class="w-10 h-10"></i>
             </div>
             <h2 class="mt-5 text-2xl md:text-3xl font-extrabold">Перетащи .xlsx сюда</h2>
-            <p class="mt-2 text-slate-500 dark:text-slate-400">
-              или <label for="fileInput" class="text-indigo-600 dark:text-indigo-300 cursor-pointer underline decoration-dotted">выбери файл</label>.
+            <p class="mt-2 text-slate-400">
+              или <label for="fileInput" class="text-indigo-300 cursor-pointer underline decoration-dotted">выбери файл</label>.
               «Задачи на сегодня …» → План, «Сделано сегодня …» → Факт.
             </p>
             <input id="fileInput" type="file" accept=".xlsx,.xls" class="hidden"/>
+
             <div id="progressWrap" class="mx-auto mt-8 max-w-xl text-left hidden">
               <div class="flex items-center justify-between mb-1">
-                <span id="progressLabel" class="text-xs text-slate-500 dark:text-slate-400">Готово: 0%</span>
-                <span id="progressStep" class="text-xs text-slate-500 dark:text-slate-400">—</span>
+                <span id="progressLabel" class="text-xs text-slate-400">Готово: 0%</span>
+                <span id="progressStep"  class="text-xs text-slate-400">—</span>
               </div>
-              <div class="h-3 rounded-full bg-slate-200 dark:bg-slate-800 overflow-hidden">
+              <div class="h-3 rounded-full bg-slate-800 overflow-hidden">
                 <div id="progressBar" class="h-full w-0 bg-indigo-600 transition-all duration-300"></div>
               </div>
-              <div id="diag" class="mt-3 text-[12px] text-slate-500 dark:text-slate-400"></div>
+              <div id="diag" class="mt-3 text-[12px] text-slate-400"></div>
             </div>
           </div>
         </div>
+
         <div class="lg:col-span-4">
           <div class="panel p-5">
-            <div class="text-sm text-slate-500 dark:text-slate-400 mb-2">Сводка</div>
+            <div class="text-sm text-slate-400 mb-2">Сводка</div>
             <div class="grid grid-cols-2 gap-3 text-center">
-              <div class="panel py-3"><div class="text-xs text-slate-500 dark:text-slate-400">Дата</div><div id="sumDate" class="font-semibold">—</div></div>
-              <div class="panel py-3"><div class="text-xs text-slate-500 dark:text-slate-400">Задач</div><div id="sumCount" class="font-semibold">0</div></div>
-              <div class="panel py-3"><div class="text-xs text-slate-500 dark:text-slate-400">План (ч)</div><div id="sumPlan" class="font-semibold">0</div></div>
-              <div class="panel py-3"><div class="text-xs text-slate-500 dark:text-slate-400">Факт (ч)</div><div id="sumFact" class="font-semibold">0</div></div>
+              <div class="panel py-3"><div class="text-xs text-slate-400">Дата</div><div id="sumDate" class="font-semibold">—</div></div>
+              <div class="panel py-3"><div class="text-xs text-slate-400">Задач</div><div id="sumCount" class="font-semibold">0</div></div>
+              <div class="panel py-3"><div class="text-xs text-slate-400">План (ч)</div><div id="sumPlan" class="font-semibold">0</div></div>
+              <div class="panel py-3"><div class="text-xs text-slate-400">Факт (ч)</div><div id="sumFact" class="font-semibold">0</div></div>
             </div>
-            <div id="whyEmpty" class="hidden mt-4 panel p-4 text-sm text-rose-600 dark:text-rose-400">
+            <div id="whyEmpty" class="hidden mt-4 panel p-4 text-sm text-rose-400">
               Ничего не отрисовано. Проверь названия колонок в Excel — ключевые поля не найдены.
             </div>
           </div>
         </div>
       </div>
-      <!-- СЦЕНА ЭКСПОРТА -->
+
+      <!-- СЦЕНА -->
       <section id="collageWrap" class="mt-10 hidden">
-        <div id="exportContainer">
-          <div id="exportHeader">
-            <span id="exportTitle">Факт на 19 Сент. 16:26</span>
-            <span id="exportModeHint">Режим «Коллаж»: сетка карточек</span>
-          </div>
-          <div id="summaryPanel" class="hidden">
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div class="stat"><div class="stat-label">Категорий</div><div class="stat-value" id="sumCategories">0</div></div>
-              <div class="stat"><div class="stat-label">План (ч)</div><div class="stat-value" id="sumPlanTotal">0</div></div>
-              <div class="stat"><div class="stat-label">Факт (ч)</div><div class="stat-value" id="sumFactTotal">0</div></div>
-              <div class="stat"><div class="stat-label">Общий план</div><div class="stat-value" id="sumOverallPlan">0</div></div>
-            </div>
-          </div>
-          <div class="mt-4 panel p-4">
-            <div class="overflow-auto">
-              <div id="exportStage" class="relative" style="width:1123px;">
-                <img src="./assets/bg.jpg" alt="" class="bg-img select-none pointer-events-none">
-                <div class="bg-overlay"></div>
-                <div class="stage-pad">
-                  <div id="collage" class="grid gap-4" style="grid-template-columns:repeat(2,minmax(0,1fr));"></div>
+        <div class="panel p-4">
+          <div class="overflow-auto">
+            <div id="exportStage" class="relative" style="width:1123px;">
+              <img id="bgImg" src="./assets/bg.jpg" alt="" class="bg-img select-none pointer-events-none">
+              <div class="bg-overlay"></div>
+              <div class="stage-pad">
+                <div class="stats" id="statsStrip">
+                  <h2 id="sceneTitle">Сделано сегодня</h2>
+                  <div class="stat"><div class="k">Дата</div><div class="v" id="sDate">—</div></div>
+                  <div class="stat"><div class="k">Задач</div><div class="v" id="sTasks">0</div></div>
+                  <div class="stat"><div class="k">План (ч)</div><div class="v" id="sPlan">0</div></div>
+                  <div class="stat"><div class="k">Факт (ч)</div><div class="v" id="sFact">0</div></div>
+                  <div class="stat"><div class="k">Категорий</div><div class="v" id="sCats">0</div></div>
                 </div>
+                <div id="collage" class="grid gap-4" style="grid-template-columns:repeat(2,minmax(0,1fr));"></div>
               </div>
             </div>
           </div>
@@ -282,43 +227,12 @@
       </section>
     </section>
   </main>
-  <!-- FOOTER -->
-  <footer class="mt-10 border-t border-slate-200 dark:border-slate-800">
-    <div class="max-w-[1200px] mx-auto px-4 py-6 flex items-center justify-between">
-      <div class="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
-        <span class="inline-flex items-center gap-2 px-3 py-1 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
-          <i data-lucide="heart" class="w-4 h-4 text-rose-500"></i> OneScreen
-        </span>
-        <span class="text-xs">© just vibes</span>
-      </div>
-      <div class="text-xs text-slate-500 dark:text-slate-400">План/Факт by Vatnik</div>
-    </div>
-  </footer>
-  <!-- Support -->
-  <button id="supportFab" title="Техподдержка" class="fixed bottom-6 right-6 z-40 rounded-full shadow-lg bg-indigo-600 hover:bg-indigo-500 text-white w-14 h-14 grid place-items-center">
-    <i data-lucide="life-buoy" class="w-6 h-6"></i>
-  </button>
-  <div id="supportModal" class="fixed inset-0 z-50 hidden">
-    <div class="absolute inset-0 backdrop-blur-sm bg-black/40"></div>
-    <div class="relative h-full w-full grid place-items-center p-4">
-      <div class="panel w-full max-w-md p-6">
-        <div class="flex items-center justify-between">
-          <h4 class="text-lg font-semibold">Техподдержка</h4>
-          <button id="modalClose" class="rounded-lg px-2 py-1 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
-            <i data-lucide="x" class="w-4 h-4"></i>
-          </button>
-        </div>
-        <p class="mt-3 text-sm text-slate-500 dark:text-slate-400">Пиши в телеграм:</p>
-        <a href="http://t.me/Vatnik13" target="_blank" class="mt-4 flex items-center gap-2 px-4 py-3 rounded-xl bg-gradient-to-r from-indigo-600 to-indigo-500 text-white font-semibold">
-          <i data-lucide="send" class="w-5 h-5"></i> @Vatnik13
-        </a>
-      </div>
-    </div>
-  </div>
+
   <!-- Toast -->
   <div id="toast" class="fixed bottom-4 left-1/2 -translate-x-1/2 z-40 hidden">
     <div class="px-4 py-2 rounded-xl bg-slate-900 text-white shadow-lg text-sm"></div>
   </div>
+
 <script>
   /* ===== Splash ===== */
   document.addEventListener('DOMContentLoaded', ()=>{
@@ -327,80 +241,85 @@
     setTimeout(()=>{ s.classList.add('splash-hide'); }, 1500);
     setTimeout(()=>{ if(document.body.contains(s)) s.remove(); }, 3500);
   });
+
   /* ===== Utils ===== */
-  const $=(s,r=document)=>r.querySelector(s);
-  const $$=(s,r=document)=>Array.from(r.querySelectorAll(s));
+  const $=(s,r=document)=>r.querySelector(s); const $$=(s,r=document)=>Array.from(r.querySelectorAll(s));
   const toast=(m)=>{const b=$("#toast>div"); b.textContent=m; $("#toast").classList.remove("hidden"); setTimeout(()=>$("#toast").classList.add("hidden"),2200);};
   const esc=(s="")=>String(s).replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
   const num=(v)=>{if(typeof v==='number')return v; if(v==null||v==='')return 0; const s=String(v).replace(",",".").replace(/[^\d.-]/g,""); const n=parseFloat(s); return isNaN(n)?0:n;};
   const prRank=(p="")=>{p=String(p).toLowerCase(); if(p.includes('пожар')||p.includes('alarm')||p.includes('аларм'))return 0; if(p.includes('важно'))return 1; return 2;};
-  // Theme
+
+  /* ===== Theme ===== */
   const themeSwitch=$("#themeSwitch");
-  const applyTheme=()=>{ const t=localStorage.getItem('theme')||'dark'; document.documentElement.classList.toggle('dark',t==='dark'); themeSwitch.classList.toggle('on', t==='dark'); };
+  const applyTheme=()=>{ document.documentElement.classList.add('dark'); themeSwitch.classList.add('on'); };
   applyTheme();
   themeSwitch.addEventListener('click',()=>{
     const dark=document.documentElement.classList.toggle('dark');
-    localStorage.setItem('theme', dark?'dark':'light');
     themeSwitch.classList.toggle('on',dark);
     const b=document.body; b.style.filter='blur(6px) saturate(.95)'; setTimeout(()=>b.style.filter='',140);
   });
   window.addEventListener('DOMContentLoaded',()=> lucide.createIcons());
-  // Refs
+
+  /* ===== Refs ===== */
   const dropzone=$("#dropzone"), fileInput=$("#fileInput");
-  const exportContainer = $("#exportContainer");
-  const exportHeader = $("#exportHeader");
-  const exportTitle = $("#exportTitle");
-  const exportModeHint = $("#exportModeHint");
   const exportStage=$("#exportStage"), collage=$("#collage"), collageWrap=$("#collageWrap");
-  const collageTitle=$("#collageTitle"), modeHint=$("#modeHint"), summaryPanel=$("#summaryPanel");
+  const sceneTitle=$("#sceneTitle"), sDate=$("#sDate"), sTasks=$("#sTasks"), sPlan=$("#sPlan"), sFact=$("#sFact"), sCats=$("#sCats");
   const sumDate=$("#sumDate"), sumPlan=$("#sumPlan"), sumFact=$("#sumFact"), sumCount=$("#sumCount"), modeBadge=$("#modeBadge");
-  const sumCategories=$("#sumCategories"), sumPlanTotal=$("#sumPlanTotal"), sumFactTotal=$("#sumFactTotal"), sumOverallPlan=$("#sumOverallPlan");
   const btnPNG=$("#btnExportPNG"), btnCopy=$("#btnCopy");
-  const colSelect=$("#colSelect"), design=$("#design"), sortBy=$("#sortBy");
+  const colSelect=$("#colSelect"), density=$("#density"), sortBy=$("#sortBy");
   const progressWrap=$("#progressWrap"), progressBar=$("#progressBar"), progressLabel=$("#progressLabel"), progressStep=$("#progressStep"), diag=$("#diag");
-  const supportFab=$("#supportFab"), supportModal=$("#supportModal"), modalClose=$("#modalClose");
-  supportFab.addEventListener('click', ()=>{ supportModal.classList.remove('hidden'); });
-  modalClose.addEventListener('click', ()=> supportModal.classList.add('hidden'));
-  supportModal.addEventListener('click', (e)=>{ if(e.target===supportModal) supportModal.classList.add('hidden'); });
-  // Mode switch
   const modeSwitch=$("#modeSwitch"), modeThumb=$("#modeThumb"), modeBtns=$$(".mode-item",modeSwitch);
+
+  /* ===== Mode ===== */
   let vizMode='collage';
-  const setModeUI=(m)=>{
-    vizMode=m;
-    modeThumb.style.transform=`translateX(${m==='collage'?0:100}%)`;
-    modeBtns.forEach(b=>b.classList.toggle('inactive', b.dataset.mode!==m));
-    applyLayout(); blurHint();
-  };
-  const blurHint=()=>{ const c=$("#exportStage"); if(!c) return; c.style.filter='blur(6px) saturate(.95)'; c.style.opacity='0.95'; setTimeout(()=>{c.style.filter=''; c.style.opacity='1';},160); };
+  const setModeUI=(m)=>{ vizMode=m; modeThumb.style.transform=`translateX(${m==='collage'?0:100}%)`; modeBtns.forEach(b=>b.classList.toggle('inactive', b.dataset.mode!==m)); applyLayout(); };
   modeBtns.forEach(b=> b.addEventListener('click', ()=> setModeUI(b.dataset.mode)));
-  // DnD
+
+  /* ===== DnD ===== */
   ["dragenter","dragover"].forEach(ev=>dropzone.addEventListener(ev,e=>{e.preventDefault();dropzone.classList.add("drop-hover");}));
   ["dragleave","drop"].forEach(ev=>dropzone.addEventListener(ev,e=>{e.preventDefault();dropzone.classList.remove("drop-hover");}));
   dropzone.addEventListener("drop",e=>{ const f=e.dataTransfer.files?.[0]; if(f) handleFile(f); });
   dropzone.addEventListener("click",()=>fileInput.click());
   fileInput.addEventListener("change",e=>{ const f=e.target.files?.[0]; if(f) handleFile(f); });
-  // ===== State =====
-  let tasksRaw=[], tasksView=[], isFact=false, isFactGlobal=false;
-  // Progress
+
+  /* ===== State ===== */
+  let tasksRaw=[], tasksView=[], isFact=false, isFactGlobal=false, bgDataUrl=null;
+
+  /* ===== Preload BG as dataURL (чтоб не таинтило) ===== */
+  (async function preloadBg(){
+    try{
+      const res = await fetch('./assets/bg.jpg', {cache:'force-cache'});
+      const blob = await res.blob();
+      const reader = new FileReader();
+      reader.onload = () => { bgDataUrl = reader.result; };
+      reader.readAsDataURL(blob);
+    }catch(e){ console.warn('BG preload failed', e); }
+  })();
+
+  /* ===== Progress ===== */
   function showProgress(){ progressWrap.classList.remove('hidden'); setProgress(0,'Старт'); }
   function setProgress(p,step){ progressBar.style.width=p+'%'; progressLabel.textContent=`Готово: ${Math.round(p)}%`; if(step) progressStep.textContent=step; }
   function hideProgress(){ setTimeout(()=>progressWrap.classList.add('hidden'),350); }
   const setDiag=(html)=>{ diag.innerHTML=html; };
-  // File flow
+
+  /* ===== File flow ===== */
   async function handleFile(file){
     try{
       showProgress(); setProgress(10,'Читаю файл');
-      const mode = detectMode(file.name); isFact = mode==='fact'; modeBadge.textContent = isFact ? 'режим: ФАКТ' : 'режим: ПЛАН';
+      const mode = detectMode(file.name); isFact = mode==='fact'; isFactGlobal=isFact; modeBadge.textContent = isFact ? 'режим: ФАКТ' : 'режим: ПЛАН';
       const buf = await file.arrayBuffer();
+
       setProgress(25,'Парсю книгу');
       const wb = XLSX.read(buf,{type:'array'});
       let sheet=wb.Sheets[wb.SheetNames[0]], sheetName=wb.SheetNames[0], best=0;
       wb.SheetNames.forEach(n=>{ const s=wb.Sheets[n]; const r=XLSX.utils.decode_range(s['!ref']||'A1:A1'); const cells=(r.e.r-r.s.r+1)*(r.e.c-r.s.c+1); if(cells>best){best=cells; sheet=s; sheetName=n;} });
+
       setProgress(40,'Читаю строки');
       const M=XLSX.utils.sheet_to_json(sheet,{header:1,defval:"",raw:true});
       if(!M.length){ toast('Пустой лист'); hideProgress(); return; }
       const headers=(M[0]||[]).map(h=>canon(h)); const rows=M.slice(1);
-      const need={ id:['id задачи','id'], title:['название задачи','название'], deadline:['дедлайн'], board:['доска'], column:['колонка'], project:['проект'], msgs:['кол-во сообщений','сообщений'], sticker_priority:['стикер "приоритет"','приоритет'], sticker_stage:['стикер "этап"','этап'], sticker_project:['стикер "проект"','проект (стикер)'], sticker_plan:['стикер "план сегодня"','план сегодня','план'], sticker_fact:['стикер "факт часов"','факт часов','факт'], sticker_category:['стикер "категория"','категория'] };
+
+      const need={ id:['id задачи','id'], title:['название задачи','название'], deadline:['дедлайн'], board:['доска'], column:['колонка'], project:['проект'], last_msg:['дата последнего сообщения','последнее сообщение'], msgs:['кол-во сообщений','сообщений'], sticker_priority:['стикер "приоритет"','приоритет'], sticker_stage:['стикер "этап"','этап'], sticker_project:['стикер "проект"','проект (стикер)'], sticker_plan:['стикер "план сегодня"','план сегодня','план'], sticker_fact:['стикер "факт часов"','факт часов','факт'], sticker_category:['стикер "категория"','категория'] };
       const findCol=(vars)=>{ const vs=vars.map(canon);
         for(const v of vs){ const i=headers.indexOf(v); if(i>=0) return i;}
         for(const v of vs){ const i=headers.findIndex(h=>h.includes(v)); if(i>=0) return i;}
@@ -408,160 +327,197 @@
         return -1;
       };
       const idx={}; Object.entries(need).forEach(([k,v])=>idx[k]=findCol(v));
+
       const found = Object.entries(idx).filter(([_,i])=>i>=0).map(([k,i])=>`${k} → <b>${esc(headers[i]||'?')}</b> (col ${i+1})`).join('<br>');
-      const miss = Object.entries(idx).filter(([_,i])=>i<0).map(([k])=>k).join(', ') || '—';
+      const miss  = Object.entries(idx).filter(([_,i])=>i<0).map(([k])=>k).join(', ') || '—';
       setDiag(`Лист: <b>${esc(sheetName)}</b><br>Строк: <b>${rows.length}</b>, Колонок: <b>${headers.length}</b><br><br><u>Найдены:</u><br>${found||'—'}<br><br><u>Отсутствуют:</u> ${miss}`);
+
       if(idx.title<0 && idx.id<0){ $("#whyEmpty").classList.remove('hidden'); toast('Не найдены колонки ID/Название'); hideProgress(); return; }
       $("#whyEmpty").classList.add('hidden');
+
       setProgress(60,'Готовлю задачи');
       tasksRaw=rows.map(r=>({
         id:cell(r,idx.id), title:cell(r,idx.title),
         deadline:cell(r,idx.deadline), board:cell(r,idx.board), column:cell(r,idx.column),
-        project:cell(r,idx.project), msgs:cell(r,idx.msgs),
+        project:cell(r,idx.project), last_msg:cell(r,idx.last_msg), msgs:cell(r,idx.msgs),
         sticker_priority:cell(r,idx.sticker_priority), sticker_stage:cell(r,idx.sticker_stage),
         sticker_project:cell(r,idx.sticker_project), sticker_plan:cell(r,idx.sticker_plan),
         sticker_fact:cell(r,idx.sticker_fact), sticker_category:cell(r,idx.sticker_category),
-      })).filter(t => (String(t.id||t.title||'').trim()!=='') && !/^сумма значений/i.test(String(t.id||'').trim()));
+      })).filter(t => (String(t.title||t.id||'').trim()!=='') && !/^сумма значений/i.test(String(t.id||'').trim()));
+
       if(!tasksRaw.length){ $("#whyEmpty").classList.remove('hidden'); toast('После фильтрации задач не осталось'); hideProgress(); return; }
+
       setProgress(78,'Рисую карточки');
       render(tasksRaw,isFact,file.name);
+
       setProgress(100,'Готово ✔'); hideProgress(); enableExports(true);
+      $("#collageWrap").classList.remove('hidden');
       $("#collageWrap").scrollIntoView({behavior:'smooth',block:'start'});
     }catch(e){ console.error(e); toast('Ошибка обработки файла'); hideProgress(); }
   }
-  // helpers
+
+  /* ===== helpers ===== */
   function canon(s){ return String(s||'').replace(/[“”«»„‟"']/g,'"').replace(/ё/g,'е').replace(/\s+/g,' ').trim().toLowerCase(); }
   function cell(row,i){ return i>=0 ? (row[i] ?? '') : ''; }
   function detectMode(name=""){ const n=String(name).toLowerCase(); if(n.includes('сделано сегодня')) return 'fact'; if(n.includes('задачи на сегодня')) return 'plan'; return 'plan'; }
   function extractDate(name=""){ const m=String(name).match(/(\d{1,2})\s*(Янв|Фев|Март|Апр|Май|Июнь|Июль|Авг|Сент|Окт|Ноя|Дек)[^\d]*(\d{1,2})_(\d{2})/i);
     if(!m) return '—'; const d=m[1], mon=m[2], h=m[3], mm=m[4]; return `${d} ${mon}. ${h}:${mm}`; }
-  // render
+
+  /* ===== render ===== */
   function render(list,isFact,filename){
-    isFactGlobal=isFact;
-    const factDate = extractDate(filename);
-    const titleText = isFact ? `Факт на ${factDate}` : 'Задачи на сегодня';
-    collageTitle.textContent = titleText;
-    exportTitle.innerHTML = isFact ? `${titleText} <i data-lucide="check" class="w-6 h-6 text-emerald-500 inline-block"></i>` : titleText;
-    sumDate.textContent = factDate;
-    tasksView = sortList(list, sortBy.value);
-    const sp = tasksView.reduce((a,t)=>a+num(t.sticker_plan),0);
-    const sf = tasksView.reduce((a,t)=>a+num(t.sticker_fact),0);
-    sumPlan.textContent = String(sp).replace('.',',');
-    sumFact.textContent = String(sf).replace('.',',');
-    sumCount.textContent = tasksView.length;
-    // Сводка
-    const categories = [...new Set(tasksView.map(t=>t.sticker_category).filter(Boolean))].length;
-    sumCategories.textContent = categories;
-    sumPlanTotal.textContent = String(sp).replace('.',',');
-    sumFactTotal.textContent = String(sf).replace('.',',');
-    sumOverallPlan.textContent = String(sp).replace('.',',');
-    summaryPanel.classList.remove('hidden');
-    //
-    modeHint.textContent = vizMode==='tower' ? 'Режим «Башня»: одна колонка' : 'Режим «Коллаж»: сетка карточек';
-    exportModeHint.textContent = modeHint.textContent;
-    applyLayout(); drawCards(tasksView, isFact);
-    collageWrap.classList.remove('hidden');
+    const dstr=extractDate(filename);
+    sumDate.textContent=dstr; sDate.textContent=dstr;
+    tasksView=sortList(list,sortBy.value);
+
+    const sp=tasksView.reduce((a,t)=>a+num(t.sticker_plan),0);
+    const sf=tasksView.reduce((a,t)=>a+num(t.sticker_fact),0);
+    sumPlan.textContent=String(sp).replace('.',',');
+    sumFact.textContent=String(sf).replace('.',',');
+    sumCount.textContent=tasksView.length;
+
+    sPlan.textContent=sumPlan.textContent;
+    sFact.textContent=sumFact.textContent;
+    sTasks.textContent=String(tasksView.length);
+    const catSet = new Set(tasksView.map(t=>String(t.sticker_category||'').trim()).filter(Boolean));
+    sCats.textContent=String(catSet.size);
+
+    sceneTitle.textContent=isFact? 'Сделано сегодня' : 'Задачи на сегодня';
+    if(isFact){
+      sceneTitle.innerHTML = `Сделано сегодня <span class="ml-3 inline-flex items-center rounded-full bg-emerald-500/20 text-emerald-100 px-2.5 py-1 text-xs font-semibold ring-1 ring-emerald-400/40">ФАКТ на ${sumFact.textContent} ч</span>`;
+    }
+
+    applyLayout();
+    drawCards(tasksView,isFact);
   }
+
   function sortList(a,how){
     const arr=[...a];
     switch(how){
-      case 'deadline': arr.sort((x,y)=> String(x.deadline||'9999').localeCompare(String(y.deadline||'0'))); break;
       case 'priority': arr.sort((x,y)=> prRank(x.sticker_priority)-prRank(y.sticker_priority)); break;
-      case 'stage': arr.sort((x,y)=> String(x.sticker_stage||'').localeCompare(String(y.sticker_stage||''))); break;
-      case 'project': arr.sort((x,y)=> String(x.sticker_project||'').localeCompare(String(y.sticker_project||''))); break;
+      case 'deadline': arr.sort((x,y)=> String(x.deadline||'').localeCompare(String(y.deadline||''))); break;
+      case 'plan':     arr.sort((x,y)=> num(y.sticker_plan)-num(x.sticker_plan)); break;
+      case 'fact':     arr.sort((x,y)=> num(y.sticker_fact)-num(x.sticker_fact)); break;
     }
     return arr;
   }
+
   function applyLayout(){
     exportStage.classList.toggle('tower', vizMode==='tower');
     if(vizMode==='tower'){
-      $("#collage").style.gridTemplateColumns='repeat(1,minmax(0,1fr))';
-      exportStage.style.width='560px';
+      collage.style.gridTemplateColumns='repeat(1,minmax(0,1fr))';
+      exportStage.style.width='820px'; // фасоннее в «Башне»
       colSelect.disabled=true;
     }else{
       colSelect.disabled=false;
       const n=parseInt(colSelect.value||'2',10);
-      $("#collage").style.gridTemplateColumns=`repeat(${n},minmax(0,1fr))`;
+      collage.style.gridTemplateColumns=`repeat(${n},minmax(0,1fr))`;
       const widthPerCol=540;
-      exportStage.style.width=`${Math.max(700, n*widthPerCol + (n-1)*16) + 48}px`;
+      exportStage.style.width=`${Math.max(700, n*widthPerCol + (n-1)*16)}px`;
     }
   }
   colSelect.addEventListener('change', ()=> vizMode==='collage' && applyLayout());
-  design.addEventListener('change', ()=> drawCards(tasksView,isFactGlobal));
+  density.addEventListener('change', ()=> drawCards(tasksView,isFactGlobal));
   sortBy.addEventListener('change', ()=>{ tasksView=sortList(tasksView, sortBy.value); drawCards(tasksView,isFactGlobal); });
-  // badges & chips
-  function stickerBadge(text){
+
+  /* ===== chips / card ===== */
+  function badge(text, type){
     if(!text) return '';
-    const t=String(text).toLowerCase();
-    let cls='badge-slate', icon='tag';
-    if(t.includes('пожар')||t.includes('alarm')||t.includes('аларм')) { cls='badge-red'; icon='flame'; }
-    else if(t.includes('важно')) { cls='badge-amber'; icon='alert-triangle'; }
-    else if(t.includes('в работе')) { cls='badge-blue'; icon='play'; }
-    else if(t.includes('выполнено')||t.includes('закончено')) { cls='badge-emerald'; icon='check-circle-2'; }
-    else if(t.includes('ждет начала')) { cls='badge-purple'; icon='clock'; }
-    return `<span class="yg-badge ${cls}"><i data-lucide="${icon}" class="w-3.5 h-3.5"></i>${esc(text)}</span>`;
+    let cls='yg-chip';
+    if(type==='priority'){
+      const t=String(text).toLowerCase();
+      if(t.includes('пожар')||t.includes('alarm')||t.includes('аларм')) cls='yg-badge badge-red';
+      else if(t.includes('важно')) cls='yg-badge badge-amber';
+      else cls='yg-badge badge-slate';
+    }
+    return `<span class="${cls}">${esc(text)}</span>`;
   }
-  function chip(icon, text){ if(!text) return ''; return `<span class="yg-chip"><i data-lucide="${icon}" class="w-3.5 h-3.5"></i>${esc(text)}</span>`; }
+  const chipIcon=(icon,txt)=> txt? `<span class="yg-chip"><i data-lucide="${icon}" class="w-3.5 h-3.5"></i>${esc(txt)}</span>` : '';
+
   function drawCards(items,isFact){
     collage.innerHTML='';
-    const frag=document.createDocumentFragment();
     for(const t of items){
       const fact=num(t.sticker_fact), plan=num(t.sticker_plan);
       const ratio=plan>0? Math.min(100, Math.round(fact/plan*100)) : (fact>0?100:0);
-      const idStr=String(t.id||'').trim(), titleStr=String(t.title||'Без названия');
+      const titleStr=String(t.title||t.id||'Без названия');
 
       const el=document.createElement('article');
-      el.className=`card-yg ${isFact?'border-l-4 border-emerald-500':''}`;
+      el.className=`card p-5`;
 
-      const priorityBadge = stickerBadge(t.sticker_priority);
-      const stageBadge = stickerBadge(t.sticker_stage);
-      const projectChip = chip('briefcase-business', t.sticker_project);
-      const deadlineChip = t.deadline ? chip('calendar-days', `Дедлайн: ${t.deadline}`) : '';
-      const planChip = plan ? chip('target', `План: ${plan} ч`) : '';
-      const factChip = fact ? chip('clock', `Факт: ${fact} ч`) : '';
-      const categoryChip = t.sticker_category ? chip('bookmark', t.sticker_category) : '';
+      const row1 = [
+        chipIcon('calendar-days', t.deadline),
+        badge(t.sticker_priority,'priority'),
+        badge(t.sticker_stage),
+        chipIcon('users', t.project || t.board),
+        chipIcon('bookmark', t.sticker_category),
+        plan? chipIcon('target', `План сегодня: ${plan}`) : '',
+        fact? chipIcon('clock',  `Факт часов: ${fact}`) : ''
+      ].filter(Boolean).join(' ');
+
+      const leftIcon = isFact ? 'check-circle-2' : 'circle';
 
       el.innerHTML=`
-        <div class="flex flex-col gap-2">
-          <div class="flex items-center gap-2">
-            ${isFact ? '<i data-lucide="check" class="w-5 h-5 text-emerald-500"></i>' : ''}
-            <h4 class="title-yg">${esc(idStr? idStr+' — ' : '')}${esc(titleStr)}</h4>
+        <div class="flex items-start gap-2">
+          <i data-lucide="${leftIcon}" class="w-5 h-5 ${isFact?'text-emerald-400':'text-slate-500'} mt-0.5"></i>
+          <h4 class="title text-white">${esc(titleStr)}</h4>
+        </div>
+
+        <div class="mt-3 flex flex-wrap gap-2">${row1}</div>
+
+        <div class="mt-3">
+          <div class="h-2 rounded-full bg-slate-800 overflow-hidden">
+            <div class="h-full bg-indigo-500" style="width:${ratio}%"></div>
           </div>
-          <div class="flex flex-wrap gap-2">
-            ${priorityBadge}
-            ${stageBadge}
-            ${projectChip}
-            ${deadlineChip}
-          </div>
-          <div class="flex flex-wrap gap-2">
-            ${categoryChip}
-            ${planChip}
-            ${factChip}
-          </div>
-          ${ratio > 0 ? `
-            <div class="progress mt-2">
-              <div class="progress-bar" style="width:${ratio}%"></div>
+          <div class="mt-2 text-xs flex items-center justify-between text-slate-300">
+            <div class="inline-flex items-center gap-1"><i data-lucide="message-circle" class="w-3.5 h-3.5"></i> Сообщений: ${esc(t.msgs||'0')}</div>
+            <div class="flex items-center gap-4">
+              ${plan? `<span class="inline-flex items-center gap-1"><i data-lucide="target" class="w-3.5 h-3.5"></i>${esc(plan)}</span>`:''}
+              ${fact? `<span class="inline-flex items-center gap-1"><i data-lucide="clock" class="w-3.5 h-3.5"></i>${esc(fact)}</span>`:''}
             </div>
-          ` : ''}
+          </div>
         </div>
       `;
-
-      frag.appendChild(el);
+      collage.appendChild(el);
     }
-    collage.appendChild(frag);
     lucide.createIcons();
   }
-  // Export
+
+  /* ===== Export (1-в-1 и без пустоты) ===== */
   function enableExports(v){ btnPNG.disabled=btnCopy.disabled=!v; }
+
   async function exportCanvas(){
-    await document.fonts.ready;
-    await new Promise(r=>setTimeout(r,30));
-    return html2canvas(exportContainer,{backgroundColor:null, scale:2, useCORS:true, logging:true});
+    try{ await document.fonts.ready; }catch(_){}
+    await new Promise(r=>requestAnimationFrame(r));
+
+    const w = exportStage.scrollWidth;
+    const h = exportStage.scrollHeight;
+
+    return html2canvas(exportStage,{
+      backgroundColor: null,
+      scale: Math.min(2, window.devicePixelRatio*1.5),
+      useCORS: true,
+      allowTaint: true,
+      foreignObjectRendering: false,    // критично: выключено
+      imageTimeout: 3000,
+      width: w, height: h,
+      onclone: (doc) => {
+        const node = doc.querySelector('#exportStage');
+        node.classList.add('snapshot');
+        node.style.width = w+'px';
+        node.style.height = h+'px';
+        // Вшиваем фон как dataURL, чтобы не таинило
+        if(bgDataUrl){
+          const img = node.querySelector('.bg-img');
+          if(img) img.setAttribute('src', bgDataUrl);
+        }
+      }
+    });
   }
+
   btnPNG.addEventListener('click', async ()=>{ try{
     const c=await exportCanvas();
-    c.toBlob(b=>{ const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download=`${exportTitle.textContent.replace(/<[^>]*>/g,'').trim()}.png`; a.click(); URL.revokeObjectURL(a.href); });
+    c.toBlob(b=>{ const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download=`${sceneTitle.textContent.replace(/\s+/g,'_')}.png`; a.click(); URL.revokeObjectURL(a.href); });
   }catch(e){ console.error(e); toast('PNG: ошибка'); }});
+
   btnCopy.addEventListener('click', async ()=>{ try{
     const c=await exportCanvas();
     c.toBlob(async b=>{ try{ await navigator.clipboard.write([new ClipboardItem({'image/png':b})]); toast('Скопировано в буфер ✔'); }catch(_){ toast('Буфер недоступен — скачай PNG'); } });
