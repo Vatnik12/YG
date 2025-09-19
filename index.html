@@ -285,7 +285,7 @@
   const progressWrap=$("#progressWrap"), progressBar=$("#progressBar"), progressLabel=$("#progressLabel"), progressStep=$("#progressStep"), diag=$("#diag");
 
   // Support modal
-  const supportFab=$("#supportFab"), supportModal=$("#supportModal"), modalClose=$("#modalClose"]);
+  const supportFab=$("#supportFab"), supportModal=$("#supportModal"), modalClose=$("#modalClose");
   supportFab.addEventListener('click', ()=>{ supportModal.classList.remove('hidden'); });
   modalClose.addEventListener('click', ()=> supportModal.classList.add('hidden'));
   supportModal.addEventListener('click', (e)=>{ if(e.target===supportModal) supportModal.classList.add('hidden'); });
@@ -502,3 +502,4 @@
 </script>
 </body>
 </html>
+
