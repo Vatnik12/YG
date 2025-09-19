@@ -19,6 +19,8 @@
       }
     }
   </script>
+
+  <!-- Fonts + Icons + Libs -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://unpkg.com/lucide@latest"></script>
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
@@ -30,24 +32,35 @@
     :root{ --ring:#e2e8f0 }
     *{ scrollbar-width:thin; scrollbar-color:#CBD5E1 transparent }
     *::-webkit-scrollbar{ width:8px;height:8px } *::-webkit-scrollbar-thumb{ background:#CBD5E1;border-radius:9999px }
+
     .panel{ border:1px solid var(--ring); border-radius:16px; background:#fff; box-shadow:0 10px 30px rgba(0,0,0,.06) }
     .dark .panel{ background:#0b1220; border-color:#1f2937 }
     .kanban-card{ border:1px solid var(--ring); border-radius:16px; background:#fff; box-shadow:0 10px 30px rgba(0,0,0,.06) }
     .dark .kanban-card{ background:#0b1220; border-color:#1f2937 }
-    .pill{ border-radius:999px; padding:2px 8px; font-size:12px; line-height:18px }
-    .chip{ border-radius:10px; padding:2px 8px; font-size:12px; line-height:18px; background:#F8FAFC; border:1px solid #E2E8F0 }
+
+    .pill{ border-radius:999px; padding:2px 8px; font-size:12px; line-height:18px; display:inline-flex; gap:6px; align-items:center; white-space:nowrap }
+    .chip{ border-radius:10px; padding:2px 8px; font-size:12px; line-height:18px; background:#F8FAFC; border:1px solid #E2E8F0; display:inline-flex; gap:6px; align-items:center }
     .dark .chip{ background:#111827; border-color:#1f2937; color:#cbd5e1 }
+
     .fade-dim{ filter:saturate(.75) brightness(.92) }
     .drop-hover{ outline:3px dashed #4f46e5; outline-offset:-10px }
+
+    .kanban-card h4{ word-break:break-word; overflow-wrap:anywhere }
+    .kanban-card .pill, .kanban-card .chip{ max-width:100%; overflow:hidden; text-overflow:ellipsis }
+
+    .mode-switch{ position:relative; border-radius:14px; background:rgba(99,102,241,.08); border:1px solid var(--ring); padding:4px; display:flex; gap:4px }
+    .mode-thumb{ position:absolute; inset:4px auto 4px 4px; width:calc(50% - 6px); border-radius:10px; background:rgba(99,102,241,.15); transition:transform .25s ease }
+    .mode-item{ position:relative; z-index:1; flex:1; padding:8px 10px; font-size:12px; border-radius:10px; display:flex; align-items:center; gap:6px; justify-content:center; cursor:pointer; user-select:none }
+    .mode-item.inactive{ filter:blur(.1px) saturate(.8) opacity:.65 }
+
     @media print{ @page{ size:A4 portrait; margin:10mm } }
   </style>
 </head>
 <body class="min-h-screen flex flex-col font-sans bg-slate-50 text-slate-900 dark:bg-slate-900 dark:text-slate-100 selection:bg-indigo-200 selection:text-indigo-900">
 
-  <!-- SPLASH -->
+  <!-- ===== SPLASH (как дал, только в 2 раза быстрее) ===== -->
   <div id="splash" class="fixed inset-0 z-50 grid place-items-center bg-[#0b1020]">
     <div class="relative w-full h-full overflow-hidden">
-      <!-- замени путь на свой арт, если нужно -->
       <img src="./assets/bg.jpg" alt="" class="absolute inset-0 w-full h-full object-cover opacity-60"/>
       <div class="absolute inset-0 bg-gradient-to-b from-indigo-900/20 via-slate-900/30 to-slate-900/70"></div>
       <div class="relative h-full w-full flex items-center justify-center">
@@ -75,7 +88,7 @@
             </div>
           </div>
 
-          <div class="lg:col-span-5 grid grid-cols-2 sm:grid-cols-4 gap-2">
+          <div class="lg:col-span-5 grid grid-cols-2 sm:grid-cols-5 gap-2">
             <div class="panel px-3 py-2 flex items-center justify-between">
               <span class="text-xs text-slate-500 dark:text-slate-400">Колонки</span>
               <select id="colSelect" class="px-2 py-1 text-sm rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
@@ -98,11 +111,14 @@
                 <option value="fact">Факт (ч)</option>
               </select>
             </div>
-            <div class="panel px-3 py-2 flex items-center justify-between">
-              <span class="text-xs text-slate-500 dark:text-slate-400">Тема</span>
-              <button id="themeToggle" class="px-2 py-1 text-sm rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
-                <i data-lucide="sun" class="w-4 h-4 hidden dark:inline"></i><i data-lucide="moon" class="w-4 h-4 dark:hidden"></i>
-              </button>
+            <!-- MODE SWITCH -->
+            <div class="panel px-3 py-2 col-span-2">
+              <div class="text-xs text-slate-500 dark:text-slate-400 mb-2">Режим</div>
+              <div id="modeSwitch" class="mode-switch">
+                <div id="modeThumb" class="mode-thumb"></div>
+                <button data-mode="collage" class="mode-item"><i data-lucide="grid-3x3" class="w-4 h-4"></i>Коллаж</button>
+                <button data-mode="tower" class="mode-item inactive"><i data-lucide="panel-right" class="w-4 h-4"></i>Башня</button>
+              </div>
             </div>
           </div>
 
@@ -165,7 +181,10 @@
 
       <!-- COLLAGE -->
       <section id="collageWrap" class="mt-10 hidden">
-        <h3 id="collageTitle" class="text-3xl font-extrabold tracking-tight"></h3>
+        <div class="flex items-center justify-between gap-4">
+          <h3 id="collageTitle" class="text-3xl font-extrabold tracking-tight"></h3>
+          <div id="modeHint" class="text-sm text-slate-500 dark:text-slate-400"></div>
+        </div>
         <div class="mt-4 panel p-4">
           <div class="overflow-auto">
             <!-- фиксированная ширина для чистого экспорта -->
@@ -218,30 +237,63 @@
   </div>
 
 <script>
-  // ===== Basics
+  /* ===== Splash (твоя логика, только в 2 раза быстрее) ===== */
+  (function(){
+    try {
+      const tl = gsap.timeline();
+      tl.fromTo("#splashContent",{y:20,opacity:0},{y:0,opacity:1,duration:0.5,ease:"power3.out"})
+        .to("#splash",{opacity:0,pointerEvents:"none",duration:.35,delay:0.55,ease:"power2.inOut"});
+    } catch(_) {
+      requestAnimationFrame(()=>{ const s=document.getElementById('splash'); if(s){ s.style.opacity=0; s.style.pointerEvents='none'; }});
+    }
+  })();
+
+  /* ===== Basics ===== */
   const $=(s,r=document)=>r.querySelector(s); const $$=(s,r=document)=>Array.from(r.querySelectorAll(s));
   const toast=(m)=>{const b=$("#toast>div"); b.textContent=m; $("#toast").classList.remove("hidden"); setTimeout(()=>$("#toast").classList.add("hidden"),2400);};
   const esc=(s="")=>String(s).replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
   const num=(v)=>{if(typeof v==='number')return v; if(v===null||v===undefined||v==='')return 0; const s=String(v).replace(",",".").replace(/[^\d.-]/g,""); const n=parseFloat(s); return isNaN(n)?0:n;};
   const prRank=(p="")=>{p=String(p).toLowerCase(); if(p.includes('пожар')||p.includes('alarm')||p.includes('аларм'))return 0; if(p.includes('важно'))return 1; return 2;};
 
-  // Theme + splash + icons
+  // Theme + icons
   const applyStoredTheme=()=>{const t=localStorage.getItem('theme')||'dark'; document.documentElement.classList.toggle('dark', t==='dark');};
   applyStoredTheme();
   $("#themeToggle").addEventListener('click',()=>{const d=document.documentElement.classList.toggle('dark'); localStorage.setItem('theme', d?'dark':'light');});
-  (function(){const tl=gsap.timeline(); tl.fromTo("#splashContent",{y:20,opacity:0},{y:0,opacity:1,duration:1,ease:"power3.out"}).to("#splash",{opacity:0,pointerEvents:"none",duration:.7,delay:1.1,ease:"power2.inOut"});})();
   window.addEventListener('DOMContentLoaded',()=>{ lucide.createIcons(); });
 
   // DOM refs
   const modeBadge=$("#modeBadge"), dropzone=$("#dropzone"), fileInput=$("#fileInput");
-  const collage=$("#collage"), collageWrap=$("#collageWrap"), collageTitle=$("#collageTitle");
+  const collage=$("#collage"), collageWrap=$("#collageWrap"), collageTitle=$("#collageTitle"), modeHint=$("#modeHint");
   const sumDate=$("#sumDate"), sumPlan=$("#sumPlan"), sumFact=$("#sumFact"), sumCount=$("#sumCount");
   const btnPNG=$("#btnExportPNG"), btnPDF=$("#btnExportPDF"), btnCopy=$("#btnCopy"), colSelect=$("#colSelect"), density=$("#density"), sortBy=$("#sortBy");
   const progressWrap=$("#progressWrap"), progressBar=$("#progressBar"), progressLabel=$("#progressLabel"), progressStep=$("#progressStep"), diag=$("#diag");
+
+  // Support modal
   const supportFab=$("#supportFab"), supportModal=$("#supportModal"), modalClose=$("#modalClose");
   supportFab.addEventListener('click', ()=>{ supportModal.classList.remove('hidden'); gsap.fromTo("#supportModal .panel",{y:20,opacity:0},{y:0,opacity:1,duration:.35,ease:"power2.out"}); });
   modalClose.addEventListener('click', ()=> supportModal.classList.add('hidden'));
   supportModal.addEventListener('click', (e)=>{ if(e.target===supportModal) supportModal.classList.add('hidden'); });
+
+  // Mode switch (Коллаж / Башня)
+  const modeSwitch = $("#modeSwitch");
+  const modeThumb = $("#modeThumb");
+  const modeBtns  = $$(".mode-item", modeSwitch);
+  let vizMode = 'collage'; // 'collage' | 'tower'
+  const setModeUI = (m)=>{
+    vizMode = m;
+    modeBtns.forEach(b=> b.classList.toggle('inactive', b.dataset.mode!==m));
+    // thumb slide
+    const i = m==='collage' ? 0 : 1;
+    modeThumb.style.transform = `translateX(${i*100}%)`;
+    // hint + blur anim на контейнере
+    const cont = $("#collage");
+    if(cont){ cont.style.filter='blur(6px) saturate(.9)'; cont.style.opacity='0.85';
+      setTimeout(()=>{ cont.style.filter=''; cont.style.opacity='1'; }, 180);
+    }
+    // применять раскладку
+    applyLayout();
+  };
+  modeBtns.forEach(btn=> btn.addEventListener('click', ()=> setModeUI(btn.dataset.mode)));
 
   // DnD
   ["dragenter","dragover"].forEach(ev=>dropzone.addEventListener(ev,e=>{e.preventDefault();dropzone.classList.add("drop-hover");}));
@@ -301,11 +353,8 @@
       };
       const findCol = (variants)=>{
         const vs = variants.map(canon);
-        // точное
         for(const v of vs){ const i=headers.indexOf(v); if(i>=0) return i; }
-        // включает
         for(const v of vs){ const i=headers.findIndex(h=>h.includes(v)); if(i>=0) return i; }
-        // по словам
         for(const v of vs){
           const words=v.split(' ').filter(Boolean);
           const i=headers.findIndex(h=>words.every(w=>h.includes(w)));
@@ -345,7 +394,6 @@
       hideProgress();
       enableExports(true);
       toast('Коллаж готов. Можно скачать/копировать.');
-      // авто-скролл к коллажу
       $("#collageWrap").scrollIntoView({behavior:'smooth', block:'start'});
 
     }catch(e){
@@ -359,6 +407,7 @@
   function canon(s){ return String(s||'').replace(/[“”«»„‟"']/g,'"').replace(/ё/g,'е').replace(/\s+/g,' ').trim().toLowerCase(); }
   function cell(row, i){ return i>=0 ? (row[i] ?? '') : ''; }
   function detectMode(name=""){ const n=String(name).toLowerCase(); if(n.includes('сделано сегодня')) return 'fact'; if(n.includes('задачи на сегодня')) return 'plan'; return 'plan'; }
+  function extractDate(name=""){ const m=String(name).match(/сегодня[^\d]*(.+)$/i); return m? m[1].replace(/\.[^.]+$/,'').trim() : '—'; }
 
   // ===== Render
   let isFactGlobal=false;
@@ -373,12 +422,13 @@
     sumPlan.textContent=String(sp).replace('.',','); sumFact.textContent=String(sf).replace('.',','); sumCount.textContent=tasksView.length;
 
     collageTitle.textContent = isFact? 'Сделано сегодня' : 'Задачи на сегодня';
+    modeHint.textContent = vizMode==='tower' ? 'Режим «Башня»: одна колонка, вертикальная лента' : 'Режим «Коллаж»: сетка карточек';
 
-    setColumns(parseInt(colSelect.value||'2',10));
+    applyLayout();
     drawCards(tasksView, isFact);
 
     $("#collageWrap").classList.remove("hidden");
-    gsap.from($$(".kanban-card", collage),{y:12,opacity:0,duration:.5,stagger:.02,ease:"power2.out"});
+    gsap.from($$(".kanban-card", collage),{y:12,opacity:0,duration:.45,stagger:.02,ease:"power2.out"});
   }
 
   function sortList(arr, how){
@@ -392,12 +442,21 @@
     return a;
   }
 
-  function setColumns(n){
-    collage.style.gridTemplateColumns = `repeat(${n}, minmax(0, 1fr))`;
-    const widthPerCol = 540;
-    collage.style.width = `${Math.max(700, n*widthPerCol + (n-1)*16)}px`;
+  function applyLayout(){
+    if(vizMode==='tower'){
+      // одна колонка, фиксированная ширина — чистый экспорт
+      collage.style.gridTemplateColumns = 'repeat(1, minmax(0, 1fr))';
+      collage.style.width = '560px';
+      colSelect.disabled = true; // колонки неактуальны
+    } else {
+      colSelect.disabled = false;
+      const n = parseInt(colSelect.value||'2',10);
+      collage.style.gridTemplateColumns = `repeat(${n}, minmax(0, 1fr))`;
+      const widthPerCol = 540;
+      collage.style.width = `${Math.max(700, n*widthPerCol + (n-1)*16)}px`;
+    }
   }
-  colSelect.addEventListener('change', ()=>{ setColumns(parseInt(colSelect.value,10)); });
+  colSelect.addEventListener('change', ()=>{ if(vizMode==='collage') applyLayout(); });
 
   density.addEventListener('change', ()=> drawCards(tasksView, isFactGlobal));
   sortBy.addEventListener('change', ()=>{ tasksView=sortList(tasksView, sortBy.value); drawCards(tasksView, isFactGlobal); });
@@ -410,16 +469,18 @@
     const frag=document.createDocumentFragment();
     for(const t of items){
       try{
+        const fact=num(t.sticker_fact), plan=num(t.sticker_plan);
+        const ratio = plan>0? Math.min(100, Math.round(fact/plan*100)) : (fact>0?100:0);
+        const idStr = String(t.id||'').trim();
+        const titleStr = String(t.title||'Без названия');
+
         const card=document.createElement('article');
         card.className=`kanban-card ${pad} ${isFact? 'fade-dim':''}`;
-        const titleStr = String(t.title||'Без названия');
-        const idStr = String(t.id||'').trim();
-        const descr = String(t.description||'');
         card.innerHTML=`
           <div class="flex items-start justify-between gap-3">
             <div class="min-w-0">
-              <div class="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-2">
-                <span class="pill bg-slate-800 text-white dark:bg-slate-200 dark:text-slate-900">${esc(t.project||'—')}</span>
+              <div class="text-xs text-slate-500 dark:text-slate-400 flex flex-wrap items-center gap-2">
+                ${t.project? `<span class="pill bg-slate-800 text-white dark:bg-slate-200 dark:text-slate-900">${esc(t.project)}</span>`:''}
                 ${chip(t.board)} ${chip(t.column)}
               </div>
               <h4 class="mt-2 font-semibold leading-snug">${esc(idStr? idStr+' — ' : '')}${esc(titleStr)}</h4>
@@ -434,36 +495,53 @@
             ${t.deadline? `<span class="chip"><b>Дедлайн:</b> ${esc(t.deadline)}</span>`:''}
             ${t.last_msg? `<span class="chip"><b>Последнее сообщение:</b> ${esc(t.last_msg)}</span>`:''}
             ${t.msgs? `<span class="chip"><b>Сообщений:</b> ${esc(t.msgs)}</span>`:''}
-            ${t.sticker_plan? `<span class="chip"><b>План:</b> ${esc(t.sticker_plan)} ч</span>`:''}
-            ${t.sticker_fact? `<span class="chip"><b>Факт:</b> ${esc(t.sticker_fact)} ч</span>`:''}
+            ${plan? `<span class="chip"><b>План:</b> ${esc(plan)} ч</span>`:''}
+            ${fact? `<span class="chip"><b>Факт:</b> ${esc(fact)} ч</span>`:''}
             ${t.sticker_category? `<span class="chip"><b>Категория:</b> ${esc(t.sticker_category)}</span>`:''}
           </div>
 
-          ${descr ? `<div class="mt-3 text-[13px] leading-relaxed text-slate-700 dark:text-slate-300">
-             ${esc(descr.slice(0,420))}${descr.length>420?'…':''}
-          </div>`:''}
-        `;
+          <div class="mt-4">
+            <div class="h-2 rounded-full bg-slate-200 dark:bg-slate-800 overflow-hidden">
+              <div class="h-full bg-indigo-500" style="width:${ratio}%"></div>
+            </div>
+            <div class="mt-2 text-xs flex items-center justify-between text-slate-500 dark:text-slate-400">
+              <div class="flex items-center gap-4">
+                <span class="inline-flex items-center gap-1"><i data-lucide="message-circle" class="w-3.5 h-3.5"></i> Сообщений: ${esc(t.msgs||'0')}</span>
+              </div>
+              <div class="flex items-center gap-4">
+                ${plan? `<span class="inline-flex items-center gap-1"><i data-lucide="target" class="w-3.5 h-3.5"></i>${esc(plan)}</span>`:''}
+                ${fact? `<span class="inline-flex items-center gap-1"><i data-lucide="clock" class="w-3.5 h-3.5"></i>${esc(fact)}</span>`:''}
+              </div>
+            </div>
+          </div>`;
         frag.appendChild(card);
       }catch(_e){
-        // если вдруг задача сломана — просто пропускаем
         console.error('bad task row', _e, t);
       }
     }
     collage.appendChild(frag);
+    lucide.createIcons();
   }
 
   function chip(text){ return text? `<span class="chip">${esc(text)}</span>`:''; }
   function badge(text, cls){ return text? `<span class="pill ${cls} text-white">${esc(text)}</span>`:''; }
   function colorPriority(p){ const s=String(p||'').toLowerCase(); if(s.includes('пожар')||s.includes('alarm')||s.includes('аларм')) return 'bg-rose-500'; if(s.includes('важно')) return 'bg-amber-500'; return 'bg-slate-400'; }
   function colorStage(s){ s=String(s||'').toLowerCase(); if(s.includes('ждет')||s.includes('очередь')) return 'bg-slate-500'; if(s.includes('в работе')) return 'bg-blue-600'; if(s.includes('выполнено')||s.includes('закончено')) return 'bg-emerald-600'; return 'bg-slate-400'; }
-  function extractDate(name=""){ const m=String(name).match(/сегодня[^\d]*(.+)$/i); return m? m[1].replace(/\.[^.]+$/,'').trim() : '—'; }
 
   // Export
   function enableExports(v){ btnPNG.disabled=btnPDF.disabled=btnCopy.disabled=!v; }
-  async function exportCanvas(){ await new Promise(r=>setTimeout(r,50)); return html2canvas(collage,{ backgroundColor:getComputedStyle(document.body).backgroundColor, scale:2, useCORS:true }); }
+  async function exportCanvas(){
+    await new Promise(r=>setTimeout(r,50));
+    return html2canvas(collage,{ backgroundColor:getComputedStyle(document.body).backgroundColor, scale:2, useCORS:true });
+  }
   btnPNG.addEventListener('click', async ()=>{ try{ const c=await exportCanvas(); c.toBlob(b=>{ const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download=`${collageTitle.textContent}.png`; a.click(); URL.revokeObjectURL(a.href); }); }catch(e){ console.error(e); toast('PNG: ошибка'); } });
   btnPDF.addEventListener('click', async ()=>{ try{ const c=await exportCanvas(); const img=c.toDataURL('image/png'); const { jsPDF }=window.jspdf; const pdf=new jsPDF({unit:'pt',format:'a4',compress:true}); const pageW=pdf.internal.pageSize.getWidth(), margin=24; const w=pageW - margin*2, h=w*(c.height/c.width); pdf.addImage(img,'PNG',margin,margin,w,h); pdf.save(`${collageTitle.textContent}.pdf`); }catch(e){ console.error(e); toast('PDF: ошибка'); } });
   btnCopy.addEventListener('click', async ()=>{ try{ const c=await exportCanvas(); c.toBlob(async b=>{ try{ await navigator.clipboard.write([new ClipboardItem({'image/png':b})]); toast('Скопировано в буфер ✔'); }catch(_){ toast('Буфер недоступен — скачай PNG'); } }); }catch(e){ console.error(e); toast('Копирование не удалось'); } });
+
+  // Коллбэки настроек
+  colSelect.addEventListener('change', ()=>{ if(vizMode==='collage') applyLayout(); });
+  density.addEventListener('change', ()=> drawCards(tasksView, isFactGlobal));
+  sortBy.addEventListener('change', ()=>{ tasksView=sortList(tasksView, sortBy.value); drawCards(tasksView, isFactGlobal); });
 </script>
 </body>
 </html>
