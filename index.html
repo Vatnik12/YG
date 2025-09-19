@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>OneScreen План/Факт — by Vatnik</title>
 
-  <!-- Tailwind CDN (для GH Pages ок) -->
+  <!-- Tailwind (CDN ок для GH Pages) -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -18,70 +18,69 @@
     }
   </script>
 
-  <!-- Fonts / Libs -->
+  <!-- Libs -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://unpkg.com/lucide@latest"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 
   <style>
-    :root{
-      --ring:#e5e7eb;
-      --bg-url:url('./assets/bg.jpg');
-    }
+    :root{ --ring:#e5e7eb }
     *{ scrollbar-width:thin; scrollbar-color:#CBD5E1 transparent }
     *::-webkit-scrollbar{ width:8px;height:8px }*::-webkit-scrollbar-thumb{ background:#CBD5E1;border-radius:9999px }
 
     .panel{ border:1px solid var(--ring); border-radius:14px; background:#fff; box-shadow:0 10px 30px rgba(0,0,0,.04)}
     .dark .panel{ background:#0b1220; border-color:#1f2937}
 
-    .card{
-      position:relative;
-      border:1px solid var(--ring);
-      border-radius:16px;
-      background:#fff;
-      box-shadow:0 10px 30px rgba(0,0,0,.04);
-      overflow:hidden;
-      -webkit-font-smoothing:antialiased;
-      backface-visibility:hidden;
+    /* ---------- Карточки: 2 дизайна ---------- */
+    /* ВАЙБ */
+    .card-vibe{
+      position:relative; border:1px solid var(--ring); border-radius:14px; background:#fff;
+      box-shadow: inset 0 0 0 1px rgba(0,0,0,0.02), inset 0 0 80px rgba(0,0,0,0.05), 0 10px 30px rgba(0,0,0,.06);
     }
-    .dark .card{ background:#0b1220; border-color:#1f2937 }
-    /* Виньетка у карточки */
-    .card::after{
-      content:"";
-      position:absolute; inset:0;
-      pointer-events:none;
-      background:
-        radial-gradient(120% 100% at 50% -10%, rgba(0,0,0,0.10), transparent 55%),
-        radial-gradient(120% 100% at 50% 110%, rgba(0,0,0,0.10), transparent 60%);
-      mix-blend-mode:multiply;
+    .dark .card-vibe{
+      background:#0b1220; border-color:#1f2937;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.03), inset 0 0 120px rgba(255,255,255,0.04), 0 10px 30px rgba(0,0,0,.35);
+    }
+    .title-vibe{
+      font-weight:800; line-height:1.2; overflow-wrap:anywhere; word-break:break-word;
+      display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden;
     }
 
-    /* YouGile-like chips/badges — фиксируем высоту, не переносим внутри */
+    /* YOU GILE */
+    .card-yg{
+      position:relative; border:1px solid #eaeef4; border-radius:16px; background:#fff;
+      box-shadow: 0 1px 0 rgba(32,48,80,.04), 0 8px 28px rgba(32,48,80,.08);
+    }
+    .dark .card-yg{ background:#0b1220; border-color:#1f2937 }
+    .title-yg{
+      font-weight:700; line-height:1.25; overflow-wrap:anywhere; word-break:break-word;
+    }
+
+    /* общий «блик/виньетка» */
+    .card-glow:before{
+      content:""; position:absolute; inset:-1px; border-radius:inherit; pointer-events:none;
+      background:radial-gradient(1200px 200px at 50% -60px, rgba(99,102,241,.12), transparent 70%);
+    }
+
+    /* чипы */
     .yg-chip,.yg-badge{
       display:inline-flex; align-items:center; gap:6px;
-      height:26px; line-height:26px; padding:0 10px;
-      border-radius:9999px; font-size:12px;
-      white-space:nowrap; contain:layout paint; transform:translateZ(0);
+      height:26px; padding:0 10px; border-radius:9999px;
+      font-size:12px; line-height:26px; vertical-align:middle; white-space:nowrap; font-weight:500;
     }
-    .yg-chip{ background:#F1F5F9; border:1px solid #E2E8F0 }
+    .yg-chip{ background:#F1F5F9; border:1px solid #E2E8F0; }
     .dark .yg-chip{ background:#0f172a; border-color:#1f2937; color:#cbd5e1 }
     .yg-badge{ color:#fff }
     .badge-red{ background:#ef4444 } .badge-amber{ background:#f59e0b } .badge-slate{ background:#94a3b8 }
     .badge-blue{ background:#3b82f6 } .badge-emerald{ background:#10b981 }
-
-    .title{
-      font-weight:700; line-height:1.25; word-break:break-word; overflow-wrap:anywhere;
-      display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden;
-    }
 
     .mode-switch{ position:relative; border-radius:12px; border:1px solid var(--ring); background:rgba(99,102,241,.08); padding:4px; display:flex; gap:4px }
     .mode-thumb{ position:absolute; inset:4px auto 4px 4px; width:calc(50% - 6px); border-radius:8px; background:rgba(99,102,241,.18); transition:transform .25s ease }
     .mode-item{ position:relative; z-index:1; flex:1; padding:8px 10px; font-size:12px; border-radius:8px; display:flex; align-items:center; gap:6px; justify-content:center; cursor:pointer }
     .mode-item.inactive{ filter:saturate(.8) opacity:.65 }
 
-    .theme-switch{ position:relative; width:64px; height:30px; border-radius:9999px; border:1px solid var(--ring); background:#eef2ff; transition:background .2s ease }
+    .theme-switch{ position:relative; width:64px; height:30px; border-radius:9999px; border:1px solid var(--ring); background:#eef2ff }
     .dark .theme-switch{ background:#0f172a; border-color:#1f2937 }
     .theme-thumb{ position:absolute; top:3px; left:3px; width:24px; height:24px; border-radius:9999px; background:#fff; transition:transform .25s ease, background .25s ease }
     .dark .theme-thumb{ background:#111827 }
@@ -89,32 +88,23 @@
 
     .drop-hover{ outline:3px dashed #4f46e5; outline-offset:-10px }
 
-    /* Splash hide */
+    /* Splash */
     #splash{ transition:opacity .6s ease, filter .6s ease }
     #splash.splash-hide{ opacity:0; filter:blur(8px) saturate(.9); pointer-events:none }
 
-    /* Экспортная сцена (фон+блюр) */
-    #shotStage{
-      position:fixed; left:-10000px; top:0; z-index:-1;
-      padding:24px;
-      background-image:var(--bg-url);
-      background-position:center;
-      background-repeat:no-repeat;
-      background-size:cover;
-      filter:blur(6px) saturate(1.05) brightness(1.04);
-    }
-    #shotStage .shotOverlay{
-      position:absolute; inset:0;
-      background:linear-gradient(180deg,rgba(255,255,255,.18),rgba(255,255,255,.18));
-      pointer-events:none;
-    }
+    /* Экспорт-сцена (фон под коллажем) */
+    #exportStage{ position:relative; border-radius:12px; overflow:hidden }
+    #exportStage .bg-img{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; transform:scale(1.08); filter:blur(8px) saturate(0.95); }
+    #exportStage.tower .bg-img{ transform:scale(1.45); } /* в Башне сильнее зум */
+    #exportStage .bg-overlay{ position:absolute; inset:0; background:linear-gradient(180deg,rgba(15,23,42,.22),rgba(15,23,42,.22)); }
+    #exportStage .stage-pad{ position:relative; padding:24px; }
 
     @media print{ @page{ size:A4 portrait; margin:10mm } }
   </style>
 </head>
 <body class="min-h-screen flex flex-col font-sans bg-slate-50 text-slate-900 dark:bg-slate-900 dark:text-slate-100">
 
-  <!-- SPLASH -->
+  <!-- ===== SPLASH (авто 1.5с) ===== -->
   <div id="splash" class="fixed inset-0 z-50 grid place-items-center bg-[#0b1020]">
     <div class="relative w-full h-full overflow-hidden">
       <img src="./assets/bg.jpg" alt="" class="absolute inset-0 w-full h-full object-cover opacity-60"/>
@@ -131,7 +121,7 @@
     </div>
   </div>
 
-  <!-- HEADER -->
+  <!-- ===== HEADER ===== -->
   <header class="sticky top-0 z-40">
     <div class="backdrop-blur bg-white/70 dark:bg-slate-900/70 border-b border-slate-200 dark:border-slate-800">
       <div class="max-w-[1200px] mx-auto px-4">
@@ -151,12 +141,16 @@
                 <option value="2">2</option><option value="3">3</option><option value="4">4</option>
               </select>
             </div>
-            <div class="panel px-3 py-2 flex items-center justify-between min-w-[180px]">
-              <span class="text-xs text-slate-500 dark:text-slate-400">Плотность</span>
-              <select id="density" class="px-2 py-1 text-sm rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
-                <option value="md">Стандарт</option><option value="sm">Компактно</option>
+
+            <!-- Дизайн -->
+            <div class="panel px-3 py-2 flex items-center justify-between min-w-[200px]">
+              <span class="text-xs text-slate-500 dark:text-slate-400">Дизайн</span>
+              <select id="design" class="px-2 py-1 text-sm rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+                <option value="vibe">Вайб</option>
+                <option value="yg">YouGile</option>
               </select>
             </div>
+
             <div class="panel px-3 py-2 flex items-center justify-between min-w-[200px]">
               <span class="text-xs text-slate-500 dark:text-slate-400">Сорт</span>
               <select id="sortBy" class="px-2 py-1 text-sm rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
@@ -187,7 +181,6 @@
 
           <div class="flex items-center gap-2">
             <button id="btnExportPNG" disabled class="px-4 py-2 rounded-xl panel disabled:opacity-50">PNG</button>
-            <button id="btnExportPDF" disabled class="px-4 py-2 rounded-xl panel disabled:opacity-50">PDF</button>
             <button id="btnCopy"      disabled class="px-4 py-2 rounded-xl bg-slate-900 text-white dark:bg-white dark:text-slate-900 disabled:opacity-50">Копировать</button>
           </div>
         </div>
@@ -195,7 +188,7 @@
     </div>
   </header>
 
-  <!-- MAIN -->
+  <!-- ===== MAIN ===== -->
   <main class="flex-1 w-full">
     <section class="max-w-[1200px] mx-auto px-4 py-10">
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
@@ -240,6 +233,7 @@
         </div>
       </div>
 
+      <!-- СЦЕНА ЭКСПОРТА: фон + коллаж -->
       <section id="collageWrap" class="mt-10 hidden">
         <div class="flex items-center justify-between gap-4">
           <h3 id="collageTitle" class="text-3xl font-extrabold tracking-tight"></h3>
@@ -247,7 +241,13 @@
         </div>
         <div class="mt-4 panel p-4">
           <div class="overflow-auto">
-            <div id="collage" class="grid gap-4" style="width:1123px; grid-template-columns:repeat(2,minmax(0,1fr));"></div>
+            <div id="exportStage" class="relative" style="width:1123px;">
+              <img src="./assets/bg.jpg" alt="" class="bg-img select-none pointer-events-none">
+              <div class="bg-overlay"></div>
+              <div class="stage-pad">
+                <div id="collage" class="grid gap-4" style="grid-template-columns:repeat(2,minmax(0,1fr));"></div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -295,11 +295,11 @@
   </div>
 
 <script>
-  /* ===== Splash: авто 1.5с + аварийный фоллбек ===== */
+  /* ===== Splash: авто-скрытие гарантированно ===== */
   document.addEventListener('DOMContentLoaded', ()=>{
     const s=document.getElementById('splash');
     if(!s) return;
-    setTimeout(()=> s.classList.add('splash-hide'), 1500);
+    setTimeout(()=>{ s.classList.add('splash-hide'); }, 1500);
     setTimeout(()=>{ if(document.body.contains(s)) s.remove(); }, 3500);
   });
 
@@ -325,13 +325,13 @@
 
   // Refs
   const dropzone=$("#dropzone"), fileInput=$("#fileInput");
-  const collage=$("#collage"), collageWrap=$("#collageWrap"), collageTitle=$("#collageTitle"), modeHint=$("#modeHint");
+  const exportStage=$("#exportStage"), collage=$("#collage"), collageWrap=$("#collageWrap"),
+        collageTitle=$("#collageTitle"), modeHint=$("#modeHint");
   const sumDate=$("#sumDate"), sumPlan=$("#sumPlan"), sumFact=$("#sumFact"), sumCount=$("#sumCount"), modeBadge=$("#modeBadge");
-  const btnPNG=$("#btnExportPNG"), btnPDF=$("#btnExportPDF"), btnCopy=$("#btnCopy");
-  const colSelect=$("#colSelect"), density=$("#density"), sortBy=$("#sortBy");
+  const btnPNG=$("#btnExportPNG"), btnCopy=$("#btnCopy");
+  const colSelect=$("#colSelect"), design=$("#design"), sortBy=$("#sortBy");
   const progressWrap=$("#progressWrap"), progressBar=$("#progressBar"), progressLabel=$("#progressLabel"), progressStep=$("#progressStep"), diag=$("#diag");
 
-  // Support modal
   const supportFab=$("#supportFab"), supportModal=$("#supportModal"), modalClose=$("#modalClose");
   supportFab.addEventListener('click', ()=>{ supportModal.classList.remove('hidden'); });
   modalClose.addEventListener('click', ()=> supportModal.classList.add('hidden'));
@@ -340,8 +340,13 @@
   // Mode switch
   const modeSwitch=$("#modeSwitch"), modeThumb=$("#modeThumb"), modeBtns=$$(".mode-item",modeSwitch);
   let vizMode='collage';
-  const setModeUI=(m)=>{ vizMode=m; modeThumb.style.transform=`translateX(${m==='collage'?0:100}%)`; modeBtns.forEach(b=>b.classList.toggle('inactive', b.dataset.mode!==m)); applyLayout(); blurHint(); };
-  const blurHint=()=>{ const c=$("#collage"); if(!c) return; c.style.filter='blur(6px) saturate(.9)'; c.style.opacity='0.9'; setTimeout(()=>{c.style.filter=''; c.style.opacity='1';},160); };
+  const setModeUI=(m)=>{
+    vizMode=m;
+    modeThumb.style.transform=`translateX(${m==='collage'?0:100}%)`;
+    modeBtns.forEach(b=>b.classList.toggle('inactive', b.dataset.mode!==m));
+    applyLayout(); blurHint();
+  };
+  const blurHint=()=>{ const c=$("#exportStage"); if(!c) return; c.style.filter='blur(6px) saturate(.95)'; c.style.opacity='0.95'; setTimeout(()=>{c.style.filter=''; c.style.opacity='1';},160); };
   modeBtns.forEach(b=> b.addEventListener('click', ()=> setModeUI(b.dataset.mode)));
 
   // DnD
@@ -360,7 +365,7 @@
   function hideProgress(){ setTimeout(()=>progressWrap.classList.add('hidden'),350); }
   const setDiag=(html)=>{ diag.innerHTML=html; };
 
-  // File
+  // File flow
   async function handleFile(file){
     try{
       showProgress(); setProgress(10,'Читаю файл');
@@ -378,7 +383,7 @@
 
       const headers=(M[0]||[]).map(h=>canon(h)); const rows=M.slice(1);
 
-      const need={ id:['id задачи','id'], title:['название задачи','название'], deadline:['дедлайн'], board:['доска'], column:['колонка'], project:['проект'], last_msg:['дата последнего сообщения','последнее сообщение'], msgs:['кол-во сообщений','сообщений'], sticker_priority:['стикер "приоритет"','приоритет'], sticker_stage:['стикер "этап"','этап'], sticker_project:['стикер "проект"','проект (стикер)'], sticker_plan:['стикер "план сегодня"','план сегодня','план'], sticker_fact:['стикер "факт часов"','факт часов','факт'], sticker_category:['стикер "категория"','категория'] };
+      const need={ id:['id задачи','id'], title:['название задачи','название'], deadline:['дедлайн'], board:['доска'], column:['колонка'], project:['проект'], msgs:['кол-во сообщений','сообщений'], sticker_priority:['стикер "приоритет"','приоритет'], sticker_stage:['стикер "этап"','этап'], sticker_project:['стикер "проект"','проект (стикер)'], sticker_plan:['стикер "план сегодня"','план сегодня','план'], sticker_fact:['стикер "факт часов"','факт часов','факт'], sticker_category:['стикер "категория"','категория'] };
       const findCol=(vars)=>{ const vs=vars.map(canon);
         for(const v of vs){ const i=headers.indexOf(v); if(i>=0) return i;}
         for(const v of vs){ const i=headers.findIndex(h=>h.includes(v)); if(i>=0) return i;}
@@ -398,7 +403,7 @@
       tasksRaw=rows.map(r=>({
         id:cell(r,idx.id), title:cell(r,idx.title),
         deadline:cell(r,idx.deadline), board:cell(r,idx.board), column:cell(r,idx.column),
-        project:cell(r,idx.project), last_msg:cell(r,idx.last_msg), msgs:cell(r,idx.msgs),
+        project:cell(r,idx.project), msgs:cell(r,idx.msgs),
         sticker_priority:cell(r,idx.sticker_priority), sticker_stage:cell(r,idx.sticker_stage),
         sticker_project:cell(r,idx.sticker_project), sticker_plan:cell(r,idx.sticker_plan),
         sticker_fact:cell(r,idx.sticker_fact), sticker_category:cell(r,idx.sticker_category),
@@ -418,8 +423,6 @@
   function canon(s){ return String(s||'').replace(/[“”«»„‟"']/g,'"').replace(/ё/g,'е').replace(/\s+/g,' ').trim().toLowerCase(); }
   function cell(row,i){ return i>=0 ? (row[i] ?? '') : ''; }
   function detectMode(name=""){ const n=String(name).toLowerCase(); if(n.includes('сделано сегодня')) return 'fact'; if(n.includes('задачи на сегодня')) return 'plan'; return 'plan'; }
-
-  const MONTHS=['Янв','Фев','Март','Апр','Май','Июнь','Июль','Авг','Сент','Окт','Ноя','Дек'];
   function extractDate(name=""){ const m=String(name).match(/(\d{1,2})\s*(Янв|Фев|Март|Апр|Май|Июнь|Июль|Авг|Сент|Окт|Ноя|Дек)[^\d]*(\d{1,2})_(\d{2})/i);
     if(!m) return '—'; const d=m[1], mon=m[2], h=m[3], mm=m[4]; return `${d} ${mon}. ${h}:${mm}`; }
 
@@ -454,22 +457,24 @@
   }
 
   function applyLayout(){
+    exportStage.classList.toggle('tower', vizMode==='tower');
     if(vizMode==='tower'){
-      collage.style.gridTemplateColumns='repeat(1,minmax(0,1fr))';
-      collage.style.width='560px';
+      $("#collage").style.gridTemplateColumns='repeat(1,minmax(0,1fr))';
+      exportStage.style.width='560px';
       colSelect.disabled=true;
     }else{
       colSelect.disabled=false;
       const n=parseInt(colSelect.value||'2',10);
-      collage.style.gridTemplateColumns=`repeat(${n},minmax(0,1fr))`;
+      $("#collage").style.gridTemplateColumns=`repeat(${n},minmax(0,1fr))`;
       const widthPerCol=540;
-      collage.style.width=`${Math.max(700, n*widthPerCol + (n-1)*16)}px`;
+      exportStage.style.width=`${Math.max(700, n*widthPerCol + (n-1)*16) + 48}px`;
     }
   }
   colSelect.addEventListener('change', ()=> vizMode==='collage' && applyLayout());
-  density.addEventListener('change', ()=> drawCards(tasksView,isFactGlobal));
+  design.addEventListener('change', ()=> drawCards(tasksView,isFactGlobal));
   sortBy.addEventListener('change', ()=>{ tasksView=sortList(tasksView, sortBy.value); drawCards(tasksView,isFactGlobal); });
 
+  // badges & chips
   function stickerBadge(text){
     if(!text) return '';
     const t=String(text).toLowerCase();
@@ -480,12 +485,14 @@
     else if(t.includes('выполнено')||t.includes('закончено')) { cls='badge-emerald'; icon='check-circle-2'; }
     return `<span class="yg-badge ${cls}"><i data-lucide="${icon}" class="w-3.5 h-3.5"></i>${esc(text)}</span>`;
   }
-  function chipWithIcon(icon, text){ if(!text) return ''; return `<span class="yg-chip"><i data-lucide="${icon}" class="w-3.5 h-3.5"></i>${esc(text)}</span>`; }
+  function chip(icon, text){ if(!text) return ''; return `<span class="yg-chip"><i data-lucide="${icon}" class="w-3.5 h-3.5"></i>${esc(text)}</span>`; }
 
   function drawCards(items,isFact){
     collage.innerHTML='';
-    const compact = density.value==='sm';
-    const pad = compact? 'p-3 md:p-4' : 'p-4 md:p-5';
+    const vibe = design.value==='vibe';
+    const pad = vibe ? 'p-4 md:p-5' : 'p-4';
+    const cardCls = vibe ? 'card-vibe card-glow' : 'card-yg card-glow';
+    const titleCls = vibe ? 'title-vibe' : 'title-yg';
     const frag=document.createDocumentFragment();
 
     for(const t of items){
@@ -494,131 +501,63 @@
       const idStr=String(t.id||'').trim(), titleStr=String(t.title||'Без названия');
 
       const el=document.createElement('article');
-      el.className=`card ${pad} ${isFact?'opacity-95':''}`;
+      el.className=`${cardCls} ${pad} ${isFact?'opacity-95':''}`;
 
-      const stickerRow = [
-        chipWithIcon('building-2', t.project),
-        chipWithIcon('layout-grid', t.board),
-        chipWithIcon('columns-3', t.column),
+      // Верхняя строка «стикеров» (без "последнего сообщения")
+      const header = [
+        chip('briefcase-business', t.project),
+        chip('layout-grid', t.board),
+        chip('columns-3', t.column),
         stickerBadge(t.sticker_priority),
         stickerBadge(t.sticker_stage)
       ].filter(Boolean).join(' ');
 
-      const secondRow = `<div class="flex flex-wrap gap-2 mt-2">
-        ${chipWithIcon('calendar-clock', t.deadline?`Дедлайн: ${t.deadline}`:'')}
-        ${chipWithIcon('message-square-more', t.last_msg?`Последнее сообщение: ${t.last_msg}`:'')}
-      </div>`;
-
-      const infoRow = `<div class="mt-2 flex flex-wrap gap-2">
-        ${chipWithIcon('messages-square', `Сообщений: ${t.msgs||0}`)}
-        ${plan? chipWithIcon('target', `План: ${plan} ч`) : ''}
-        ${fact? chipWithIcon('clock', `Факт: ${fact} ч`) : ''}
-        ${t.sticker_category? chipWithIcon('bookmark', `Категория: ${t.sticker_category}`):''}
-      </div>`;
+      // Вторая линия: дедлайн + «в работе/важно» уже в header как badge; тут — дата/план/факт/категория
+      const metaRow = `
+        <div class="mt-2 flex flex-wrap gap-2">
+          ${chip('calendar-days', t.deadline?`Дедлайн: ${t.deadline}`:'')}
+          ${chip('messages-square', `Сообщений: ${t.msgs||0}`)}
+          ${plan? chip('target', `План: ${plan} ч`) : ''}
+          ${fact? chip('clock', `Факт: ${fact} ч`) : ''}
+          ${t.sticker_category? chip('bookmark', `Категория: ${t.sticker_category}`):''}
+        </div>`;
 
       el.innerHTML=`
         <div class="flex flex-col gap-2">
-          <div class="flex flex-wrap gap-2">${stickerRow}</div>
-          <h4 class="title">${esc(idStr? idStr+' — ' : '')}${esc(titleStr)}</h4>
-          ${secondRow}
-          ${infoRow}
+          <div class="flex flex-wrap gap-2">${header}</div>
+          <h4 class="${titleCls}">${esc(idStr? idStr+' — ' : '')}${esc(titleStr)}</h4>
+          ${metaRow}
           <div class="mt-3">
             <div class="h-2 rounded-full bg-slate-200 dark:bg-slate-800 overflow-hidden">
               <div class="h-full bg-indigo-500" style="width:${ratio}%"></div>
             </div>
-            <div class="mt-2 text-xs flex items-center justify-between text-slate-500 dark:text-slate-400">
-              <div class="inline-flex items-center gap-1"><i data-lucide="message-circle" class="w-3.5 h-3.5"></i> Сообщений: ${esc(t.msgs||'0')}</div>
-              <div class="flex items-center gap-4">
-                ${plan? `<span class="inline-flex items-center gap-1"><i data-lucide="target" class="w-3.5 h-3.5"></i>${esc(plan)}</span>`:''}
-                ${fact? `<span class="inline-flex items-center gap-1"><i data-lucide="clock" class="w-3.5 h-3.5"></i>${esc(fact)}</span>`:''}
-              </div>
+            <div class="mt-2 text-xs flex items-center justify-end gap-4 text-slate-500 dark:text-slate-400">
+              ${plan? `<span class="inline-flex items-center gap-1"><i data-lucide="target" class="w-3.5 h-3.5"></i>${esc(plan)}</span>`:''}
+              ${fact? `<span class="inline-flex items-center gap-1"><i data-lucide="clock" class="w-3.5 h-3.5"></i>${esc(fact)}</span>`:''}
             </div>
           </div>
         </div>`;
       frag.appendChild(el);
     }
     collage.appendChild(frag);
-    lucide.createIcons();
+    lucide.createIcons(); // SVG инлайн — стабильно для html2canvas
   }
 
-  /* ===== Экспорт со сценой и блюром фона ===== */
-  function buildShotStage(){
-    // кадр по ширине коллажа
-    const stage=document.createElement('div');
-    stage.id='shotStage';
-    stage.style.width = collage.offsetWidth + 'px';
-
-    // для «Башни» усилим визуальный зум фона (без краёв)
-    stage.style.backgroundSize = (vizMode==='tower') ? 'cover' : 'cover';
-
-    // вкладываем содержимое в "рамку"
-    const frame=document.createElement('div');
-    frame.style.position='relative';
-    frame.style.zIndex='1';
-    frame.appendChild(collage.cloneNode(true)); // клон текущего DOM (уже с иконками)
-    stage.appendChild(frame);
-
-    // мягкая подложка сверху фона
-    const overlay=document.createElement('div');
-    overlay.className='shotOverlay';
-    stage.appendChild(overlay);
-
-    document.body.appendChild(stage);
-    return stage;
+  // Export — вся сцена (фон + коллаж). Ждём шрифты, чтобы текст не «плыл».
+  function enableExports(v){ btnPNG.disabled=btnCopy.disabled=!v; }
+  async function exportCanvas(){
+    await document.fonts.ready;                  // дождаться Inter
+    await new Promise(r=>setTimeout(r,30));      // дать дорисоваться SVG
+    return html2canvas(exportStage,{backgroundColor:null, scale:2, useCORS:true});
   }
-
-  async function renderCanvasFromStage(){
-    await document.fonts?.ready?.catch(()=>{});
-    const stage=buildShotStage();
-    const node=stage; // целиком со фоном
-    const canvas = await html2canvas(node,{
-      backgroundColor:null,
-      scale:2,
-      useCORS:true
-    });
-    stage.remove();
-    return canvas;
-  }
-
-  function enableExports(v){ btnPNG.disabled=btnPDF.disabled=btnCopy.disabled=!v; }
-
-  btnPNG.addEventListener('click', async ()=>{
-    try{
-      const c=await renderCanvasFromStage();
-      c.toBlob(b=>{
-        const a=document.createElement('a');
-        a.href=URL.createObjectURL(b);
-        a.download=`${collageTitle.textContent}.png`;
-        a.click();
-        URL.revokeObjectURL(a.href);
-      });
-    }catch(e){ console.error(e); toast('PNG: ошибка'); }
-  });
-
-  btnPDF.addEventListener('click', async ()=>{
-    try{
-      const c=await renderCanvasFromStage();
-      const img=c.toDataURL('image/png');
-      const { jsPDF }=window.jspdf;
-      const pdf=new jsPDF({unit:'pt',format:'a4',compress:true});
-      const pageW=pdf.internal.pageSize.getWidth(), margin=24;
-      const w=pageW - margin*2, h=w*(c.height/c.width);
-      pdf.addImage(img,'PNG',margin,margin,w,h);
-      pdf.save(`${collageTitle.textContent}.pdf`);
-    }catch(e){ console.error(e); toast('PDF: ошибка'); }
-  });
-
-  btnCopy.addEventListener('click', async ()=>{
-    try{
-      const c=await renderCanvasFromStage();
-      c.toBlob(async b=>{
-        try{
-          await navigator.clipboard.write([new ClipboardItem({'image/png':b})]);
-          toast('Скопировано в буфер ✔');
-        }catch(_){ toast('Буфер недоступен — скачай PNG'); }
-      });
-    }catch(e){ console.error(e); toast('Копирование не удалось'); }
-  });
+  btnPNG.addEventListener('click', async ()=>{ try{
+    const c=await exportCanvas();
+    c.toBlob(b=>{ const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download=`${collageTitle.textContent}.png`; a.click(); URL.revokeObjectURL(a.href); });
+  }catch(e){ console.error(e); toast('PNG: ошибка'); }});
+  btnCopy.addEventListener('click', async ()=>{ try{
+    const c=await exportCanvas();
+    c.toBlob(async b=>{ try{ await navigator.clipboard.write([new ClipboardItem({'image/png':b})]); toast('Скопировано в буфер ✔'); }catch(_){ toast('Буфер недоступен — скачай PNG'); } });
+  }catch(e){ console.error(e); toast('Копирование не удалось'); }});
 </script>
 </body>
 </html>
