@@ -97,23 +97,24 @@
     /* === KPI: единый вид и размеры в обоих режимах ========================== */
     /* 1) Сетка KPI всегда с одинаковым отступом (исправляет "наложение" в Башне) */
     #topSummary{
-      --kpi-gap: 12px;               /* можно 12–20 по вкусу */
+      --kpi-gap: 8px;               /* можно 12–20 по вкусу */
     }
     #topSummary { gap: var(--kpi-gap) !important; }
     #topSummary .grid { gap: var(--kpi-gap) !important; }  /* правый блок с 4 плитками */
 
     /* 2) Компактные карточки KPI (и в Коллаже, и в Башне) */
     #topSummary .kpi{
-      padding: 12px 14px !important; /* было толще — уменьшаем */
-      border-radius: 12px !important;
+      padding: 10px 12px !important; /* было толще — уменьшаем */
+      border-radius: 10px !important;
+      min-width: 0;                    /* ключ! не даёт тянуться */
     }
     #topSummary .kpi .v{
-      font-size: 22px !important;    /* было 28 — делаем компактней */
+      font-size: 18px !important;    /* было 28 — делаем компактней */
       line-height: 1.1 !important;
       font-weight: 800;
     }
     #topSummary .kpi .t{
-      font-size: 12px !important;
+      font-size: 11px !important;
       opacity: .75 !important;
     }
 
@@ -786,6 +787,7 @@ document.addEventListener("keydown", (e) => {
 </script>
 </body>
 </html>
+
 
 
 
