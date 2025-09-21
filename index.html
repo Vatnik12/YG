@@ -95,9 +95,18 @@
     .kpi .t{ font-size:13px; opacity:.85 }
 
     /* Башня: KPI столбиком + больше воздуха */
-    #renderRoot.tower #topSummary{ display:block; }
-    #renderRoot.tower #topSummary > div{ display:block; margin-bottom:24px; }
-    #renderRoot.tower #topSummary .kpi{ width:100% }
+    #renderRoot.tower #topSummary{
+      display:grid !important;
+      grid-template-columns:repeat(12,minmax(0,1fr));
+      gap:12px;
+    }
+    #renderRoot.tower #topSummary > div{
+      display:initial !important;
+      margin-bottom:0 !important;
+    }
+    #renderRoot.tower #topSummary .kpi{
+      width:auto !important;
+    }
 
     /* Светлая тема */
     body.light{ background:#f7fafc; color:#0f172a; }
@@ -748,6 +757,7 @@ document.addEventListener("keydown", (e) => {
 </script>
 </body>
 </html>
+
 
 
 
