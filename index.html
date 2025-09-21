@@ -178,6 +178,46 @@
 
     .icon-tile{ background:rgba(49,46,129,.15); color:#4338ca; }
     body.light .icon-tile{ background:#e2e8f0; color:#4338ca; }
+
+    /* === Premium header controls ========================================== */
+    .os-pill {
+      border-radius: 1rem; padding: .375rem .5rem;
+      background: rgba(255,255,255,.05);
+      border: 1px solid rgba(255,255,255,.1);
+      font-size: .875rem; color: #cbd5e1;
+      display:inline-flex; align-items:center; gap:.5rem;
+    }
+    body.light .os-pill { background: rgba(15,23,42,.04); border-color:#e2e8f0; color:#0f172a; }
+
+    .os-seg { position:relative; border-radius: .75rem; border:1px solid rgba(255,255,255,.12); overflow:hidden; display:grid; }
+    body.light .os-seg { border-color:#e2e8f0; }
+    .os-seg .thumb{
+      position:absolute; inset: .25rem auto .25rem .25rem;
+      height: calc(100% - .5rem); border-radius: .5rem;
+      background: rgba(255,255,255,.15);
+      transition: transform .25s ease, width .25s ease;
+    }
+    .os-seg button{ position:relative; z-index:1; padding:.4rem .75rem; font-size:.875rem; color:#cbd5e1; }
+    body.light .os-seg button{ color:#334155; }
+    .os-seg button[data-active="true"]{ color:#fff; }
+    body.light .os-seg button[data-active="true"]{ color:#0f172a; }
+
+    .os-combo{ position:relative; }
+    .os-combo-btn{ composes: os-pill; } /* просто подсказка — это та же «пилюля» */
+    .os-combo-menu{
+      position:absolute; right:0; margin-top:.5rem; width:14rem;
+      border-radius: 1rem; border:1px solid rgba(255,255,255,.12);
+      background: rgba(2,6,23,.92); color:#e5e7eb;
+      box-shadow: 0 20px 40px rgba(0,0,0,.35);
+      backdrop-filter: blur(10px); padding:.25rem; display:none;
+    }
+    body.light .os-combo-menu{ background:rgba(255,255,255,.96); color:#0f172a; border-color:#e2e8f0; }
+    .os-combo-item{
+      width:100%; text-align:left; padding:.5rem .75rem; border-radius:.75rem; font-size:.875rem;
+    }
+    .os-combo-item:hover{ background:rgba(255,255,255,.08); }
+    body.light .os-combo-item:hover{ background:#f1f5f9; }
+    .os-combo.os-combo-open .os-combo-menu{ display:block; }
   </style>
 </head>
 <body class="min-h-screen flex flex-col font-sans bg-slate-900 text-slate-100">
@@ -199,46 +239,90 @@
     </div>
   </div>
 
-  <!-- HEADER -->
+    <!-- HEADER -->
   <header class="sticky top-0 z-40">
     <div class="backdrop-blur bg-slate-900/70 border-b border-slate-800">
       <div class="max-w-[1200px] mx-auto px-4">
         <div class="py-4 md:py-5 flex flex-wrap items-stretch gap-3">
-          <div class="flex items-center gap-3 min-w-[260px]">
+  
+          <!-- Логотип + подзаголовок -->
+          <div class="flex items-center gap-3 min-w-[240px]">
             <div class="w-10 h-10 rounded-2xl bg-indigo-600 grid place-items-center text-white font-bold">OS</div>
             <div class="leading-tight">
               <div class="font-semibold text-lg">OneScreen: План/Факт</div>
               <div id="modeBadge" class="text-xs text-slate-400">режим не выбран</div>
             </div>
           </div>
-
+  
+          <!-- Контролы -->
           <div class="flex flex-wrap items-stretch gap-2 flex-1">
-            <div class="panel px-3 py-2 flex items-center justify-between min-w-[160px]">
-              <span class="text-xs text-slate-400">Колонки</span>
-              <select id="colSelect" class="px-2 py-1 text-sm rounded-lg bg-slate-800 border border-slate-700">
-                <option value="2">2</option><option value="3">3</option><option value="4">4</option>
-              </select>
+  
+            <!-- Колонки: сегмент -->
+            <div class="panel px-3 py-2 min-w-[220px]">
+              <div class="flex items-center justify-between">
+                <span class="text-xs text-slate-400">Колонки</span>
+                <!-- скрытый select для твоего JS -->
+                <select id="colSelect" class="hidden">
+                  <option value="2">2</option><option value="3">3</option><option value="4">4</option>
+                </select>
+              </div>
+              <div id="segCols" class="mt-2 os-seg grid grid-cols-3">
+                <span class="thumb"></span>
+                <button data-value="2" class="text-center" data-active="true">2</button>
+                <button data-value="3" class="text-center">3</button>
+                <button data-value="4" class="text-center">4</button>
+              </div>
             </div>
-
-            <div class="panel px-3 py-2 flex items-center justify-between min-w-[180px]">
-              <span class="text-xs text-slate-400">Дизайн</span>
-              <select id="design" class="px-2 py-1 text-sm rounded-lg bg-slate-800 border border-slate-700">
-                <option value="yougile">YouGile</option>
-                <option value="vibe">Vibe</option>
-              </select>
+  
+            <!-- Дизайн: стеклянный комбобокс -->
+            <div class="panel px-3 py-2 min-w-[220px]">
+              <div class="flex items-center justify-between">
+                <span class="text-xs text-slate-400">Дизайн</span>
+                <select id="design" class="hidden">
+                  <option value="yougile">YouGile</option>
+                  <option value="vibe">Vibe</option>
+                </select>
+              </div>
+              <div id="comboDesign" class="os-combo mt-2">
+                <button class="os-combo-btn" type="button">
+                  <span id="comboDesignLabel" class="font-medium">YouGile</span>
+                  <i data-lucide="chevrons-up-down" class="w-4 h-4 opacity-70"></i>
+                </button>
+                <div class="os-combo-menu">
+                  <button class="os-combo-item" data-value="yougile">YouGile</button>
+                  <button class="os-combo-item" data-value="vibe">Vibe</button>
+                </div>
+              </div>
             </div>
-
-            <div class="panel px-3 py-2 flex items-center justify-between min-w-[200px]">
-              <span class="text-xs text-slate-400">Сорт</span>
-              <select id="sortBy" class="px-2 py-1 text-sm rounded-lg bg-slate-800 border border-slate-700">
-                <option value="none">Без сортировки</option>
-                <option value="deadline">Дедлайн</option>
-                <option value="priority">Приоритет</option>
-                <option value="plan">План (ч)</option>
-                <option value="fact">Факт (ч)</option>
-              </select>
+  
+            <!-- Сорт: стеклянный комбобокс -->
+            <div class="panel px-3 py-2 min-w-[240px]">
+              <div class="flex items-center justify-between">
+                <span class="text-xs text-slate-400">Сорт</span>
+                <select id="sortBy" class="hidden">
+                  <option value="none">Без сортировки</option>
+                  <option value="deadline">Дедлайн</option>
+                  <option value="priority">Приоритет</option>
+                  <option value="plan">План (ч)</option>
+                  <option value="fact">Факт (ч)</option>
+                </select>
+              </div>
+              <div id="comboSort" class="os-combo mt-2">
+                <button class="os-combo-btn" type="button">
+                  <span id="comboSortLabel" class="font-medium">Без сортировки</span>
+                  <i data-lucide="chevrons-up-down" class="w-4 h-4 opacity-70"></i>
+                </button>
+                <div class="os-combo-menu">
+                  <button class="os-combo-item" data-value="none">Без сортировки</button>
+                  <button class="os-combo-item" data-value="deadline">Дедлайн</button>
+                  <button class="os-combo-item" data-value="priority">Приоритет</button>
+                  <button class="os-combo-item" data-value="plan">План (ч)</button>
+                  <button class="os-combo-item" data-value="fact">Факт (ч)</button>
+                </div>
+              </div>
             </div>
-
+  
+            <!-- Режим (оставляем твой существующий свитч, чтобы не ломать JS) -->
             <div class="panel px-3 py-2 flex-1 min-w-[260px]">
               <div class="text-xs text-slate-400 mb-1">Режим</div>
               <div id="modeSwitch" class="mode-switch">
@@ -247,17 +331,20 @@
                 <button data-mode="tower"   class="mode-item inactive"><i data-lucide="panel-right" class="w-4 h-4"></i>Башня</button>
               </div>
             </div>
-
+  
+            <!-- Тема -->
             <div class="panel px-3 py-2 flex items-center justify-between min-w-[160px]">
               <span class="text-xs text-slate-400">Тема</span>
               <button id="themeSwitch" class="theme-switch"><span class="theme-thumb"></span></button>
             </div>
           </div>
-
+  
+          <!-- Экспорт -->
           <div class="flex items-center gap-2">
             <button id="btnExportPNG" disabled class="px-4 py-2 rounded-xl panel disabled:opacity-50">PNG</button>
             <button id="btnCopy"      disabled class="px-4 py-2 rounded-xl bg-white/10 text-white border border-white/10 disabled:opacity-50">Копировать</button>
           </div>
+  
         </div>
       </div>
     </div>
@@ -783,10 +870,86 @@ supportModal.addEventListener("click", (e) => {
 document.addEventListener("keydown", (e) => {
   if (e.key === "Escape" && !supportModal.classList.contains("hidden")) closeSupport();
 });
+
+  // диспатчим change у скрытых select'ов — чтобы сработали твои слушатели
+function setSelectValue(sel, value) {
+  if (!sel) return;
+  sel.value = value;
+  sel.dispatchEvent(new Event('change', { bubbles: true }));
+}
+
+/* Segmented control: Колонки */
+(function initSegCols(){
+  const seg = document.getElementById('segCols');
+  if (!seg) return;
+  const thumb = seg.querySelector('.thumb');
+  const btns = Array.from(seg.querySelectorAll('button'));
+  const sel = document.getElementById('colSelect');
+
+  function activate(val) {
+    btns.forEach((b,i)=>{
+      const active = b.dataset.value === String(val);
+      b.dataset.active = active ? 'true' : 'false';
+      if (active) {
+        const w = seg.clientWidth / btns.length - 8;   // учёт inset
+        const x = i * (seg.clientWidth / btns.length);
+        thumb.style.width = `${w}px`;
+        thumb.style.transform = `translateX(${x + 4}px)`;
+      }
+    });
+    setSelectValue(sel, val);
+  }
+
+  const initVal = sel.value || '2';
+  requestAnimationFrame(()=>activate(initVal));
+  window.addEventListener('resize', ()=>activate(sel.value));
+  btns.forEach(b => b.addEventListener('click', ()=>activate(b.dataset.value)));
+})();
+
+/* Универсальный комбобокс */
+function initCombo(rootId, selectId, labelId){
+  const root = document.getElementById(rootId);
+  const sel  = document.getElementById(selectId);
+  if (!root || !sel) return;
+
+  const btn   = root.querySelector('.os-combo-btn');
+  const menu  = root.querySelector('.os-combo-menu');
+  const label = labelId ? document.getElementById(labelId) : btn.querySelector('span');
+
+  function open(){ root.classList.add('os-combo-open'); }
+  function close(){ root.classList.remove('os-combo-open'); }
+  function toggle(){ root.classList.toggle('os-combo-open'); }
+
+  btn.addEventListener('click', e=>{ e.stopPropagation(); toggle(); });
+  document.addEventListener('click', close);
+  document.addEventListener('keydown', e=>{ if(e.key==='Escape') close(); });
+
+  menu.querySelectorAll('.os-combo-item').forEach(it=>{
+    it.addEventListener('click', e=>{
+      e.stopPropagation();
+      const value = it.dataset.value;
+      label.textContent = it.textContent.trim();
+      close();
+      setSelectValue(sel, value);
+    });
+  });
+
+  // init label по текущему select
+  const opt = sel.querySelector(`option[value="${sel.value}"]`);
+  if (opt) label.textContent = opt.textContent.trim();
+}
+
+/* Инициализация двух комбобоксов */
+initCombo('comboDesign','design','comboDesignLabel');
+initCombo('comboSort','sortBy','comboSortLabel');
+
+// обновим иконки, если надо
+if (window.lucide) lucide.createIcons();
   
 </script>
 </body>
 </html>
+
 
 
 
