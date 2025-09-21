@@ -316,17 +316,18 @@
     </div>
   </footer>
 
-  <!-- Support FAB -->
+ <!-- Support FAB (glass, premium) -->
 <button id="supportFab" title="Техподдержка"
-  class="fixed bottom-6 right-6 z-40 rounded-full shadow-lg
-         bg-indigo-600 hover:bg-indigo-500 text-white
-         w-14 h-14 grid place-items-center transition">
-  <i data-lucide="life-buoy" class="w-6 h-6"></i>
+  class="fixed bottom-6 right-6 z-50 p-3 rounded-full
+         bg-white/20 dark:bg-slate-800/60
+         backdrop-blur-md border border-white/30 dark:border-white/10
+         shadow-lg hover:scale-110 active:scale-95 transition">
+  <i data-lucide="life-buoy" class="w-6 h-6 text-slate-900 dark:text-white"></i>
 </button>
 
-<!-- Support Modal -->
+<!-- Support Modal (чистый из «того года») -->
 <div id="supportModal" class="fixed inset-0 z-50 hidden">
-  <div class="absolute inset-0 backdrop-blur-sm bg-black/40"></div>
+  <div id="supportBackdrop" class="absolute inset-0 backdrop-blur-sm bg-black/40"></div>
   <div class="relative h-full w-full grid place-items-center p-4">
     <div class="panel w-full max-w-md p-6">
       <div class="flex items-center justify-between">
@@ -338,7 +339,7 @@
         </button>
       </div>
       <p class="mt-3 text-sm text-slate-500 dark:text-slate-400">
-        Пиши в телеграм, помогу с парсером/экспортом:
+        по вопросам в телегу:
       </p>
       <a href="https://t.me/Vatnik13" target="_blank"
          class="mt-4 flex items-center gap-2 px-4 py-3 rounded-xl
@@ -689,36 +690,33 @@ btnCopy.addEventListener('click', async ()=>{
   }catch(e){ console.error(e); toast('Ошибка при копировании'); }
 });
 
-// ===== Support FAB =====
-const supportFab    = document.getElementById("supportFab");
-const supportModal  = document.getElementById("supportModal");
-const modalClose    = document.getElementById("modalClose");
+// ===== Support FAB (glass button + clean modal) =====
+const supportFab       = document.getElementById("supportFab");
+const supportModal     = document.getElementById("supportModal");
+const supportBackdrop  = document.getElementById("supportBackdrop");
+const modalClose       = document.getElementById("modalClose");
 
-supportFab.addEventListener("click", () => {
+function openSupport() {
   supportModal.classList.remove("hidden");
-});
-
-modalClose.addEventListener("click", () => {
+  if (window.lucide) lucide.createIcons();
+}
+function closeSupport() {
   supportModal.classList.add("hidden");
-});
+}
 
-// клик по фону
-supportModal.addEventListener("click", (e) => {
-  if (e.target === supportModal) {
-    supportModal.classList.add("hidden");
-  }
-});
-
-// закрытие по Esc
+supportFab.addEventListener("click", openSupport);
+modalClose.addEventListener("click", closeSupport);
+// клик мимо — по бэкдропу
+supportBackdrop.addEventListener("click", closeSupport);
+// Esc для закрытия
 document.addEventListener("keydown", (e) => {
-  if (e.key === "Escape" && !supportModal.classList.contains("hidden")) {
-    supportModal.classList.add("hidden");
-  }
+  if (e.key === "Escape" && !supportModal.classList.contains("hidden")) closeSupport();
 });
   
 </script>
 </body>
 </html>
+
 
 
 
