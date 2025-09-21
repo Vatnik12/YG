@@ -81,7 +81,7 @@
 
     /* Башня: KPI столбиком + больше воздуха */
     #renderRoot.tower #topSummary{ display:block; }
-    #renderRoot.tower #topSummary > div{ display:block; margin-bottom:16px; } /* было 16px */
+    #renderRoot.tower #topSummary > div{ display:block; margin-bottom:24px; } /* было 16px */
     #renderRoot.tower #topSummary .kpi{ width:100% }
 
     /* Светлая тема — аккуратные контрасты и видимость всего */
@@ -135,7 +135,7 @@
     /* при экспорте: микросмещение текста вверх на 5px для 1-в-1 совпадения */
     .exporting .yg-chip,
     .exporting .yg-badge,
-    .exporting .title{ transform: translateY(-10px); }
+    .exporting .title{ transform: translateY(-5px); }
   </style>
 </head>
 <body class="min-h-screen flex flex-col font-sans bg-slate-900 text-slate-100">
@@ -304,7 +304,7 @@
   </main>
 
   <!-- FOOTER -->
-  <footer class="mt-10 border-t border-slate-700/40">
+  <footer class="mt-10 border-t border-slate-800">
     <div class="max-w-[1200px] mx-auto px-4 py-6 flex items-center justify-between">
       <div class="flex items-center gap-2 text-sm text-slate-400">
         <span class="inline-flex items-center gap-2 px-3 py-1 rounded-xl bg-slate-800 border border-slate-700">
@@ -645,6 +645,3 @@ btnCopy.addEventListener('click', async ()=>{
 </script>
 </body>
 </html>
-
-
-
