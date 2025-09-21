@@ -316,42 +316,39 @@
     </div>
   </footer>
 
-  <!-- SUPPORT FAB + MODAL (beautified) -->
+  <!-- SUPPORT FAB + MODAL -->
 <button id="helpFab"
-  class="fixed bottom-5 right-5 z-50 p-0.5 rounded-full bg-gradient-to-br from-indigo-500 via-fuchsia-500 to-sky-500 shadow-[0_10px_30px_rgba(2,6,23,.35)] hover:scale-105 active:scale-95 transition"
-  title="Техподдержки как бы">
-  <span class="block rounded-full bg-slate-900/90 dark:bg-slate-900/80 backdrop-blur px-3.5 py-3 text-white">
-    <i data-lucide="life-buoy" class="w-6 h-6"></i>
-  </span>
+  class="fixed bottom-6 right-6 z-50 p-3 rounded-full
+         bg-white/20 dark:bg-slate-800/60
+         backdrop-blur-md border border-white/30 dark:border-white/10
+         shadow-lg hover:scale-110 active:scale-95 transition"
+  title="Техподдержка">
+  <i data-lucide="life-buoy" class="w-6 h-6 text-slate-900 dark:text-white"></i>
 </button>
 
 <div id="helpModal"
-     class="fixed inset-0 z-50 pointer-events-none opacity-0 transition-opacity duration-200">
-  <!-- backdrop (click to close) -->
+     class="fixed inset-0 z-50 hidden items-center justify-center">
+  <!-- клик по подложке закрывает -->
   <div id="helpBackdrop"
-       class="absolute inset-0 bg-slate-900/60 backdrop-blur-md transition-opacity"></div>
+       class="absolute inset-0 bg-black/40 backdrop-blur-sm"></div>
 
-  <!-- card -->
-  <div class="absolute inset-0 flex items-center justify-center p-4">
+  <div class="relative mx-4 max-w-sm w-full">
     <div id="helpCard"
-         class="pointer-events-auto transform-gpu opacity-0 scale-95 transition duration-200
-                p-[1px] rounded-3xl bg-gradient-to-b from-white/40 to-white/10
-                dark:from-white/10 dark:to-white/5 shadow-[0_20px_60px_rgba(2,6,23,.45)]">
-      <div class="rounded-[22px] px-6 py-5
-                  bg-white/85 text-slate-900
-                  dark:bg-slate-900/85 dark:text-slate-100 backdrop-blur-xl
-                  ring-1 ring-white/40 dark:ring-white/10">
-        <div class="text-sm text-center">
-          По вопросам —
-          <a href="https://t.me/Vatnik13" target="_blank"
-             class="underline decoration-dotted text-indigo-700 dark:text-indigo-300 hover:opacity-90">
-            t.me/Vatnik13
-          </a>
-        </div>
-        <div class="mt-2 text-[11px] text-center text-slate-500 dark:text-slate-400">
-          Нажми мимо или Esc, чтобы закрыть
-        </div>
-      </div>
+         class="rounded-2xl px-6 py-5 text-center shadow-xl
+                bg-white/80 text-slate-900
+                dark:bg-slate-900/80 dark:text-slate-100
+                backdrop-blur-xl border border-white/30 dark:border-white/10
+                transition transform scale-95 opacity-0">
+      <p class="text-sm">
+        По вопросам — 
+        <a href="https://t.me/Vatnik13" target="_blank"
+           class="underline decoration-dotted text-indigo-600 dark:text-indigo-300 hover:opacity-80">
+          t.me/Vatnik13
+        </a>
+      </p>
+      <p class="mt-2 text-[11px] text-slate-500 dark:text-slate-400">
+        Нажми мимо или Esc, чтобы закрыть
+      </p>
     </div>
   </div>
 </div>
@@ -695,36 +692,39 @@ btnCopy.addEventListener('click', async ()=>{
   }catch(e){ console.error(e); toast('Ошибка при копировании'); }
 });
 
-/* ===== Support FAB (pretty) ===== */
-const helpFab   = $("#helpFab");
-const helpModal = $("#helpModal");
-const helpBack  = $("#helpBackdrop");
-const helpCard  = $("#helpCard");
+/* ===== Support FAB ===== */
+const helpFab     = $("#helpFab");
+const helpModal   = $("#helpModal");
+const helpBackdrop= $("#helpBackdrop");
+const helpCard    = $("#helpCard");
 
 function openHelp() {
-  helpModal.classList.remove("opacity-0","pointer-events-none");
-  // маленькая задержка, чтобы анимация карты стартанула после видимости модала
+  helpModal.classList.remove("hidden");
+  helpModal.classList.add("flex"); // для центрирования
   requestAnimationFrame(() => {
-    helpCard.classList.remove("opacity-0","scale-95");
+    helpCard.classList.remove("scale-95","opacity-0");
+    helpCard.classList.add("scale-100","opacity-100");
   });
-  if (window.lucide) lucide.createIcons();
 }
+
 function closeHelp() {
-  helpCard.classList.add("opacity-0","scale-95");
-  // синхроним с duration-200
+  helpCard.classList.remove("scale-100","opacity-100");
+  helpCard.classList.add("scale-95","opacity-0");
   setTimeout(() => {
-    helpModal.classList.add("opacity-0","pointer-events-none");
-  }, 180);
+    helpModal.classList.add("hidden");
+    helpModal.classList.remove("flex");
+  }, 200);
 }
 
 helpFab.addEventListener("click", openHelp);
-helpBack.addEventListener("click", closeHelp);
+helpBackdrop.addEventListener("click", closeHelp);
 document.addEventListener("keydown", (e) => {
-  if (e.key === "Escape" && !helpModal.classList.contains("pointer-events-none")) closeHelp();
+  if (e.key === "Escape" && !helpModal.classList.contains("hidden")) closeHelp();
 });
   
 </script>
 </body>
 </html>
+
 
 
