@@ -83,63 +83,21 @@
     #renderRoot.tower #topSummary > div{ display:block; margin-bottom:16px }
     #renderRoot.tower #topSummary .kpi{ width:100% }
 
-   /* Светлая тема — аккуратные контрасты и 1:1 с тёмной по отступам */
-body.light{ background:#f7fafc; color:#0f172a; }
-
-/* шапка/бордеры */
-body.light header > div{
-  background:rgba(255,255,255,.75);
-  border-color:#e5e7eb;
-}
-
-/* базовые контейнеры */
-body.light .panel{
-  background:#ffffff;
-  color:#0f172a;
-  border-color:#e5e7eb;
-  box-shadow:0 10px 30px rgba(2,6,23,.06);
-}
-
-/* сами карточки задач */
-body.light .card{
-  background:#ffffff;
-  color:#0f172a;
-  border-color:#e5e7eb;
-}
-
-/* KPI/«Сводка» */
-body.light .kpi{
-  background:rgba(241,245,249,.9);
-  color:#0f172a;
-  border-color:#dbeafe;
-}
-
-/* фон рендер-сцены (без затемнения) */
-body.light #renderRoot .bg-overlay{
-  background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.06));
-}
-
-/* чипы/бейджи */
-body.light .yg-chip{
-  background:#f1f5f9;
-  border:1px solid #e2e8f0;
-  color:#0f172a;
-}
-/* немного плотнее серый бейдж, чтобы не терялся на белом */
-body.light .yg-badge.badge-slate{ background:#64748b; color:#fff; }
-
-/* второстепенный текст и бордеры в светлой палитре */
-body.light .text-slate-400{ color:#64748b !important; }
-body.light .border-slate-800{ border-color:#e5e7eb !important; }
-
-/* прогресс-бар и серые подложки */
-body.light .bg-slate-800{ background:#e5e7eb !important; } /* трек прогресса, инпуты в панели */
-body.light .stage-pad .h-2{ background:#e5e7eb; }          /* трек внутри карточки */
-
-/* мелкие элементы Tailwind, которые в тёмной теме были сине-серые */
-body.light .bg-slate-900/40{ background:rgba(15,23,42,.04) !important; }
-body.light .bg-slate-900/70{ background:rgba(255,255,255,.75) !important; }
-
+    /* Светлая тема */
+    body.light{ background:#f8fafc; color:#1e293b }
+    body.light .panel{ background:#fff; color:#1e293b; box-shadow:0 10px 30px rgba(0,0,0,.06); border-color:#e2e8f0 }
+    body.light .kpi{ background:rgba(241,245,249,.8); color:#1e293b }
+    body.light #renderRoot { background: #fff; color: #1e293b; }
+    body.light #renderRoot .bg-overlay { background: linear-gradient(180deg, rgba(241,245,249,.25), rgba(241,245,249,.25)); }
+    body.light .kpi .v, body.light .kpi .t { color: #1e293b; }
+    body.light #summaryTitle { color: #1e293b; }
+    body.light .yg-badge { color: #fff; }
+    body.light .card { border-color: #e2e8f0; box-shadow: 0 4px 12px rgba(0,0,0,.05); }
+    body.light #progressBar { background: #4f46e5; }
+    body.light #progressWrap { color: #64748b; }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col font-sans bg-slate-900 text-slate-100">
 
   <!-- SPLASH -->
   <div id="splash" class="fixed inset-0 z-50 grid place-items-center bg-[#0b1020]">
@@ -517,130 +475,4 @@ design.addEventListener('change', ()=>{ designStyle=design.value; drawCards(task
 sortBy.addEventListener('change', ()=>{ tasksView=sortList(tasksView, sortBy.value); drawCards(tasksView,isFactGlobal); });
 
 /* Chips / badges */
-function badge(txt, cls='badge-slate'){ if(!txt) return ''; return `<span class="yg-badge ${cls}">${esc(txt)}</span>`; }
-function chip(icon, text){ if(!text) return ''; return `<span class="yg-chip"><i data-lucide="${icon}" class="w-3.5 h-3.5"></i>${esc(text)}</span>`; }
-function priorityBadge(text){
-  if(!text) return '';
-  const t=String(text).toLowerCase();
-  if(t.includes('пожар')||t.includes('alarm')||t.includes('аларм')) return badge('Аларм сейчас ПОЖАР','badge-red');
-  if(t.includes('важно')) return badge('Важно сегодня','badge-amber');
-  return badge(text,'badge-slate');
-}
-
-function drawCards(items,isFact){
-  collage.innerHTML='';
-  const pad='p-4 md:p-5';
-  const frag=document.createDocumentFragment();
-
-  for(const t of items){
-    const fact=num(t.sticker_fact), plan=num(t.sticker_plan);
-    const ratio=plan>0? Math.min(100, Math.round(fact/plan*100)) : (fact>0?100:0);
-    const titleStr=cleanTitle(String(t.title||'Без названия'));
-    const el=document.createElement('article');
-    el.className=`card ${pad}`;
-
-    const lead = isFact ? `<i data-lucide="check-circle" class="w-5 h-5 text-emerald-400"></i>` : `<i data-lucide="circle" class="w-5 h-5 text-slate-500"></i>`;
-
-    const projectName = t.sticker_project || t.project || t.board || '';
-    const chipsTop = [
-      chip('calendar', t.deadline || ''),
-      priorityBadge(t.sticker_priority),
-      chip('activity', t.sticker_stage || ''),
-      chip('boxes', projectName)
-    ].filter(Boolean).join(' ');
-
-    const chipsBottom = [
-      chip('tag', t.sticker_category || ''),
-      chip('target', t.sticker_plan ? `План сегодня: ${num(t.sticker_plan)}` : ''),
-      chip('clock',  t.sticker_fact ? `Факт часов: ${num(t.sticker_fact)}` : '')
-    ].filter(Boolean).join(' ');
-
-    el.innerHTML = `
-      <div class="flex items-start gap-2">
-        <div class="mt-1">${lead}</div>
-        <div class="flex-1">
-          <h4 class="title text-lg md:text-xl">${esc(titleStr)}</h4>
-          <div class="mt-3 flex flex-wrap gap-2">${chipsTop}</div>
-          <div class="mt-2 flex flex-wrap gap-2">${chipsBottom}</div>
-          <div class="mt-3">
-            <div class="h-2 rounded-full bg-slate-800 overflow-hidden"><div class="h-full" style="background:#6366f1;width:${ratio}%"></div></div>
-            <div class="mt-2 text-xs flex items-center justify-between text-slate-400">
-              <div class="inline-flex items-center gap-1"><i data-lucide="message-circle" class="w-3.5 h-3.5"></i> Сообщений: ${esc(t.msgs||'0')}</div>
-              <div class="flex items-center gap-4">
-                ${t.sticker_plan? `<span class="inline-flex items-center gap-1"><i data-lucide="target" class="w-3.5 h-3.5"></i>${esc(num(t.sticker_plan))}</span>`:''}
-                ${t.sticker_fact? `<span class="inline-flex items-center gap-1"><i data-lucide="clock" class="w-3.5 h-3.5"></i>${esc(num(t.sticker_fact))}</span>`:''}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>`;
-    frag.appendChild(el);
-  }
-  collage.appendChild(frag);
-  lucide.createIcons();
-}
-
-/* ===== Export ===== */
-function enableExports(v){ btnPNG.disabled=btnCopy.disabled=!v; }
-
-// инлайн фона в dataURL (исключает CORS/пустые PNG)
-async function inlineStageBg(){
-  const img = renderRoot.querySelector('.bg-img');
-  if(!img || img.dataset.inlined) return;
-  try{
-    const r = await fetch(img.getAttribute('src'), {cache:'force-cache'});
-    const b = await r.blob();
-    const fr = new FileReader();
-    await new Promise(res=>{ fr.onload=()=>res(); fr.readAsDataURL(b); });
-    img.src = fr.result;  // data:
-    img.dataset.inlined = '1';
-  }catch(e){ console.warn('BG inline fail', e); }
-}
-
-// делаем снимок именно того, что на экране (без foreignObject)
-async function grabCanvas(){
-  await document.fonts.ready;        // ждём шрифт inter
-  lucide.createIcons();              // убедимся, что SVG-иконки на месте
-  await inlineStageBg();
-  await new Promise(r=>setTimeout(r,20)); // микропаузa для layout
-
-  return await html2canvas(renderRoot,{
-    backgroundColor:null,
-    scale:2,
-    useCORS:false,
-    allowTaint:true,
-    foreignObjectRendering:false,
-    imageTimeout:0,
-    removeContainer:true,
-    logging:false
-  });
-}
-
-btnPNG.addEventListener('click', async ()=>{
-  try{
-    const canvas = await grabCanvas();
-    canvas.toBlob(b=>{
-      const link=document.createElement('a');
-      link.href=URL.createObjectURL(b);
-      link.download=`${collageTitle.textContent}.png`;
-      link.click();
-      URL.revokeObjectURL(link.href);
-    });
-  }catch(e){ console.error(e); toast('Ошибка при экспорте PNG'); }
-});
-
-btnCopy.addEventListener('click', async ()=>{
-  try{
-    const canvas = await grabCanvas();
-    canvas.toBlob(async b=>{
-      try{
-        await navigator.clipboard.write([new ClipboardItem({'image/png':b})]);
-        toast('Скопировано в буфер ✔');
-      }catch(_){ toast('Буфер недоступен — скачай PNG'); }
-    });
-  }catch(e){ console.error(e); toast('Ошибка при копировании'); }
-});
-</script>
-</body>
-</html>
-
+function badge(txt, cls='badge-slate'){ if(!txt) return ''; return `<span class="yg
