@@ -218,6 +218,37 @@
     .os-combo-item:hover{ background:rgba(255,255,255,.08); }
     body.light .os-combo-item:hover{ background:#f1f5f9; }
     .os-combo.os-combo-open .os-combo-menu{ display:block; }
+
+        /* ====== Premium controls ====== */
+    .os-seg{ position:relative; display:grid; gap:6px; background:rgba(148,163,184,.08);
+      border:1px solid rgba(148,163,184,.25); border-radius:12px; padding:6px }
+    .os-seg>button{ position:relative; z-index:1; padding:8px 10px; font-size:13px;
+      border-radius:8px; line-height:1; color:#cbd5e1 }
+    .os-seg .thumb{ position:absolute; inset:auto; top:6px; bottom:6px; left:6px;
+      width:calc(33.333% - 4px); border-radius:8px; background:rgba(99,102,241,.22);
+      border:1px solid rgba(99,102,241,.35); transition:transform .25s ease }
+    body.light .os-seg{ background:#f1f5f9; border-color:#e2e8f0 }
+    body.light .os-seg>button{ color:#334155 }
+    body.light .os-seg .thumb{ background:#e0e7ff; border-color:#c7d2fe }
+    
+    /* Glass combobox (для Сорт) */
+    .os-combo{ position:relative }
+    .os-combo-btn{ width:100%; display:flex; align-items:center; justify-content:space-between;
+      gap:10px; padding:10px 12px; border-radius:10px; background:rgba(148,163,184,.08);
+      border:1px solid rgba(148,163,184,.25) }
+    .os-combo-menu{ position:absolute; top:calc(100% + 6px); left:0; right:0; z-index:40;
+      background:rgba(2,6,23,.9); border:1px solid rgba(148,163,184,.25); border-radius:12px;
+      backdrop-filter:blur(10px); padding:6px; display:none }
+    .os-combo.open .os-combo-menu{ display:block }
+    .os-combo-item{ width:100%; text-align:left; padding:8px 10px; border-radius:8px; font-size:13px }
+    .os-combo-item:hover{ background:rgba(99,102,241,.16) }
+    body.light .os-combo-btn{ background:#fff; border-color:#e2e8f0 }
+    body.light .os-combo-menu{ background:#fff }
+    
+    /* Muted-панель (для заглушки Дизайна) */
+    .panel-muted{ background:transparent !important; color:#94a3b8 !important;
+      border:1px dashed rgba(148,163,184,.35) !important }
+    .panel-muted .chip{ background:rgba(148,163,184,.12); border:1px solid rgba(148,163,184,.25) }
   </style>
 </head>
 <body class="min-h-screen flex flex-col font-sans bg-slate-900 text-slate-100">
@@ -239,14 +270,14 @@
     </div>
   </div>
 
-    <!-- HEADER -->
+     <!-- HEADER -->
   <header class="sticky top-0 z-40">
     <div class="backdrop-blur bg-slate-900/70 border-b border-slate-800">
       <div class="max-w-[1200px] mx-auto px-4">
         <div class="py-4 md:py-5 flex flex-wrap items-stretch gap-3">
   
-          <!-- Логотип + подзаголовок -->
-          <div class="flex items-center gap-3 min-w-[240px]">
+          <!-- Лого -->
+          <div class="flex items-center gap-3 min-w-[220px]">
             <div class="w-10 h-10 rounded-2xl bg-indigo-600 grid place-items-center text-white font-bold">OS</div>
             <div class="leading-tight">
               <div class="font-semibold text-lg">OneScreen: План/Факт</div>
@@ -257,41 +288,36 @@
           <!-- Контролы -->
           <div class="flex flex-wrap items-stretch gap-2 flex-1">
   
-            <!-- Колонки: сегмент -->
+            <!-- Колонки: сегменты -->
             <div class="panel px-3 py-2 min-w-[220px]">
               <div class="flex items-center justify-between">
                 <span class="text-xs text-slate-400">Колонки</span>
-                <!-- скрытый select для твоего JS -->
+                <!-- скрытый select для твоего существующего JS -->
                 <select id="colSelect" class="hidden">
                   <option value="2">2</option><option value="3">3</option><option value="4">4</option>
                 </select>
               </div>
               <div id="segCols" class="mt-2 os-seg grid grid-cols-3">
                 <span class="thumb"></span>
-                <button data-value="2" class="text-center" data-active="true">2</button>
-                <button data-value="3" class="text-center">3</button>
-                <button data-value="4" class="text-center">4</button>
+                <button data-value="2" data-active="true">2</button>
+                <button data-value="3">3</button>
+                <button data-value="4">4</button>
               </div>
             </div>
   
-            <!-- Дизайн: стеклянный комбобокс -->
-            <div class="panel px-3 py-2 min-w-[220px]">
+            <!-- Дизайн: заглушка -->
+            <div class="panel panel-muted px-3 py-2 min-w-[220px]">
               <div class="flex items-center justify-between">
-                <span class="text-xs text-slate-400">Дизайн</span>
-                <select id="design" class="hidden">
-                  <option value="yougile">YouGile</option>
-                  <option value="vibe">Vibe</option>
+                <span class="text-xs">Дизайн</span>
+                <!-- оставляем селект скрытым, чтобы не ломать слушатели -->
+                <select id="design" class="hidden" disabled>
+                  <option value="yougile" selected>YouGile</option>
                 </select>
               </div>
-              <div id="comboDesign" class="os-combo mt-2">
-                <button class="os-combo-btn" type="button">
-                  <span id="comboDesignLabel" class="font-medium">YouGile</span>
-                  <i data-lucide="chevrons-up-down" class="w-4 h-4 opacity-70"></i>
-                </button>
-                <div class="os-combo-menu">
-                  <button class="os-combo-item" data-value="yougile">YouGile</button>
-                  <button class="os-combo-item" data-value="vibe">Vibe</button>
-                </div>
+              <div class="mt-2 flex items-center gap-2 text-sm">
+                <i data-lucide="hammer" class="w-4 h-4"></i>
+                <span class="font-medium">Stand-by</span>
+                <span class="chip text-[11px] px-2 py-0.5 rounded-md">in progress</span>
               </div>
             </div>
   
@@ -322,7 +348,7 @@
               </div>
             </div>
   
-            <!-- Режим (оставляем твой существующий свитч, чтобы не ломать JS) -->
+            <!-- Режим -->
             <div class="panel px-3 py-2 flex-1 min-w-[260px]">
               <div class="text-xs text-slate-400 mb-1">Режим</div>
               <div id="modeSwitch" class="mode-switch">
@@ -945,10 +971,59 @@ initCombo('comboSort','sortBy','comboSortLabel');
 
 // обновим иконки, если надо
 if (window.lucide) lucide.createIcons();
+  /* === Segments: Колонки === */
+(() => {
+  const seg = document.getElementById('segCols');
+  const thumb = seg.querySelector('.thumb');
+  const btns = [...seg.querySelectorAll('button[data-value]')];
+  const select = document.getElementById('colSelect');
+
+  const setActive = (val) => {
+    const idx = Math.max(0, btns.findIndex(b => b.dataset.value === String(val)));
+    btns.forEach((b,i)=> b.toggleAttribute('data-active', i===idx));
+    thumb.style.transform = `translateX(${idx*100}%)`;
+    if (select && select.value !== String(val)) {
+      select.value = String(val);
+      select.dispatchEvent(new Event('change', {bubbles:true}));
+    }
+  };
+
+  btns.forEach(b => b.addEventListener('click', () => setActive(b.dataset.value)));
+  // стартовое положение
+  setActive(select?.value || '2');
+})();
+
+/* === Combobox: Сорт === */
+(() => {
+  const wrap = document.getElementById('comboSort');
+  const btn  = wrap.querySelector('.os-combo-btn');
+  const lab  = document.getElementById('comboSortLabel');
+  const menu = wrap.querySelector('.os-combo-menu');
+  const items= [...wrap.querySelectorAll('.os-combo-item')];
+  const select = document.getElementById('sortBy');
+
+  const apply = (val, label) => {
+    lab.textContent = label;
+    wrap.classList.remove('open');
+    if (select && select.value !== val) {
+      select.value = val;
+      select.dispatchEvent(new Event('change', {bubbles:true}));
+    }
+  };
+
+  btn.addEventListener('click', () => wrap.classList.toggle('open'));
+  items.forEach(i => i.addEventListener('click', () => apply(i.dataset.value, i.textContent.trim())));
+  document.addEventListener('click', (e)=>{ if(!wrap.contains(e.target)) wrap.classList.remove('open'); });
+
+  // начальная метка по текущему select
+  const cur = select?.options[select.selectedIndex]?.textContent?.trim() || 'Без сортировки';
+  lab.textContent = cur;
+})();
   
 </script>
 </body>
 </html>
+
 
 
 
