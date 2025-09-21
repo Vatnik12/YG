@@ -94,19 +94,48 @@
     .kpi .v{ font-size:28px; font-weight:800; line-height:1 }
     .kpi .t{ font-size:13px; opacity:.85 }
 
-    /* Башня: KPI столбиком + больше воздуха */
+    /* === KPI: единый вид и размеры в обоих режимах ========================== */
+    /* 1) Сетка KPI всегда с одинаковым отступом (исправляет "наложение" в Башне) */
+    #topSummary{
+      --kpi-gap: 16px;               /* можно 12–20 по вкусу */
+    }
+    #topSummary { gap: var(--kpi-gap) !important; }
+    #topSummary .grid { gap: var(--kpi-gap) !important; }  /* правый блок с 4 плитками */
+
+    /* 2) Компактные карточки KPI (и в Коллаже, и в Башне) */
+    #topSummary .kpi{
+      padding: 12px 14px !important; /* было толще — уменьшаем */
+      border-radius: 12px !important;
+    }
+    #topSummary .kpi .v{
+      font-size: 22px !important;    /* было 28 — делаем компактней */
+      line-height: 1.1 !important;
+      font-weight: 800;
+    }
+    #topSummary .kpi .t{
+      font-size: 12px !important;
+      opacity: .75 !important;
+    }
+
+    /* 3) Заголовок блока — меньше и аккуратнее */
+    #summaryTitle{
+      font-size: clamp(26px, 2.6vw, 38px) !important;  /* раньше огромный */
+      line-height: 1.12 !important;
+    }
+
+    /* 4) Для визуальной чистоты в Башне принудительно оставляем горизонтальную сетку KPI */
     #renderRoot.tower #topSummary{
-      display:grid !important;
-      grid-template-columns:repeat(12,minmax(0,1fr));
-      gap:12px;
+      display: grid !important;
+      grid-template-columns: repeat(12, minmax(0,1fr)) !important;
     }
     #renderRoot.tower #topSummary > div{
-      display:initial !important;
-      margin-bottom:0 !important;
+      display: initial !important;
+      margin-bottom: 0 !important;
     }
     #renderRoot.tower #topSummary .kpi{
-      width:auto !important;
+      width: auto !important;
     }
+    
 
     /* Светлая тема */
     body.light{ background:#f7fafc; color:#0f172a; }
@@ -757,6 +786,7 @@ document.addEventListener("keydown", (e) => {
 </script>
 </body>
 </html>
+
 
 
 
