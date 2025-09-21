@@ -4,6 +4,7 @@
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>OneScreen План/Факт — by Vatnik</title>
+
   <!-- Tailwind -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -18,81 +19,127 @@
       }
     }
   </script>
+
   <!-- Libs -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://unpkg.com/lucide@latest"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+
   <style>
     :root{ --ring:#e5e7eb }
     *{ scrollbar-width:thin; scrollbar-color:#CBD5E1 transparent }
     *::-webkit-scrollbar{ width:8px;height:8px }*::-webkit-scrollbar-thumb{ background:#CBD5E1;border-radius:9999px }
-    .panel{ border:1px solid var(--ring); border-radius:14px; background:#fff; box-shadow:0 10px 30px rgba(0,0,0,.04); color: #1e293b }
-    .dark .panel{ background:#0b1220; border-color:#1f2937; color: #e5e7eb }
+
+    .panel{ border:1px solid var(--ring); border-radius:14px; background:#fff; box-shadow:0 10px 30px rgba(0,0,0,.04)}
+    .dark .panel{ background:#0b1220; border-color:#1f2937}
+
     .card{ position:relative; border:1px solid var(--ring); border-radius:14px; background:#0f172a; color:#e5e7eb }
-    body.light .card{ background:#fff; color:#1e293b; border:1px solid #e2e8f0 }
+    body.light .card{ background:#fff; color:#0f172a; border:1px solid #e5e7eb }
+
     .yg-chip,.yg-badge{
       display:inline-flex; align-items:center; gap:6px;
       height:26px; padding:0 10px; border-radius:9999px;
       font-size:12px; line-height:26px; vertical-align:middle; white-space:nowrap;
+      transform: translateY(0); /* нормальный режим */
     }
     .yg-chip{ background:#0b1220; border:1px solid #23314f; color:#dbeafe }
     body.light .yg-chip{ background:#f1f5f9; border:1px solid #e2e8f0; color:#0f172a }
-    .yg-badge{ color:#fff }
+    .yg-badge{ color:#fff; transform: translateY(0); }
     .badge-red{ background:#ef4444 } .badge-amber{ background:#f59e0b } .badge-slate{ background:#94a3b8 } .badge-blue{ background:#3b82f6 } .badge-emerald{ background:#10b981 }
-    .title{ font-weight:700; line-height:1.3; word-break:break-word; overflow-wrap:anywhere }
+
+    .title{ font-weight:700; line-height:1.3; word-break:break-word; overflow-wrap:anywhere; transform: translateY(0); }
+
     .mode-switch{ position:relative; border-radius:12px; border:1px solid var(--ring); background:rgba(99,102,241,.08); padding:4px; display:flex; gap:4px }
-    body.light .mode-switch { background: rgba(99,102,241,.08); border: 1px solid #e5e7eb; }
     .mode-thumb{ position:absolute; inset:4px auto 4px 4px; width:calc(50% - 6px); border-radius:8px; background:rgba(99,102,241,.18); transition:transform .25s ease }
     .mode-item{ position:relative; z-index:1; flex:1; padding:8px 10px; font-size:12px; border-radius:8px; display:flex; align-items:center; gap:6px; justify-content:center; cursor:pointer }
     .mode-item.inactive{ filter:saturate(.8) opacity(.65) }
+
     .theme-switch{ position:relative; width:64px; height:30px; border-radius:9999px; border:1px solid var(--ring); background:#eef2ff }
     .dark .theme-switch{ background:#0f172a; border-color:#1f2937 }
-    body.light .theme-switch { background: #f1f5f9; border: 1px solid #e5e7eb; }
     .theme-thumb{ position:absolute; top:3px; left:3px; width:24px; height:24px; border-radius:9999px; background:#fff; transition:transform .25s ease, background .25s ease }
     .dark .theme-thumb{ background:#111827 }
-    body.light .theme-thumb { background: #fff; }
     .theme-switch.on .theme-thumb{ transform:translateX(34px) }
+
     .drop-hover{ outline:3px dashed #4f46e5; outline-offset:-10px }
+
     /* SPLASH */
     #splash{ transition:opacity .6s ease, filter .6s ease }
     #splash.splash-hide{ opacity:0; filter:blur(8px) saturate(.9); pointer-events:none }
+
     /* Сцена рендера */
     #renderRoot{ position:relative; border-radius:16px; overflow:hidden; background:#fff }
-    body.light #renderRoot { background: #f8fafc; }
     #renderRoot .bg-img{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; transform:scale(1.08) }
     #renderRoot.tower .bg-img{ transform:scale(1.45) }
     #renderRoot .bg-overlay{ position:absolute; inset:0; background:linear-gradient(180deg,rgba(15,23,42,.25),rgba(15,23,42,.25)) }
-    body.light #renderRoot .bg-overlay { background: linear-gradient(180deg,rgba(248,250,252,.25),rgba(248,250,252,.25)); }
     #renderRoot .stage-pad{ position:relative; padding:24px }
+
     .kpi{ border-radius:14px; background:rgba(15,23,42,.8); border:1px solid rgba(148,163,184,.18); color:#e5e7eb; padding:18px 20px; min-width:150px }
-    body.light .kpi{ background:rgba(241,245,249,.8); color:#1e293b; border:1px solid #e2e8f0 }
+    body.light .kpi{ background:rgba(241,245,249,.9); color:#0f172a; border-color:#dbeafe }
     .kpi .v{ font-size:28px; font-weight:800; line-height:1 }
     .kpi .t{ font-size:13px; opacity:.85 }
-    /* Башня: KPI столбиком */
-    #renderRoot.tower #topSummary{ display:block }
-    #renderRoot.tower #topSummary > div{ display:block; margin-bottom:16px }
+
+    /* Башня: KPI столбиком + больше воздуха */
+    #renderRoot.tower #topSummary{ display:block; }
+    #renderRoot.tower #topSummary > div{ display:block; margin-bottom:24px; } /* было 16px */
     #renderRoot.tower #topSummary .kpi{ width:100% }
-    /* Светлая тема */
-    body.light{ background:#f8fafc; color:#1e293b }
-    body.light .panel{ background:#fff; color:#1e293b }
-    body.light .kpi{ background:rgba(241,245,249,.8); color:#1e293b }
-    body.light select, body.light option { background: #fff; color: #1e293b; }
-    body.light .select-wrapper { background: #fff; color: #1e293b; }
-    /* Приоритет */
-    .priority-indicator {
-      display: inline-block;
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      margin-right: 4px;
+
+    /* Светлая тема — аккуратные контрасты и видимость всего */
+    body.light{ background:#f7fafc; color:#0f172a; }
+
+    /* шапка/бордеры */
+    body.light header > div{
+      background:rgba(255,255,255,.85);
+      border-color:#e5e7eb;
+      -webkit-backdrop-filter:saturate(1.2) blur(8px);
+      backdrop-filter:saturate(1.2) blur(8px);
     }
-    .priority-alarm { background: #ef4444; }
-    .priority-important { background: #f59e0b; }
-    .priority-normal { background: #94a3b8; }
+
+    /* базовые контейнеры */
+    body.light .panel{
+      background:#ffffff;
+      color:#0f172a;
+      border-color:#e5e7eb;
+      box-shadow:0 10px 30px rgba(2,6,23,.06);
+    }
+
+    /* селекты/инпуты в светлой теме (перекрываем tailwind классы) */
+    body.light select.bg-slate-800{
+      background:#ffffff !important;
+      color:#0f172a !important;
+      border-color:#e2e8f0 !important;
+    }
+    body.light .text-slate-400{ color:#64748b !important; }
+
+    /* кнопки экспорта — видимые в лайт-теме */
+    #btnCopy{ border:1px solid rgba(255,255,255,.15); }
+    body.light #btnCopy{
+      background:#0f172a !important;
+      color:#ffffff !important;
+      border-color:#0f172a !important;
+    }
+
+    /* фон рендер-сцены (без затемнения) */
+    body.light #renderRoot .bg-overlay{
+      background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.06));
+    }
+
+    /* прогресс-бар и серые подложки */
+    body.light .bg-slate-800{ background:#e5e7eb !important; }
+    body.light .stage-pad .h-2{ background:#e5e7eb; }
+
+    /* иконка загрузки — контрастная на светлом */
+    .icon-tile{ background:rgba(49,46,129,.15); color:#4338ca; }
+    body.light .icon-tile{ background:#e2e8f0; color:#4338ca; }
+
+    /* при экспорте: микросмещение текста вверх на 5px для 1-в-1 совпадения */
+    .exporting .yg-chip,
+    .exporting .yg-badge,
+    .exporting .title{ transform: translateY(-5px); }
   </style>
 </head>
 <body class="min-h-screen flex flex-col font-sans bg-slate-900 text-slate-100">
+
   <!-- SPLASH -->
   <div id="splash" class="fixed inset-0 z-50 grid place-items-center bg-[#0b1020]">
     <div class="relative w-full h-full overflow-hidden">
@@ -109,6 +156,7 @@
       </div>
     </div>
   </div>
+
   <!-- HEADER -->
   <header class="sticky top-0 z-40">
     <div class="backdrop-blur bg-slate-900/70 border-b border-slate-800">
@@ -121,23 +169,26 @@
               <div id="modeBadge" class="text-xs text-slate-400">режим не выбран</div>
             </div>
           </div>
+
           <div class="flex flex-wrap items-stretch gap-2 flex-1">
             <div class="panel px-3 py-2 flex items-center justify-between min-w-[160px]">
               <span class="text-xs text-slate-400">Колонки</span>
-              <select id="colSelect" class="px-2 py-1 text-sm rounded-lg bg-slate-800 border border-slate-700 text-slate-100">
+              <select id="colSelect" class="px-2 py-1 text-sm rounded-lg bg-slate-800 border border-slate-700">
                 <option value="2">2</option><option value="3">3</option><option value="4">4</option>
               </select>
             </div>
+
             <div class="panel px-3 py-2 flex items-center justify-between min-w-[180px]">
               <span class="text-xs text-slate-400">Дизайн</span>
-              <select id="design" class="px-2 py-1 text-sm rounded-lg bg-slate-800 border border-slate-700 text-slate-100">
+              <select id="design" class="px-2 py-1 text-sm rounded-lg bg-slate-800 border border-slate-700">
                 <option value="yougile">YouGile</option>
                 <option value="vibe">Vibe</option>
               </select>
             </div>
+
             <div class="panel px-3 py-2 flex items-center justify-between min-w-[200px]">
               <span class="text-xs text-slate-400">Сорт</span>
-              <select id="sortBy" class="px-2 py-1 text-sm rounded-lg bg-slate-800 border border-slate-700 text-slate-100">
+              <select id="sortBy" class="px-2 py-1 text-sm rounded-lg bg-slate-800 border border-slate-700">
                 <option value="none">Без сортировки</option>
                 <option value="deadline">Дедлайн</option>
                 <option value="priority">Приоритет</option>
@@ -145,6 +196,7 @@
                 <option value="fact">Факт (ч)</option>
               </select>
             </div>
+
             <div class="panel px-3 py-2 flex-1 min-w-[260px]">
               <div class="text-xs text-slate-400 mb-1">Режим</div>
               <div id="modeSwitch" class="mode-switch">
@@ -153,11 +205,13 @@
                 <button data-mode="tower"   class="mode-item inactive"><i data-lucide="panel-right" class="w-4 h-4"></i>Башня</button>
               </div>
             </div>
+
             <div class="panel px-3 py-2 flex items-center justify-between min-w-[160px]">
               <span class="text-xs text-slate-400">Тема</span>
               <button id="themeSwitch" class="theme-switch"><span class="theme-thumb"></span></button>
             </div>
           </div>
+
           <div class="flex items-center gap-2">
             <button id="btnExportPNG" disabled class="px-4 py-2 rounded-xl panel disabled:opacity-50">PNG</button>
             <button id="btnCopy"      disabled class="px-4 py-2 rounded-xl bg-white/10 text-white border border-white/10 disabled:opacity-50">Копировать</button>
@@ -166,13 +220,14 @@
       </div>
     </div>
   </header>
+
   <!-- MAIN -->
   <main class="flex-1 w-full">
     <section class="max-w-[1200px] mx-auto px-4 py-10">
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
         <div class="lg:col-span-8">
           <div id="dropzone" class="panel p-10 md:p-14 text-center bg-gradient-to-b from-slate-900 to-slate-900/40">
-            <div class="mx-auto w-20 h-20 rounded-3xl bg-indigo-900/40 grid place-items-center text-indigo-300 shadow-soft">
+            <div id="uploadIcon" class="mx-auto w-20 h-20 rounded-3xl grid place-items-center shadow-soft icon-tile">
               <i data-lucide="upload" class="w-10 h-10"></i>
             </div>
             <h2 class="mt-5 text-2xl md:text-3xl font-extrabold">Перетащи .xlsx сюда</h2>
@@ -181,6 +236,7 @@
               «Задачи на сегодня …» → План, «Сделано сегодня …» → Факт.
             </p>
             <input id="fileInput" type="file" accept=".xlsx,.xls" class="hidden"/>
+
             <div id="progressWrap" class="mx-auto mt-8 max-w-xl text-left hidden">
               <div class="flex items-center justify-between mb-1">
                 <span id="progressLabel" class="text-xs text-slate-400">Готово: 0%</span>
@@ -193,6 +249,7 @@
             </div>
           </div>
         </div>
+
         <div class="lg:col-span-4">
           <div class="panel p-5">
             <div class="text-sm text-slate-400 mb-2">Сводка</div>
@@ -208,6 +265,7 @@
           </div>
         </div>
       </div>
+
       <!-- РЕНДЕР -->
       <section id="collageWrap" class="mt-10 hidden">
         <div class="flex items-center justify-between gap-4">
@@ -244,6 +302,7 @@
       </section>
     </section>
   </main>
+
   <!-- FOOTER -->
   <footer class="mt-10 border-t border-slate-800">
     <div class="max-w-[1200px] mx-auto px-4 py-6 flex items-center justify-between">
@@ -256,9 +315,11 @@
       <div class="text-xs text-slate-400">План/Факт by Vatnik</div>
     </div>
   </footer>
+
   <div id="toast" class="fixed bottom-4 left-1/2 -translate-x-1/2 z-40 hidden">
     <div class="px-4 py-2 rounded-xl bg-slate-900 text-white shadow-lg text-sm"></div>
   </div>
+
 <script>
 /* ===== Splash ===== */
 document.addEventListener('DOMContentLoaded', ()=>{
@@ -267,6 +328,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
   setTimeout(()=>{ s.classList.add('splash-hide'); },1500);
   setTimeout(()=>{ if(document.body.contains(s)) s.remove(); },3500);
 });
+
 /* ===== Utils ===== */
 const $=(s,r=document)=>r.querySelector(s);
 const $$=(s,r=document)=>Array.from(r.querySelectorAll(s));
@@ -275,10 +337,12 @@ const esc=(s="")=>String(s).replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&
 const num=(v)=>{ if(typeof v==='number')return v; if(v==null||v==='')return 0; const s=String(v).replace(",",".").replace(/[^\d.-]/g,""); const n=parseFloat(s); return isNaN(n)?0:n; };
 const prRank=(p="")=>{ p=String(p).toLowerCase(); if(p.includes('пожар')||p.includes('alarm')||p.includes('аларм'))return 0; if(p.includes('важно'))return 1; return 2; };
 const cleanTitle=(t="")=> String(t).replace(/^\s*[A-ZА-Я]{2,}-?\d+\s*[—-]\s*/i,'').trim();
+
 function canon(s){ return String(s||'').replace(/[“”«»„‟"']/g,'"').replace(/ё/g,'е').replace(/\s+/g,' ').trim().toLowerCase(); }
 function cell(row,i){ return i>=0 ? (row[i] ?? '') : ''; }
 function detectMode(name=""){ const n=String(name).toLowerCase(); if(n.includes('сделано сегодня')) return 'fact'; if(n.includes('задачи на сегодня')) return 'plan'; return 'plan'; }
 function extractDate(name=""){ const m=String(name).match(/(\d{1,2})\s*(Янв|Фев|Март|Апр|Май|Июнь|Июль|Авг|Сент|Окт|Ноя|Дек)[^\d]*(\d{1,2})_(\d{2})/i); if(!m) return '—'; const d=m[1], mon=m[2], h=m[3], mm=m[4]; return `${d} ${mon}. ${h}:${mm}`; }
+
 /* ===== Theme ===== */
 const themeSwitch=$("#themeSwitch");
 const applyTheme=()=>{ const t=localStorage.getItem('theme')||'dark'; document.documentElement.classList.toggle('dark',t==='dark'); document.body.classList.toggle('light', t!=='dark'); themeSwitch.classList.toggle('on', t==='dark'); };
@@ -290,6 +354,7 @@ themeSwitch.addEventListener('click',()=>{
   themeSwitch.classList.toggle('on',dark);
 });
 window.addEventListener('DOMContentLoaded',()=> lucide.createIcons());
+
 /* ===== Refs ===== */
 const dropzone=$("#dropzone"), fileInput=$("#fileInput");
 const renderRoot=$("#renderRoot"), collage=$("#collage"), collageWrap=$("#collageWrap"),
@@ -297,39 +362,47 @@ const renderRoot=$("#renderRoot"), collage=$("#collage"), collageWrap=$("#collag
 const sumDate=$("#sumDate"), sumPlan=$("#sumPlan"), sumFact=$("#sumFact"), sumCount=$("#sumCount"), modeBadge=$("#modeBadge");
 const btnPNG=$("#btnExportPNG"), btnCopy=$("#btnCopy");
 const colSelect=$("#colSelect"), design=$("#design"), sortBy=$("#sortBy");
+
 /* ===== Mode switch ===== */
 const modeSwitch=$("#modeSwitch"), modeThumb=$("#modeThumb"), modeBtns=$$(".mode-item",modeSwitch);
 let vizMode='collage';
 const setModeUI=(m)=>{ vizMode=m; modeThumb.style.transform=`translateX(${m==='collage'?0:100}%)`; modeBtns.forEach(b=>b.classList.toggle('inactive', b.dataset.mode!==m)); applyLayout(); };
 modeBtns.forEach(b=> b.addEventListener('click', ()=> setModeUI(b.dataset.mode)));
+
 /* ===== DnD ===== */
 ["dragenter","dragover"].forEach(ev=>dropzone.addEventListener(ev,e=>{e.preventDefault();dropzone.classList.add("drop-hover");}));
 ["dragleave","drop"].forEach(ev=>dropzone.addEventListener(ev,e=>{e.preventDefault();dropzone.classList.remove("drop-hover");}));
 dropzone.addEventListener("drop",e=>{ const f=e.dataTransfer.files?.[0]; if(f) handleFile(f); });
 dropzone.addEventListener("click",()=>fileInput.click());
 fileInput.addEventListener("change",e=>{ const f=e.target.files?.[0]; if(f) handleFile(f); });
+
 /* ===== State ===== */
 let tasksRaw=[], tasksView=[], isFact=false, isFactGlobal=false, designStyle='yougile';
+
 /* ===== Progress ===== */
 const progressWrap=$("#progressWrap"), progressBar=$("#progressBar"), progressLabel=$("#progressLabel"), progressStep=$("#progressStep"), diag=$("#diag");
 function showProgress(){ progressWrap.classList.remove('hidden'); setProgress(0,'Старт'); }
 function setProgress(p,step){ progressBar.style.width=p+'%'; progressLabel.textContent=`Готово: ${Math.round(p)}%`; if(step) progressStep.textContent=step; }
 function hideProgress(){ setTimeout(()=>progressWrap.classList.add('hidden'),350); }
 const setDiag=(html)=>{ diag.innerHTML=html; };
+
 /* ===== File flow ===== */
 async function handleFile(file){
   try{
     showProgress(); setProgress(10,'Читаю файл');
     const mode = detectMode(file.name); isFact = mode==='fact'; isFactGlobal=isFact;
     modeBadge.textContent = isFact ? 'режим: ФАКТ' : 'режим: ПЛАН';
+
     const buf = await file.arrayBuffer();
     setProgress(25,'Парсю книгу');
     const wb = XLSX.read(buf,{type:'array'});
     let sheet=wb.Sheets[wb.SheetNames[0]], sheetName=wb.SheetNames[0], best=0;
     wb.SheetNames.forEach(n=>{ const s=wb.Sheets[n]; const r=XLSX.utils.decode_range(s['!ref']||'A1:A1'); const cells=(r.e.r-r.s.r+1)*(r.e.c-r.s.c+1); if(cells>best){best=cells; sheet=s; sheetName=n;} });
+
     setProgress(40,'Читаю строки');
     const M=XLSX.utils.sheet_to_json(sheet,{header:1,defval:"",raw:true});
     if(!M.length){ toast('Пустой лист'); hideProgress(); return; }
+
     const headers=(M[0]||[]).map(h=>canon(h)); const rows=M.slice(1);
     const need={
       id:['id задачи','id'],
@@ -354,11 +427,14 @@ async function handleFile(file){
       return -1;
     };
     const idx={}; Object.entries(need).forEach(([k,v])=>idx[k]=findCol(v));
+
     const found = Object.entries(idx).filter(([_,i])=>i>=0).map(([k,i])=>`${k} → <b>${esc(headers[i]||'?')}</b> (col ${i+1})`).join('<br>');
     const miss  = Object.entries(idx).filter(([_,i])=>i<0).map(([k])=>k).join(', ') || '—';
     setDiag(`Лист: <b>${esc(sheetName)}</b><br>Строк: <b>${rows.length}</b>, Колонок: <b>${headers.length}</b><br><br><u>Найдены:</u><br>${found||'—'}<br><br><u>Отсутствуют:</u> ${miss}`);
+
     if(idx.title<0 && idx.id<0){ $("#whyEmpty").classList.remove('hidden'); toast('Не найдены колонки ID/Название'); hideProgress(); return; }
     $("#whyEmpty").classList.add('hidden');
+
     setProgress(60,'Готовлю задачи');
     tasksRaw=rows.map(r=>({
       id:cell(r,idx.id), title:cell(r,idx.title),
@@ -368,22 +444,29 @@ async function handleFile(file){
       sticker_project:cell(r,idx.sticker_project), sticker_plan:cell(r,idx.sticker_plan),
       sticker_fact:cell(r,idx.sticker_fact), sticker_category:cell(r,idx.sticker_category),
     })).filter(t => (String(t.id||t.title||'').trim()!=='') && !/^сумма значений/i.test(String(t.id||'').trim()));
+
     if(!tasksRaw.length){ $("#whyEmpty").classList.remove('hidden'); toast('После фильтрации задач не осталось'); hideProgress(); return; }
+
     setProgress(78,'Рисую карточки');
     render(tasksRaw,isFact,file.name);
+
     setProgress(100,'Готово ✔'); hideProgress(); enableExports(true);
     $("#collageWrap").scrollIntoView({behavior:'smooth',block:'start'});
   }catch(e){ console.error(e); toast('Ошибка обработки файла'); hideProgress(); }
 }
+
 /* ===== Render ===== */
 function render(list,isFact,filename){
   isFactGlobal=isFact;
   const when = extractDate(filename);
   sumDate.textContent=when; $("#kpiDate").textContent=when;
+
   const titleText = isFact ? 'Сделано сегодня' : 'Задачи на сегодня';
   $("#summaryTitle").textContent=titleText; collageTitle.textContent=titleText;
   modeHint.textContent = vizMode==='tower' ? 'Режим «Башня»: одна колонка' : 'Режим «Коллаж»: сетка карточек';
+
   tasksView=sortList(list,sortBy.value);
+
   const sp=tasksView.reduce((a,t)=>a+num(t.sticker_plan),0);
   const sf=tasksView.reduce((a,t)=>a+num(t.sticker_fact),0);
   sumPlan.textContent=String(sp).replace('.',',');
@@ -392,13 +475,17 @@ function render(list,isFact,filename){
   $("#kpiPlan").textContent=String(sp).replace('.',',');
   $("#kpiFact").textContent=String(sf).replace('.',',');
   $("#kpiTasks").textContent=tasksView.length;
+
   const factBadge=$("#factBadge"), factBadgeText=$("#factBadgeText");
   if(isFact){ factBadge.classList.remove('hidden'); factBadgeText.textContent=`ФАКТ на ${String(sf).replace('.',',')} ч`; } else { factBadge.classList.add('hidden'); }
+
   applyLayout(); drawCards(tasksView,isFact);
   collageWrap.classList.remove('hidden');
   renderRoot.classList.toggle('tower', vizMode==='tower');
-  inlineStageBg();
+
+  inlineStageBg(); // важное для корректного PNG
 }
+
 function sortList(a,how){
   const arr=[...a];
   switch(how){
@@ -409,6 +496,7 @@ function sortList(a,how){
   }
   return arr;
 }
+
 function applyLayout(){
   if(vizMode==='tower'){
     $("#collage").style.gridTemplateColumns='repeat(1,minmax(0,1fr))';
@@ -425,35 +513,32 @@ function applyLayout(){
 colSelect.addEventListener('change', ()=> vizMode==='collage' && applyLayout());
 design.addEventListener('change', ()=>{ designStyle=design.value; drawCards(tasksView,isFactGlobal); });
 sortBy.addEventListener('change', ()=>{ tasksView=sortList(tasksView, sortBy.value); drawCards(tasksView,isFactGlobal); });
+
 /* Chips / badges */
 function badge(txt, cls='badge-slate'){ if(!txt) return ''; return `<span class="yg-badge ${cls}">${esc(txt)}</span>`; }
 function chip(icon, text){ if(!text) return ''; return `<span class="yg-chip"><i data-lucide="${icon}" class="w-3.5 h-3.5"></i>${esc(text)}</span>`; }
 function priorityBadge(text){
   if(!text) return '';
   const t=String(text).toLowerCase();
-  let cls = 'badge-slate';
-  let indicator = '<span class="priority-indicator priority-normal"></span>';
-  if(t.includes('пожар')||t.includes('alarm')||t.includes('аларм')) {
-    cls = 'badge-red';
-    indicator = '<span class="priority-indicator priority-alarm"></span>';
-  }
-  else if(t.includes('важно')) {
-    cls = 'badge-amber';
-    indicator = '<span class="priority-indicator priority-important"></span>';
-  }
-  return `${indicator}${badge(text, cls)}`;
+  if(t.includes('пожар')||t.includes('alarm')||t.includes('аларм')) return badge('Аларм сейчас ПОЖАР','badge-red');
+  if(t.includes('важно')) return badge('Важно сегодня','badge-amber');
+  return badge(text,'badge-slate');
 }
+
 function drawCards(items,isFact){
   collage.innerHTML='';
   const pad='p-4 md:p-5';
   const frag=document.createDocumentFragment();
+
   for(const t of items){
     const fact=num(t.sticker_fact), plan=num(t.sticker_plan);
     const ratio=plan>0? Math.min(100, Math.round(fact/plan*100)) : (fact>0?100:0);
     const titleStr=cleanTitle(String(t.title||'Без названия'));
     const el=document.createElement('article');
     el.className=`card ${pad}`;
+
     const lead = isFact ? `<i data-lucide="check-circle" class="w-5 h-5 text-emerald-400"></i>` : `<i data-lucide="circle" class="w-5 h-5 text-slate-500"></i>`;
+
     const projectName = t.sticker_project || t.project || t.board || '';
     const chipsTop = [
       chip('calendar', t.deadline || ''),
@@ -461,16 +546,18 @@ function drawCards(items,isFact){
       chip('activity', t.sticker_stage || ''),
       chip('boxes', projectName)
     ].filter(Boolean).join(' ');
+
     const chipsBottom = [
       chip('tag', t.sticker_category || ''),
       chip('target', t.sticker_plan ? `План сегодня: ${num(t.sticker_plan)}` : ''),
       chip('clock',  t.sticker_fact ? `Факт часов: ${num(t.sticker_fact)}` : '')
     ].filter(Boolean).join(' ');
+
     el.innerHTML = `
       <div class="flex items-start gap-2">
         <div class="mt-1">${lead}</div>
         <div class="flex-1">
-          <h4 class="title text-lg md:text-xl" style="line-height: 1.2;">${esc(titleStr)}</h4>
+          <h4 class="title text-lg md:text-xl">${esc(titleStr)}</h4>
           <div class="mt-3 flex flex-wrap gap-2">${chipsTop}</div>
           <div class="mt-2 flex flex-wrap gap-2">${chipsBottom}</div>
           <div class="mt-3">
@@ -490,8 +577,10 @@ function drawCards(items,isFact){
   collage.appendChild(frag);
   lucide.createIcons();
 }
+
 /* ===== Export ===== */
 function enableExports(v){ btnPNG.disabled=btnCopy.disabled=!v; }
+
 // инлайн фона в dataURL (исключает CORS/пустые PNG)
 async function inlineStageBg(){
   const img = renderRoot.querySelector('.bg-img');
@@ -501,17 +590,20 @@ async function inlineStageBg(){
     const b = await r.blob();
     const fr = new FileReader();
     await new Promise(res=>{ fr.onload=()=>res(); fr.readAsDataURL(b); });
-    img.src = fr.result;
+    img.src = fr.result;  // data:
     img.dataset.inlined = '1';
   }catch(e){ console.warn('BG inline fail', e); }
 }
-// делаем снимок именно того, что на экране (без foreignObject)
+
+// делаем снимок именно того, что на экране; + микролифт текста (5px)
 async function grabCanvas(){
   await document.fonts.ready;
   lucide.createIcons();
   await inlineStageBg();
-  await new Promise(r=>setTimeout(r, 100));
-  return await html2canvas(renderRoot,{
+  renderRoot.classList.add('exporting');      // поднять текст
+  await new Promise(r=>setTimeout(r,20));
+
+  const canvas = await html2canvas(renderRoot,{
     backgroundColor:null,
     scale:2,
     useCORS:false,
@@ -519,16 +611,13 @@ async function grabCanvas(){
     foreignObjectRendering:false,
     imageTimeout:0,
     removeContainer:true,
-    logging:false,
-    fontFaces: [
-      {
-        family: 'Inter',
-        source: 'local("Inter")',
-        weight: '400 500 600 700 800',
-      },
-    ],
+    logging:false
   });
+
+  renderRoot.classList.remove('exporting');   // вернуть как было
+  return canvas;
 }
+
 btnPNG.addEventListener('click', async ()=>{
   try{
     const canvas = await grabCanvas();
@@ -541,6 +630,7 @@ btnPNG.addEventListener('click', async ()=>{
     });
   }catch(e){ console.error(e); toast('Ошибка при экспорте PNG'); }
 });
+
 btnCopy.addEventListener('click', async ()=>{
   try{
     const canvas = await grabCanvas();
