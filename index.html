@@ -316,7 +316,7 @@
     </div>
   </footer>
 
- <!-- Support FAB (glass, premium) -->
+<!-- Support FAB (glass, premium) -->
 <button id="supportFab" title="Техподдержка"
   class="fixed bottom-6 right-6 z-50 p-3 rounded-full
          bg-white/20 dark:bg-slate-800/60
@@ -325,21 +325,27 @@
   <i data-lucide="life-buoy" class="w-6 h-6 text-slate-900 dark:text-white"></i>
 </button>
 
-<!-- Support Modal (чистый из «того года») -->
-<div id="supportModal" class="fixed inset-0 z-50 hidden">
-  <div id="supportBackdrop" class="absolute inset-0 backdrop-blur-sm bg-black/40"></div>
+<!-- Support Modal (panel from last year, with animations) -->
+<div id="supportModal"
+     class="fixed inset-0 z-50 hidden opacity-0 pointer-events-none transition-opacity duration-200">
+  <!-- backdrop -->
+  <div id="supportBackdrop"
+       class="absolute inset-0 bg-black/40 backdrop-blur-sm opacity-0 transition-opacity duration-200"></div>
+
+  <!-- centered card -->
   <div class="relative h-full w-full grid place-items-center p-4">
-    <div class="panel w-full max-w-md p-6">
+    <div id="supportCard"
+         class="panel w-full max-w-md p-6 transform-gpu opacity-0 scale-95 transition duration-200">
       <div class="flex items-center justify-between">
         <h4 class="text-lg font-semibold">Техподдержка</h4>
         <button id="modalClose"
           class="rounded-lg px-2 py-1 bg-slate-100 dark:bg-slate-800
-                 border border-slate-200 dark:border-slate-700">
+                 border border-slate-200 dark:border-slate-700 hover:opacity-80 transition">
           <i data-lucide="x" class="w-4 h-4"></i>
         </button>
       </div>
       <p class="mt-3 text-sm text-slate-500 dark:text-slate-400">
-        по вопросам в телегу:
+        По вопросам в телегу:
       </p>
       <a href="https://t.me/Vatnik13" target="_blank"
          class="mt-4 flex items-center gap-2 px-4 py-3 rounded-xl
@@ -350,7 +356,6 @@
     </div>
   </div>
 </div>
-
 <script>
 /* ===== Splash ===== */
 document.addEventListener('DOMContentLoaded', ()=>{
@@ -690,25 +695,47 @@ btnCopy.addEventListener('click', async ()=>{
   }catch(e){ console.error(e); toast('Ошибка при копировании'); }
 });
 
-// ===== Support FAB (glass button + clean modal) =====
-const supportFab       = document.getElementById("supportFab");
-const supportModal     = document.getElementById("supportModal");
-const supportBackdrop  = document.getElementById("supportBackdrop");
-const modalClose       = document.getElementById("modalClose");
+/* ===== Support FAB + Modal (animated) ===== */
+const supportFab      = document.getElementById("supportFab");
+const supportModal    = document.getElementById("supportModal");
+const supportBackdrop = document.getElementById("supportBackdrop");
+const supportCard     = document.getElementById("supportCard");
+const modalClose      = document.getElementById("modalClose");
 
 function openSupport() {
-  supportModal.classList.remove("hidden");
+  // показать контейнер
+  supportModal.classList.remove("hidden","pointer-events-none");
+  // в следующем кадре запустить анимации
+  requestAnimationFrame(() => {
+    supportModal.classList.remove("opacity-0");
+    supportBackdrop.classList.remove("opacity-0");
+    supportCard.classList.remove("opacity-0","scale-95");
+    supportCard.classList.add("opacity-100","scale-100");
+  });
   if (window.lucide) lucide.createIcons();
 }
+
 function closeSupport() {
-  supportModal.classList.add("hidden");
+  // запустить обратные анимации
+  supportModal.classList.add("opacity-0");
+  supportBackdrop.classList.add("opacity-0");
+  supportCard.classList.remove("opacity-100","scale-100");
+  supportCard.classList.add("opacity-0","scale-95");
+  // после анимации скрыть и выключить pointer-events
+  setTimeout(() => {
+    supportModal.classList.add("hidden","pointer-events-none");
+  }, 180);
 }
 
 supportFab.addEventListener("click", openSupport);
 modalClose.addEventListener("click", closeSupport);
-// клик мимо — по бэкдропу
-supportBackdrop.addEventListener("click", closeSupport);
-// Esc для закрытия
+
+// клик МИМО: закрываем, если клик не внутри карточки
+supportModal.addEventListener("click", (e) => {
+  if (!supportCard.contains(e.target)) closeSupport();
+});
+
+// Esc
 document.addEventListener("keydown", (e) => {
   if (e.key === "Escape" && !supportModal.classList.contains("hidden")) closeSupport();
 });
@@ -716,6 +743,7 @@ document.addEventListener("keydown", (e) => {
 </script>
 </body>
 </html>
+
 
 
 
