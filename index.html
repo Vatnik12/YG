@@ -83,13 +83,63 @@
     #renderRoot.tower #topSummary > div{ display:block; margin-bottom:16px }
     #renderRoot.tower #topSummary .kpi{ width:100% }
 
-    /* Светлая тема */
-    body.light{ background:#f8fafc; color:#1e293b }
-    body.light .panel{ background:#fff; color:#1e293b }
-    body.light .kpi{ background:rgba(241,245,249,.8); color:#1e293b }
-  </style>
-</head>
-<body class="min-h-screen flex flex-col font-sans bg-slate-900 text-slate-100">
+   /* Светлая тема — аккуратные контрасты и 1:1 с тёмной по отступам */
+body.light{ background:#f7fafc; color:#0f172a; }
+
+/* шапка/бордеры */
+body.light header > div{
+  background:rgba(255,255,255,.75);
+  border-color:#e5e7eb;
+}
+
+/* базовые контейнеры */
+body.light .panel{
+  background:#ffffff;
+  color:#0f172a;
+  border-color:#e5e7eb;
+  box-shadow:0 10px 30px rgba(2,6,23,.06);
+}
+
+/* сами карточки задач */
+body.light .card{
+  background:#ffffff;
+  color:#0f172a;
+  border-color:#e5e7eb;
+}
+
+/* KPI/«Сводка» */
+body.light .kpi{
+  background:rgba(241,245,249,.9);
+  color:#0f172a;
+  border-color:#dbeafe;
+}
+
+/* фон рендер-сцены (без затемнения) */
+body.light #renderRoot .bg-overlay{
+  background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.06));
+}
+
+/* чипы/бейджи */
+body.light .yg-chip{
+  background:#f1f5f9;
+  border:1px solid #e2e8f0;
+  color:#0f172a;
+}
+/* немного плотнее серый бейдж, чтобы не терялся на белом */
+body.light .yg-badge.badge-slate{ background:#64748b; color:#fff; }
+
+/* второстепенный текст и бордеры в светлой палитре */
+body.light .text-slate-400{ color:#64748b !important; }
+body.light .border-slate-800{ border-color:#e5e7eb !important; }
+
+/* прогресс-бар и серые подложки */
+body.light .bg-slate-800{ background:#e5e7eb !important; } /* трек прогресса, инпуты в панели */
+body.light .stage-pad .h-2{ background:#e5e7eb; }          /* трек внутри карточки */
+
+/* мелкие элементы Tailwind, которые в тёмной теме были сине-серые */
+body.light .bg-slate-900/40{ background:rgba(15,23,42,.04) !important; }
+body.light .bg-slate-900/70{ background:rgba(255,255,255,.75) !important; }
+
 
   <!-- SPLASH -->
   <div id="splash" class="fixed inset-0 z-50 grid place-items-center bg-[#0b1020]">
@@ -593,3 +643,4 @@ btnCopy.addEventListener('click', async ()=>{
 </script>
 </body>
 </html>
+
