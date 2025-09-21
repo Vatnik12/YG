@@ -107,6 +107,12 @@
       -webkit-backdrop-filter:saturate(1.2) blur(8px);
       backdrop-filter:saturate(1.2) blur(8px);
     }
+    body.light footer > div {
+      background: rgba(255,255,255,.85);
+      border-color: #e5e7eb;
+      -webkit-backdrop-filter: saturate(1.2) blur(8px);
+      backdrop-filter: saturate(1.2) blur(8px);
+    }
     body.light .panel{
       background:#ffffff;
       color:#0f172a;
@@ -133,9 +139,6 @@
 
     .icon-tile{ background:rgba(49,46,129,.15); color:#4338ca; }
     body.light .icon-tile{ background:#e2e8f0; color:#4338ca; }
-
-    /* (удалено) старый хак “подпрыгивания” текста при экспорте */
-    /* .exporting .yg-chip, .exporting .yg-badge, .exporting .title{ transform: translateY(-5px); } */
   </style>
 </head>
 <body class="min-h-screen flex flex-col font-sans bg-slate-900 text-slate-100">
@@ -745,6 +748,7 @@ document.addEventListener("keydown", (e) => {
 </script>
 </body>
 </html>
+
 
 
 
