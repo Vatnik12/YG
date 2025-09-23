@@ -45,7 +45,6 @@
       display:inline-flex; align-items:center; gap:6px;
       height:26px; padding:0 10px; border-radius:9999px;
       font-size:12px; line-height:26px; vertical-align:middle; white-space:nowrap;
-      /* стабилизация рендера текста */
       transform: translateZ(0);
       will-change: transform;
       -webkit-font-smoothing: antialiased;
@@ -58,7 +57,6 @@
 
     .title{
       font-weight:700; line-height:1.3; word-break:break-word; overflow-wrap:anywhere;
-      /* стабилизация рендера текста */
       transform: translateZ(0);
       will-change: transform;
       -webkit-font-smoothing: antialiased;
@@ -94,63 +92,26 @@
     .kpi .v{ font-size:28px; font-weight:800; line-height:1 }
     .kpi .t{ font-size:13px; opacity:.85 }
 
-    /* === KPI: единый вид и размеры в обоих режимах ========================== */
-    /* 1) Сетка KPI всегда с одинаковым отступом (исправляет "наложение" в Башне) */
-    #topSummary{
-      --kpi-gap: 8px;               /* можно 12–20 по вкусу */
-    }
+    /* === KPI компакт === */
+    #topSummary{ --kpi-gap:8px; }
     #topSummary { gap: var(--kpi-gap) !important; }
-    #topSummary .grid { gap: var(--kpi-gap) !important; }  /* правый блок с 4 плитками */
-
-    /* 2) Компактные карточки KPI (и в Коллаже, и в Башне) */
-    #topSummary .kpi{
-      padding: 10px 12px !important; /* было толще — уменьшаем */
-      border-radius: 10px !important;
-      min-width: 0;                    /* ключ! не даёт тянуться */
-    }
-    #topSummary .kpi .v{
-      font-size: 22px !important;    /* было 28 — делаем компактней */
-      line-height: 1.1 !important;
-      font-weight: 800;
-    }
-    #topSummary .kpi .t{
-      font-size: 11px !important;
-      opacity: .75 !important;
-    }
-
-    /* 3) Заголовок блока — меньше и аккуратнее */
-    #summaryTitle{
-      font-size: clamp(26px, 2.6vw, 38px) !important;  /* раньше огромный */
-      line-height: 1.12 !important;
-    }
-
-    /* 4) Для визуальной чистоты в Башне принудительно оставляем горизонтальную сетку KPI */
-    #renderRoot.tower #topSummary{
-      display: grid !important;
-      grid-template-columns: repeat(12, minmax(0,1fr)) !important;
-    }
-    #renderRoot.tower #topSummary > div{
-      display: initial !important;
-      margin-bottom: 0 !important;
-    }
-    #renderRoot.tower #topSummary .kpi{
-      width: auto !important;
-    }
-    
+    #topSummary .grid { gap: var(--kpi-gap) !important; }
+    #topSummary .kpi{ padding:10px 12px !important; border-radius:10px !important; min-width:0; }
+    #topSummary .kpi .v{ font-size:22px !important; line-height:1.1 !important; font-weight:800; }
+    #topSummary .kpi .t{ font-size:11px !important; opacity:.75 !important; }
+    #summaryTitle{ font-size:clamp(26px,2.6vw,38px) !important; line-height:1.12 !important; }
+    #renderRoot.tower #topSummary{ display:grid !important; grid-template-columns:repeat(12,minmax(0,1fr)) !important; }
+    #renderRoot.tower #topSummary>div{ display:initial !important; margin-bottom:0 !important; }
+    #renderRoot.tower #topSummary .kpi{ width:auto !important; }
 
     /* Светлая тема */
     body.light{ background:#f7fafc; color:#0f172a; }
-    body.light header > div{
+    body.light header > div,
+    body.light footer > div {
       background:rgba(255,255,255,.85);
       border-color:#e5e7eb;
       -webkit-backdrop-filter:saturate(1.2) blur(8px);
       backdrop-filter:saturate(1.2) blur(8px);
-    }
-    body.light footer > div {
-      background: rgba(255,255,255,.85);
-      border-color: #e5e7eb;
-      -webkit-backdrop-filter: saturate(1.2) blur(8px);
-      backdrop-filter: saturate(1.2) blur(8px);
     }
     body.light .panel{
       background:#ffffff;
@@ -158,21 +119,11 @@
       border-color:#e5e7eb;
       box-shadow:0 10px 30px rgba(2,6,23,.06);
     }
-    body.light select.bg-slate-800{
-      background:#ffffff !important;
-      color:#0f172a !important;
-      border-color:#e2e8f0 !important;
-    }
+    body.light select.bg-slate-800{ background:#ffffff !important; color:#0f172a !important; border-color:#e2e8f0 !important; }
     body.light .text-slate-400{ color:#64748b !important; }
     #btnCopy{ border:1px solid rgba(255,255,255,.15); }
-    body.light #btnCopy{
-      background:#0f172a !important;
-      color:#ffffff !important;
-      border-color:#0f172a !important;
-    }
-    body.light #renderRoot .bg-overlay{
-      background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.06));
-    }
+    body.light #btnCopy{ background:#0f172a !important; color:#ffffff !important; border-color:#0f172a !important; }
+    body.light #renderRoot .bg-overlay{ background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.06)); }
     body.light .bg-slate-800{ background:#e5e7eb !important; }
     body.light .stage-pad .h-2{ background:#e5e7eb; }
 
@@ -180,151 +131,71 @@
     body.light .icon-tile{ background:#e2e8f0; color:#4338ca; }
 
     /* === Premium header controls ========================================== */
-    .os-pill {
-      border-radius: 1rem; padding: .375rem .5rem;
-      background: rgba(255,255,255,.05);
-      border: 1px solid rgba(255,255,255,.1);
-      font-size: .875rem; color: #cbd5e1;
-      display:inline-flex; align-items:center; gap:.5rem;
-    }
-    body.light .os-pill { background: rgba(15,23,42,.04); border-color:#e2e8f0; color:#0f172a; }
+    .os-pill { border-radius:1rem; padding:.375rem .5rem; background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.1); font-size:.875rem; color:#cbd5e1; display:inline-flex; align-items:center; gap:.5rem; }
+    body.light .os-pill { background:rgba(15,23,42,.04); border-color:#e2e8f0; color:#0f172a; }
 
-    .os-seg { position:relative; border-radius: .75rem; border:1px solid rgba(255,255,255,.12); overflow:hidden; display:grid; }
+    .os-seg { position:relative; border-radius:.75rem; border:1px solid rgba(255,255,255,.12); overflow:hidden; display:grid; }
     body.light .os-seg { border-color:#e2e8f0; }
     .os-seg .thumb{
-      position:absolute; inset: .25rem auto .25rem .25rem;
-      height: calc(100% - .5rem); border-radius: .5rem;
-      background: rgba(255,255,255,.15);
-      transition: transform .25s ease, width .25s ease;
+      position:absolute; inset:.25rem auto .25rem .25rem;
+      height:calc(100% - .5rem); border-radius:.5rem;
+      background:rgba(255,255,255,.15);
+      transition:transform .25s ease, width .25s ease;
     }
     .os-seg button{
-      flex:1;
-      min-width: 38px;               /* фиксированная минимальная ширина */
-      height: 34px;                  /* делаем компактней */
-      padding: 0;                    /* убираем лишние отступы */
-      display: flex;
-      align-items: center;           /* центрируем по вертикали */
-      justify-content: center;       /* центрируем по горизонтали */
-      font-size: 13px;               /* цифры чуть меньше */
-      font-weight: 500;
-      border-radius:6px;
-      position:relative;
-      z-index:1;
+      flex:1; min-width:38px; height:32px; /* было 34 */
+      padding:0; display:flex; align-items:center; justify-content:center;
+      font-size:13px; font-weight:500; border-radius:6px; position:relative; z-index:1; background:transparent;
     }
-
     body.light .os-seg button{ color:#334155; }
-    .os-seg button[data-active="true"]{ color:#fff; }
-    body.light .os-seg button[data-active="true"]{ color:#0f172a; }
 
+    /* активная кнопка — только цвет текста; ФОНА НЕТ */
+    .os-seg button[data-active="true"]{ background:transparent !important; box-shadow:none !important; color:#fff; }
+    body.light .os-seg button[data-active="true"]{ background:transparent !important; box-shadow:none !important; color:#0f172a; }
+
+    /* Glass combobox */
     .os-combo{ position:relative; }
-    .os-combo-btn{ composes: os-pill; } /* просто подсказка — это та же «пилюля» */
+    .os-combo-btn{ composes: os-pill; }
     .os-combo-menu{
       position:absolute; right:0; margin-top:.5rem; width:14rem;
-      border-radius: 1rem; border:1px solid rgba(255,255,255,.12);
-      background: rgba(2,6,23,.92); color:#e5e7eb;
-      box-shadow: 0 20px 40px rgba(0,0,0,.35);
-      backdrop-filter: blur(10px); padding:.25rem; display:none;
+      border-radius:1rem; border:1px solid rgba(255,255,255,.12);
+      background:rgba(2,6,23,.92); color:#e5e7eb;
+      box-shadow:0 20px 40px rgba(0,0,0,.35);
+      backdrop-filter:blur(10px); padding:.25rem; display:none;
     }
     body.light .os-combo-menu{ background:rgba(255,255,255,.96); color:#0f172a; border-color:#e2e8f0; }
-    .os-combo-item{
-      width:100%; text-align:left; padding:.5rem .75rem; border-radius:.75rem; font-size:.875rem;
-    }
+    .os-combo-item{ width:100%; text-align:left; padding:.5rem .75rem; border-radius:.75rem; font-size:.875rem; }
     .os-combo-item:hover{ background:rgba(255,255,255,.08); }
     body.light .os-combo-item:hover{ background:#f1f5f9; }
     .os-combo.os-combo-open .os-combo-menu{ display:block; }
 
-        /* ====== Premium controls ====== */
-    /* ==== Segmented control (Колонки) — РОВНО и компактно ==== */
+    /* Segmented control — компакт и один фон-источник */
     .os-seg{
-      /* единые метрики — меняй тут, если захочешь ещё меньше */
-      --seg-h: 34px;      /* высота кнопки */
-      --seg-pad: 6px;     /* внутренний отступ трека */
-      --seg-gap: 12px;    /* расстояние между кнопками */
-    
-      display: flex;
-      align-items: center;
-      gap: var(--seg-gap);
-      padding: var(--seg-pad);
-    
-      border-radius: 12px;
-      background: rgba(148,163,184,.08);             /* тёмная тема */
-      box-shadow: inset 0 0 0 1px rgba(148,163,184,.25);
-      box-sizing: border-box;                         /* критично для ровного расчёта */
+      --seg-h: 32px;  /* было 34 */
+      --seg-pad: 6px;
+      --seg-gap: 10px;/* было 12 */
+      display:flex; align-items:center; gap:var(--seg-gap); padding:var(--seg-pad);
+      border-radius:12px; background:rgba(148,163,184,.08); box-shadow:inset 0 0 0 1px rgba(148,163,184,.25); box-sizing:border-box;
     }
-    
-    body.light .os-seg{
-      background: #f1f5f9;                           /* светлая тема */
-      box-shadow: inset 0 0 0 1px #e2e8f0;
-    }
-    
-    /* Кнопки — центр идеально, без сдвигов */
-    .os-seg button{
-      position: relative;
-      z-index: 1;
-    
-      height: var(--seg-h);
-      min-width: 38px;            /* ширина для «2/3/4» */
-      padding: 0 12px;
-    
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    
-      border: 0;                  /* никакого бордера, чтобы не «толкался» */
-      border-radius: 10px;
-      box-sizing: border-box;     /* исключает дрожание из-за паддингов */
-      background: transparent;
-    
-      font-size: 13px;
-      font-weight: 500;
-      line-height: 1;
-      color: #cbd5e1;
-      cursor: pointer;
-    }
-    
+    body.light .os-seg{ background:#f1f5f9; box-shadow:inset 0 0 0 1px #e2e8f0; }
+    .os-seg button{ height:var(--seg-h); min-width:40px; padding:0 10px; display:flex; align-items:center; justify-content:center; border:0; border-radius:10px; box-sizing:border-box; background:transparent; font-size:13px; font-weight:500; line-height:1; color:#cbd5e1; cursor:pointer; }
     body.light .os-seg button{ color:#334155; }
-    
-    /* Активная — мягкий фон + «внутренняя рамка», не двигает лейаут */
-    .os-seg button[data-active="true"]{
-      background: rgba(99,102,241,.16);                /* тёмная тема */
-      box-shadow: inset 0 0 0 1px rgba(99,102,241,.45);
-      color:#fff;
-    }
-    body.light .os-seg button[data-active="true"]{
-      background: #e7eafc;                             /* светлая тема */
-      box-shadow: inset 0 0 0 1px #c7cffc;
-      color:#0f172a;
-    }
-    
-    /* Фокус — без смещения */
-    .os-seg button:focus{ outline: none; }
-    .os-seg button:focus-visible{
-      box-shadow:
-        inset 0 0 0 1px rgba(99,102,241,.45),
-        0 0 0 3px rgba(99,102,241,.25);
-    }
 
-    body.light .os-seg .thumb{ background:#e0e7ff; border-color:#c7d2fe }
-    body.light .os-seg>button{ color:#334155 }
-    body.light .os-seg .thumb{ background:#e0e7ff; border-color:#c7d2fe }
-    
-    /* Glass combobox (для Сорт) */
+    /* единственная light-строка для thumb */
+    body.light .os-seg .thumb{ background:#e7eafc; box-shadow: inset 0 0 0 1px #c7cffc; }
+
+    /* Combobox (ещё один стиль) */
     .os-combo{ position:relative }
-    .os-combo-btn{ width:100%; display:flex; align-items:center; justify-content:space-between;
-      gap:10px; padding:10px 12px; border-radius:10px; background:rgba(148,163,184,.08);
-      border:1px solid rgba(148,163,184,.25) }
-    .os-combo-menu{ position:absolute; top:calc(100% + 6px); left:0; right:0; z-index:40;
-      background:rgba(2,6,23,.9); border:1px solid rgba(148,163,184,.25); border-radius:12px;
-      backdrop-filter:blur(10px); padding:6px; display:none }
+    .os-combo-btn{ width:100%; display:flex; align-items:center; justify-content:space-between; gap:10px; padding:10px 12px; border-radius:10px; background:rgba(148,163,184,.08); border:1px solid rgba(148,163,184,.25) }
+    .os-combo-menu{ position:absolute; top:calc(100% + 6px); left:0; right:0; z-index:40; background:rgba(2,6,23,.9); border:1px solid rgba(148,163,184,.25); border-radius:12px; backdrop-filter:blur(10px); padding:6px; display:none }
     .os-combo.open .os-combo-menu{ display:block }
     .os-combo-item{ width:100%; text-align:left; padding:8px 10px; border-radius:8px; font-size:13px }
     .os-combo-item:hover{ background:rgba(99,102,241,.16) }
     body.light .os-combo-btn{ background:#fff; border-color:#e2e8f0 }
     body.light .os-combo-menu{ background:#fff }
-    
-    /* Muted-панель (для заглушки Дизайна) */
-    .panel-muted{ background:transparent !important; color:#94a3b8 !important;
-      border:1px dashed rgba(148,163,184,.35) !important }
+
+    /* Muted-панель */
+    .panel-muted{ background:transparent !important; color:#94a3b8 !important; border:1px dashed rgba(148,163,184,.35) !important }
     .panel-muted .chip{ background:rgba(148,163,184,.12); border:1px solid rgba(148,163,184,.25) }
   </style>
 </head>
@@ -347,12 +218,11 @@
     </div>
   </div>
 
-     <!-- HEADER -->
+  <!-- HEADER -->
   <header class="sticky top-0 z-40">
     <div class="backdrop-blur bg-slate-900/70 border-b border-slate-800">
       <div class="max-w-[1200px] mx-auto px-4">
         <div class="py-4 md:py-5 flex flex-wrap items-stretch gap-3">
-  
           <!-- Лого -->
           <div class="flex items-center gap-3 min-w-[220px]">
             <div class="w-10 h-10 rounded-2xl bg-indigo-600 grid place-items-center text-white font-bold">OS</div>
@@ -361,15 +231,13 @@
               <div id="modeBadge" class="text-xs text-slate-400">режим не выбран</div>
             </div>
           </div>
-  
+
           <!-- Контролы -->
           <div class="flex flex-wrap items-stretch gap-2 flex-1">
-  
             <!-- Колонки: сегменты -->
             <div class="panel px-3 py-2 min-w-[220px]">
               <div class="flex items-center justify-between">
                 <span class="text-xs text-slate-400">Колонки</span>
-                <!-- скрытый select для твоего существующего JS -->
                 <select id="colSelect" class="hidden">
                   <option value="2">2</option><option value="3">3</option><option value="4">4</option>
                 </select>
@@ -381,12 +249,11 @@
                 <button data-value="4">4</button>
               </div>
             </div>
-  
+
             <!-- Дизайн: заглушка -->
             <div class="panel panel-muted px-3 py-2 min-w-[220px]">
               <div class="flex items-center justify-between">
                 <span class="text-xs">Дизайн</span>
-                <!-- оставляем селект скрытым, чтобы не ломать слушатели -->
                 <select id="design" class="hidden" disabled>
                   <option value="yougile" selected>YouGile</option>
                 </select>
@@ -397,8 +264,8 @@
                 <span class="chip text-[11px] px-2 py-0.5 rounded-md">in progress</span>
               </div>
             </div>
-  
-            <!-- Сорт: стеклянный комбобокс -->
+
+            <!-- Сорт -->
             <div class="panel px-3 py-2 min-w-[240px]">
               <div class="flex items-center justify-between">
                 <span class="text-xs text-slate-400">Сорт</span>
@@ -424,7 +291,7 @@
                 </div>
               </div>
             </div>
-  
+
             <!-- Режим -->
             <div class="panel px-3 py-2 flex-1 min-w-[260px]">
               <div class="text-xs text-slate-400 mb-1">Режим</div>
@@ -434,20 +301,20 @@
                 <button data-mode="tower"   class="mode-item inactive"><i data-lucide="panel-right" class="w-4 h-4"></i>Башня</button>
               </div>
             </div>
-  
+
             <!-- Тема -->
             <div class="panel px-3 py-2 flex items-center justify-between min-w-[160px]">
               <span class="text-xs text-slate-400">Тема</span>
               <button id="themeSwitch" class="theme-switch"><span class="theme-thumb"></span></button>
             </div>
           </div>
-  
+
           <!-- Экспорт -->
           <div class="flex items-center gap-2">
             <button id="btnExportPNG" disabled class="px-4 py-2 rounded-xl panel disabled:opacity-50">PNG</button>
             <button id="btnCopy"      disabled class="px-4 py-2 rounded-xl bg-white/10 text-white border border-white/10 disabled:opacity-50">Копировать</button>
           </div>
-  
+
         </div>
       </div>
     </div>
@@ -536,60 +403,51 @@
   </main>
 
   <!-- FOOTER -->
-<footer class="mt-10">
-  <div class="backdrop-blur bg-slate-900/70 border-t border-slate-800">
-    <div class="max-w-[1200px] mx-auto px-4 py-6 flex items-center justify-between">
-      <div class="flex items-center gap-2 text-sm text-slate-400">
-        <span class="inline-flex items-center gap-2 px-3 py-1 rounded-xl bg-slate-800 border border-slate-700/40">
-          <i data-lucide="heart" class="w-4 h-4 text-rose-500"></i> OneScreen
-        </span>
-        <span class="text-xs">© just vibes</span>
+  <footer class="mt-10">
+    <div class="backdrop-blur bg-slate-900/70 border-t border-slate-800">
+      <div class="max-w-[1200px] mx-auto px-4 py-6 flex items-center justify-between">
+        <div class="flex items-center gap-2 text-sm text-slate-400">
+          <span class="inline-flex items-center gap-2 px-3 py-1 rounded-xl bg-slate-800 border border-slate-700/40">
+            <i data-lucide="heart" class="w-4 h-4 text-rose-500"></i> OneScreen
+          </span>
+          <span class="text-xs">© just vibes</span>
+        </div>
+        <div class="text-xs text-slate-400">План/Факт by Vatnik</div>
       </div>
-      <div class="text-xs text-slate-400">План/Факт by Vatnik</div>
+    </div>
+  </footer>
+
+  <!-- Support FAB -->
+  <button id="supportFab" title="Что-то сломалось?"
+    class="fixed bottom-6 right-6 z-50 p-3 rounded-full
+           bg-white/20 dark:bg-slate-800/60
+           backdrop-blur-md border border-white/30 dark:border-white/10
+           shadow-lg hover:scale-110 active:scale-95 transition">
+    <i data-lucide="life-buoy" class="w-6 h-6 text-slate-900 dark:text-white"></i>
+  </button>
+
+  <!-- Support Modal -->
+  <div id="supportModal" class="fixed inset-0 z-50 hidden opacity-0 pointer-events-none transition-opacity duration-200">
+    <div id="supportBackdrop" class="absolute inset-0 bg-black/40 backdrop-blur-sm opacity-0 transition-opacity duration-200"></div>
+    <div class="relative h-full w-full grid place-items-center p-4">
+      <div id="supportCard" class="panel w-full max-w-md p-6 transform-gpu opacity-0 scale-95 transition duration-200">
+        <div class="flex items-center justify-between">
+          <h4 class="text-lg font-semibold">Техподдержка</h4>
+          <button id="modalClose" class="rounded-lg px-2 py-1 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:opacity-80 transition">
+            <i data-lucide="x" class="w-4 h-4"></i>
+          </button>
+        </div>
+        <p class="mt-3 text-sm text-slate-500 dark:text-slate-400">По вопросам в телегу:</p>
+        <a href="https://t.me/Vatnik13" target="_blank"
+           class="mt-4 flex items-center gap-2 px-4 py-3 rounded-xl
+                  bg-gradient-to-r from-indigo-600 to-indigo-500
+                  text-white font-semibold hover:opacity-90 transition">
+          <i data-lucide="send" class="w-5 h-5"></i> @Vatnik13
+        </a>
+      </div>
     </div>
   </div>
-</footer>
 
-<!-- Support FAB (glass, premium) -->
-<button id="supportFab" title="Что-то сломалось?"
-  class="fixed bottom-6 right-6 z-50 p-3 rounded-full
-         bg-white/20 dark:bg-slate-800/60
-         backdrop-blur-md border border-white/30 dark:border-white/10
-         shadow-lg hover:scale-110 active:scale-95 transition">
-  <i data-lucide="life-buoy" class="w-6 h-6 text-slate-900 dark:text-white"></i>
-</button>
-
-<!-- Support Modal (panel from last year, with animations) -->
-<div id="supportModal"
-     class="fixed inset-0 z-50 hidden opacity-0 pointer-events-none transition-opacity duration-200">
-  <!-- backdrop -->
-  <div id="supportBackdrop"
-       class="absolute inset-0 bg-black/40 backdrop-blur-sm opacity-0 transition-opacity duration-200"></div>
-
-  <!-- centered card -->
-  <div class="relative h-full w-full grid place-items-center p-4">
-    <div id="supportCard"
-         class="panel w-full max-w-md p-6 transform-gpu opacity-0 scale-95 transition duration-200">
-      <div class="flex items-center justify-between">
-        <h4 class="text-lg font-semibold">Техподдержка</h4>
-        <button id="modalClose"
-          class="rounded-lg px-2 py-1 bg-slate-100 dark:bg-slate-800
-                 border border-slate-200 dark:border-slate-700 hover:opacity-80 transition">
-          <i data-lucide="x" class="w-4 h-4"></i>
-        </button>
-      </div>
-      <p class="mt-3 text-sm text-slate-500 dark:text-slate-400">
-        По вопросам в телегу:
-      </p>
-      <a href="https://t.me/Vatnik13" target="_blank"
-         class="mt-4 flex items-center gap-2 px-4 py-3 rounded-xl
-                bg-gradient-to-r from-indigo-600 to-indigo-500
-                text-white font-semibold hover:opacity-90 transition">
-        <i data-lucide="send" class="w-5 h-5"></i> @Vatnik13
-      </a>
-    </div>
-  </div>
-</div>
 <script>
 /* ===== Splash ===== */
 document.addEventListener('DOMContentLoaded', ()=>{
@@ -607,11 +465,10 @@ const esc=(s="")=>String(s).replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&
 const num=(v)=>{ if(typeof v==='number')return v; if(v==null||v==='')return 0; const s=String(v).replace(",",".").replace(/[^\d.-]/g,""); const n=parseFloat(s); return isNaN(n)?0:n; };
 const prRank=(p="")=>{ p=String(p).toLowerCase(); if(p.includes('пожар')||p.includes('alarm')||p.includes('аларм'))return 0; if(p.includes('важно'))return 1; return 2; };
 const cleanTitle=(t="")=> String(t).replace(/^\s*[A-ZА-Я]{2,}-?\d+\s*[—-]\s*/i,'').trim();
-
 function canon(s){ return String(s||'').replace(/[“”«»„‟"']/g,'"').replace(/ё/g,'е').replace(/\s+/g,' ').trim().toLowerCase(); }
 function cell(row,i){ return i>=0 ? (row[i] ?? '') : ''; }
 function detectMode(name=""){ const n=String(name).toLowerCase(); if(n.includes('сделано сегодня')) return 'fact'; if(n.includes('задачи на сегодня')) return 'plan'; return 'plan'; }
-function extractDate(name=""){ const m=String(name).match(/(\d{1,2})\s*(Янв|Фев|Март|Апр|Май|Июнь|Июль|Авг|Сент|Окт|Ноя|Дек)[^\d]*(\d{1,2})_(\d{2})/i); if(!m) return '—'; const d=m[1], mon=m[2], h=m[3], mm=m[4]; return `${d} ${mon}. ${h}:${mm}`; }
+function extractDate(name=""){ const m=String(name).match(/(\d{1,2})\.(\d{2})\.(\d{4})/); if(!m) return '—'; return `${m[1]}.${m[2]}.${m[3]}`; }
 
 /* ===== Theme ===== */
 const themeSwitch=$("#themeSwitch");
@@ -656,7 +513,72 @@ function setProgress(p,step){ progressBar.style.width=p+'%'; progressLabel.textC
 function hideProgress(){ setTimeout(()=>progressWrap.classList.add('hidden'),350); }
 const setDiag=(html)=>{ diag.innerHTML=html; };
 
-/* ===== File flow ===== */
+/* ===== Hybrid header dictionary ===== */
+const NEED_MAP = {
+  id:               ['id задачи','id','код','task id'],
+  title:            ['название задачи','название','тема','subject','title'],
+  deadline:         ['дедлайн','срок','deadline'],
+  board:            ['доска','board'],
+  column:           ['колонка','статус','column'],
+  project:          ['проект','project'],
+  last_msg:         ['дата последнего сообщения','последнее сообщение','last message'],
+  msgs:             ['кол-во сообщений','сообщений','messages'],
+  sticker_priority: ['стикер "приоритет"','приоритет','priority'],
+  sticker_stage:    ['стикер "этап"','этап','stage'],
+  sticker_project:  ['стикер "проект"','проект (стикер)','project sticker'],
+  sticker_plan:     ['стикер "план сегодня"','план сегодня','план','plan'],
+  sticker_fact:     ['стикер "факт часов"','факт часов','факт','fact'],
+  sticker_category: ['стикер "категория"','категория','category'],
+};
+
+/* ===== Helpers for hybrid detection ===== */
+function findHeaderRow(matrix){
+  // ищем строку, где совпадёт максимум по словарю (>=5 сигналов — надёжный хедер)
+  let best = {idx:-1, score:0, map:[]};
+  for(let r=0; r<Math.min(matrix.length, 50); r++){
+    const row = matrix[r] || [];
+    const norm = row.map(canon);
+    let score = 0;
+    for(const keys of Object.values(NEED_MAP)){
+      const probes = keys.map(canon);
+      const hit = norm.find(h => probes.some(p => h.includes(p)));
+      if(hit) score++;
+    }
+    if(score > best.score){ best = {idx:r, score, map:norm}; }
+  }
+  return (best.score>=3) ? best : {idx:0, score:0, map: (matrix[0]||[]).map(canon)};
+}
+
+function indexColumns(normHeader){
+  const findCol=(vars)=>{
+    const vs=vars.map(canon);
+    // точное совпадение
+    for(const v of vs){ const i=normHeader.indexOf(v); if(i>=0) return i; }
+    // contains
+    for(const v of vs){ const i=normHeader.findIndex(h=>h.includes(v)); if(i>=0) return i; }
+    // все слова содержатся
+    for(const v of vs){
+      const w=v.split(' ').filter(Boolean);
+      const i=normHeader.findIndex(h=>w.every(x=>h.includes(x)));
+      if(i>=0) return i;
+    }
+    return -1;
+  };
+  const idx={};
+  Object.entries(NEED_MAP).forEach(([k,vars]) => idx[k]=findCol(vars));
+  return idx;
+}
+
+function isSummaryRow(row){
+  const s = canon((row && row[0]) || '');
+  return /^сумма значений/.test(s);
+}
+
+function rowEmpty(row){
+  return !row || row.every(v => (String(v??'').trim()===''));
+}
+
+/* ===== File flow (HYBRID) ===== */
 async function handleFile(file){
   try{
     showProgress(); setProgress(10,'Читаю файл');
@@ -666,58 +588,68 @@ async function handleFile(file){
     const buf = await file.arrayBuffer();
     setProgress(25,'Парсю книгу');
     const wb = XLSX.read(buf,{type:'array'});
-    let sheet=wb.Sheets[wb.SheetNames[0]], sheetName=wb.SheetNames[0], best=0;
-    wb.SheetNames.forEach(n=>{ const s=wb.Sheets[n]; const r=XLSX.utils.decode_range(s['!ref']||'A1:A1'); const cells=(r.e.r-r.s.r+1)*(r.e.c-r.s.c+1); if(cells>best){best=cells; sheet=s; sheetName=n;} });
 
-    setProgress(40,'Читаю строки');
-    const M=XLSX.utils.sheet_to_json(sheet,{header:1,defval:"",raw:true});
-    if(!M.length){ toast('Пустой лист'); hideProgress(); return; }
+    let allTasks = [];
+    let diagParts = [];
 
-    const headers=(M[0]||[]).map(h=>canon(h)); const rows=M.slice(1);
-    const need={
-      id:['id задачи','id'],
-      title:['название задачи','название'],
-      deadline:['дедлайн'],
-      board:['доска'],
-      column:['колонка'],
-      project:['проект'],
-      last_msg:['дата последнего сообщения','последнее сообщение'],
-      msgs:['кол-во сообщений','сообщений'],
-      sticker_priority:['стикер "приоритет"','приоритет'],
-      sticker_stage:['стикер "этап"','этап'],
-      sticker_project:['стикер "проект"','проект (стикер)'],
-      sticker_plan:['стикер "план сегодня"','план сегодня','план'],
-      sticker_fact:['стикер "факт часов"','факт часов','факт'],
-      sticker_category:['стикер "категория"','категория']
-    };
-    const findCol=(vars)=>{ const vs=vars.map(canon);
-      for(const v of vs){ const i=headers.indexOf(v); if(i>=0) return i;}
-      for(const v of vs){ const i=headers.findIndex(h=>h.includes(v)); if(i>=0) return i;}
-      for(const v of vs){ const w=v.split(' ').filter(Boolean); const i=headers.findIndex(h=>w.every(x=>h.includes(x))); if(i>=0) return i;}
-      return -1;
-    };
-    const idx={}; Object.entries(need).forEach(([k,v])=>idx[k]=findCol(v));
+    // обрабатываем все листы
+    wb.SheetNames.forEach((sheetName, si) => {
+      const sheet = wb.Sheets[sheetName];
+      if(!sheet) return;
+      const M = XLSX.utils.sheet_to_json(sheet,{header:1,defval:"",raw:true});
+      if(!M || !M.length) return;
 
-    const found = Object.entries(idx).filter(([_,i])=>i>=0).map(([k,i])=>`${k} → <b>${esc(headers[i]||'?')}</b> (col ${i+1})`).join('<br>');
-    const miss  = Object.entries(idx).filter(([_,i])=>i<0).map(([k])=>k).join(', ') || '—';
-    setDiag(`Лист: <b>${esc(sheetName)}</b><br>Строк: <b>${rows.length}</b>, Колонок: <b>${headers.length}</b><br><br><u>Найдены:</u><br>${found||'—'}<br><br><u>Отсутствуют:</u> ${miss}`);
+      // найти строку заголовков
+      const hdr = findHeaderRow(M);
+      const headerRowIdx = hdr.idx;
+      const headersNorm = hdr.map;
+      const idx = indexColumns(headersNorm);
 
-    if(idx.title<0 && idx.id<0){ $("#whyEmpty").classList.remove('hidden'); toast('Не найдены колонки ID/Название'); hideProgress(); return; }
-    $("#whyEmpty").classList.add('hidden');
+      // диагностический блок
+      const found = Object.entries(idx).filter(([_,i])=>i>=0).map(([k,i])=>`${k} → <b>${esc(M[headerRowIdx][i]||'?')}</b> (col ${i+1})`).join('<br>');
+      const miss  = Object.entries(idx).filter(([_,i])=>i<0).map(([k])=>k).join(', ') || '—';
+      diagParts.push(`<b>${esc(sheetName)}</b>: строк: <b>${M.length}</b>, заголовок: <b>${headerRowIdx+1}</b><br><u>Найдены:</u><br>${found||'—'}<br><u>Отсутствуют:</u> ${miss}`);
 
-    setProgress(60,'Готовлю задачи');
-    tasksRaw=rows.map(r=>({
-      id:cell(r,idx.id), title:cell(r,idx.title),
-      deadline:cell(r,idx.deadline), board:cell(r,idx.board), column:cell(r,idx.column),
-      project:cell(r,idx.project), last_msg:cell(r,idx.last_msg), msgs:cell(r,idx.msgs),
-      sticker_priority:cell(r,idx.sticker_priority), sticker_stage:cell(r,idx.sticker_stage),
-      sticker_project:cell(r,idx.sticker_project), sticker_plan:cell(r,idx.sticker_plan),
-      sticker_fact:cell(r,idx.sticker_fact), sticker_category:cell(r,idx.sticker_category),
-    })).filter(t => (String(t.id||t.title||'').trim()!=='') && !/^сумма значений/i.test(String(t.id||'').trim()));
+      // идём по строкам после заголовков, до конца или до «Сумма значений»
+      for(let r=headerRowIdx+1; r<M.length; r++){
+        const row = M[r];
+        if(isSummaryRow(row)) break;
+        if(rowEmpty(row)) continue;
 
-    if(!tasksRaw.length){ $("#whyEmpty").classList.remove('hidden'); toast('После фильтрации задач не осталось'); hideProgress(); return; }
+        const t = {
+          id:               cell(row, idx.id),
+          title:            cell(row, idx.title),
+          deadline:         cell(row, idx.deadline),
+          board:            cell(row, idx.board),
+          column:           cell(row, idx.column),
+          project:          cell(row, idx.project),
+          last_msg:         cell(row, idx.last_msg),
+          msgs:             cell(row, idx.msgs),
+          sticker_priority: cell(row, idx.sticker_priority),
+          sticker_stage:    cell(row, idx.sticker_stage),
+          sticker_project:  cell(row, idx.sticker_project),
+          sticker_plan:     cell(row, idx.sticker_plan),
+          sticker_fact:     cell(row, idx.sticker_fact),
+          sticker_category: cell(row, idx.sticker_category),
+        };
+
+        // фильтр: хотя бы ID или Название
+        if(String(t.id||t.title||'').trim()==='') continue;
+
+        allTasks.push(t);
+      }
+    });
+
+    setDiag(diagParts.join('<hr>'));
+
+    allTasks = allTasks.filter(t => !/^сумма значений/i.test(String(t.id||'').trim()));
+
+    if(!allTasks.length){
+      $("#whyEmpty").classList.remove('hidden'); toast('После парсинга задач не найдено'); hideProgress(); return;
+    }
 
     setProgress(78,'Рисую карточки');
+    tasksRaw = allTasks;
     render(tasksRaw,isFact,file.name);
 
     setProgress(100,'Готово ✔'); hideProgress(); enableExports(true);
@@ -753,7 +685,7 @@ function render(list,isFact,filename){
   collageWrap.classList.remove('hidden');
   renderRoot.classList.toggle('tower', vizMode==='tower');
 
-  inlineStageBg(); // инлайн фона — важно для корректного PNG
+  inlineStageBg();
 }
 
 function sortList(a,how){
@@ -785,14 +717,18 @@ design.addEventListener('change', ()=>{ designStyle=design.value; drawCards(task
 sortBy.addEventListener('change', ()=>{ tasksView=sortList(tasksView, sortBy.value); drawCards(tasksView,isFactGlobal); });
 
 /* Chips / badges */
-function badge(txt, cls='badge-slate'){ if(!txt) return ''; return `<span class="yg-badge ${cls}">${esc(txt)}</span>`; }
+function badge(txt, cls='badge-slate', icon=null){
+  if(!txt) return '';
+  const ico = icon ? `<i data-lucide="${icon}" class="w-3.5 h-3.5"></i>` : '';
+  return `<span class="yg-badge ${cls}">${ico}${esc(txt)}</span>`;
+}
 function chip(icon, text){ if(!text) return ''; return `<span class="yg-chip"><i data-lucide="${icon}" class="w-3.5 h-3.5"></i>${esc(text)}</span>`; }
 function priorityBadge(text){
   if(!text) return '';
   const t=String(text).toLowerCase();
-  if(t.includes('пожар')||t.includes('alarm')||t.includes('аларм')) return badge('Аларм сейчас ПОЖАР','badge-red');
-  if(t.includes('важно')) return badge('Важно сегодня','badge-amber');
-  return badge(text,'badge-slate');
+  if(t.includes('пожар')||t.includes('alarm')||t.includes('аларм')) return badge('Аларм сейчас ПОЖАР','badge-red','flame');
+  if(t.includes('важно')) return badge('Важно сегодня','badge-amber','flame');
+  return badge(text,'badge-slate','flame');
 }
 
 function drawCards(items,isFact){
@@ -851,7 +787,7 @@ function drawCards(items,isFact){
 /* ===== Export ===== */
 function enableExports(v){ btnPNG.disabled=btnCopy.disabled=!v; }
 
-// инлайн фона в dataURL (исключает CORS/пустые PNG)
+// инлайн фона в dataURL
 async function inlineStageBg(){
   const img = renderRoot.querySelector('.bg-img');
   if(!img || img.dataset.inlined) return;
@@ -860,49 +796,25 @@ async function inlineStageBg(){
     const b = await r.blob();
     const fr = new FileReader();
     await new Promise(res=>{ fr.onload=()=>res(); fr.readAsDataURL(b); });
-    img.src = fr.result;  // data:
+    img.src = fr.result;
     img.dataset.inlined = '1';
   }catch(e){ console.warn('BG inline fail', e); }
 }
 
-// стабилизация перед снимком (шрифты/иконки/фон/лейаут)
 async function stabilize(){
   await document.fonts.ready;
   lucide.createIcons();
   await inlineStageBg();
-  // два кадра rAF для финального лейаута
   await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));
 }
 
-// Основной экспорт: html-to-image → Blob; Fallback: html2canvas
 async function exportAsBlob(){
   await stabilize();
-
-  // Пытаемся через html-to-image
   try{
-    const blob = await htmlToImage.toBlob(renderRoot, {
-      cacheBust: true,
-      pixelRatio: 2,
-      backgroundColor: null,
-      // никакой трансформации при экспорте — пиксель-в-пиксель
-      style: {}
-    });
+    const blob = await htmlToImage.toBlob(renderRoot, { cacheBust:true, pixelRatio:2, backgroundColor:null, style:{} });
     if(blob) return blob;
-  }catch(e){
-    console.warn('html-to-image failed, fallback to html2canvas', e);
-  }
-
-  // Fallback
-  const canvas = await html2canvas(renderRoot,{
-    backgroundColor:null,
-    scale:2,
-    useCORS:false,
-    allowTaint:true,
-    foreignObjectRendering:true,   // ключ к точному тексту
-    imageTimeout:0,
-    removeContainer:true,
-    logging:false
-  });
+  }catch(e){ console.warn('html-to-image failed, fallback to html2canvas', e); }
+  const canvas = await html2canvas(renderRoot,{ backgroundColor:null, scale:2, useCORS:false, allowTaint:true, foreignObjectRendering:true, imageTimeout:0, removeContainer:true, logging:false });
   return await new Promise(res=>canvas.toBlob(res));
 }
 
@@ -937,9 +849,7 @@ const supportCard     = document.getElementById("supportCard");
 const modalClose      = document.getElementById("modalClose");
 
 function openSupport() {
-  // показать контейнер
   supportModal.classList.remove("hidden","pointer-events-none");
-  // в следующем кадре запустить анимации
   requestAnimationFrame(() => {
     supportModal.classList.remove("opacity-0");
     supportBackdrop.classList.remove("opacity-0");
@@ -948,108 +858,27 @@ function openSupport() {
   });
   if (window.lucide) lucide.createIcons();
 }
-
 function closeSupport() {
-  // запустить обратные анимации
   supportModal.classList.add("opacity-0");
   supportBackdrop.classList.add("opacity-0");
   supportCard.classList.remove("opacity-100","scale-100");
   supportCard.classList.add("opacity-0","scale-95");
-  // после анимации скрыть и выключить pointer-events
-  setTimeout(() => {
-    supportModal.classList.add("hidden","pointer-events-none");
-  }, 180);
+  setTimeout(() => { supportModal.classList.add("hidden","pointer-events-none"); }, 180);
 }
-
 supportFab.addEventListener("click", openSupport);
 modalClose.addEventListener("click", closeSupport);
+supportModal.addEventListener("click", (e) => { if (!supportCard.contains(e.target)) closeSupport(); });
+document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !supportModal.classList.contains("hidden")) closeSupport(); });
 
-// клик МИМО: закрываем, если клик не внутри карточки
-supportModal.addEventListener("click", (e) => {
-  if (!supportCard.contains(e.target)) closeSupport();
-});
-
-// Esc
-document.addEventListener("keydown", (e) => {
-  if (e.key === "Escape" && !supportModal.classList.contains("hidden")) closeSupport();
-});
-
-  // диспатчим change у скрытых select'ов — чтобы сработали твои слушатели
+/* ===== Hidden selects dispatcher ===== */
 function setSelectValue(sel, value) {
   if (!sel) return;
   sel.value = value;
   sel.dispatchEvent(new Event('change', { bubbles: true }));
 }
 
-/* Segmented control: Колонки */
-(function initSegCols(){
-  const seg = document.getElementById('segCols');
-  if (!seg) return;
-  const thumb = seg.querySelector('.thumb');
-  const btns = Array.from(seg.querySelectorAll('button'));
-  const sel = document.getElementById('colSelect');
-
-  function activate(val) {
-    btns.forEach((b,i)=>{
-      const active = b.dataset.value === String(val);
-      b.dataset.active = active ? 'true' : 'false';
-      if (active) {
-        const w = seg.clientWidth / btns.length - 8;   // учёт inset
-        const x = i * (seg.clientWidth / btns.length);
-        thumb.style.width = `${w}px`;
-        thumb.style.transform = `translateX(${x + 4}px)`;
-      }
-    });
-    setSelectValue(sel, val);
-  }
-
-  const initVal = sel.value || '2';
-  requestAnimationFrame(()=>activate(initVal));
-  window.addEventListener('resize', ()=>activate(sel.value));
-  btns.forEach(b => b.addEventListener('click', ()=>activate(b.dataset.value)));
-})();
-
-/* Универсальный комбобокс */
-function initCombo(rootId, selectId, labelId){
-  const root = document.getElementById(rootId);
-  const sel  = document.getElementById(selectId);
-  if (!root || !sel) return;
-
-  const btn   = root.querySelector('.os-combo-btn');
-  const menu  = root.querySelector('.os-combo-menu');
-  const label = labelId ? document.getElementById(labelId) : btn.querySelector('span');
-
-  function open(){ root.classList.add('os-combo-open'); }
-  function close(){ root.classList.remove('os-combo-open'); }
-  function toggle(){ root.classList.toggle('os-combo-open'); }
-
-  btn.addEventListener('click', e=>{ e.stopPropagation(); toggle(); });
-  document.addEventListener('click', close);
-  document.addEventListener('keydown', e=>{ if(e.key==='Escape') close(); });
-
-  menu.querySelectorAll('.os-combo-item').forEach(it=>{
-    it.addEventListener('click', e=>{
-      e.stopPropagation();
-      const value = it.dataset.value;
-      label.textContent = it.textContent.trim();
-      close();
-      setSelectValue(sel, value);
-    });
-  });
-
-  // init label по текущему select
-  const opt = sel.querySelector(`option[value="${sel.value}"]`);
-  if (opt) label.textContent = opt.textContent.trim();
-}
-
-/* Инициализация двух комбобоксов */
-initCombo('comboDesign','design','comboDesignLabel');
-initCombo('comboSort','sortBy','comboSortLabel');
-
-// обновим иконки, если надо
-if (window.lucide) lucide.createIcons();
-  
-  /* === Segments: Колонки (точное позиционирование thumb) === */
+/* === Segments: Колонки (точное позиционирование thumb) === */
+/* Единственный рабочий блок — дубли удалены */
 (() => {
   const seg    = document.getElementById('segCols');
   if (!seg) return;
@@ -1064,7 +893,7 @@ if (window.lucide) lucide.createIcons();
     if(!b) return;
     const rBtn = b.getBoundingClientRect();
     const rSeg = seg.getBoundingClientRect();
-    const x = rBtn.left - rSeg.left; // точный X внутри сегмента
+    const x = rBtn.left - rSeg.left;
     const w = rBtn.width;
 
     thumb.style.transform = `translateX(${x}px)`;
@@ -1083,10 +912,8 @@ if (window.lucide) lucide.createIcons();
     placeThumb(idx);
   }
 
-  btns.forEach((b,i) => b.addEventListener('click', () => setActive(b.dataset.value)));
-
+  btns.forEach((b) => b.addEventListener('click', () => setActive(b.dataset.value)));
   placeThumb(currentIdx);
-
   window.addEventListener('resize', () => placeThumb(currentIdx));
 })();
 
@@ -1112,30 +939,9 @@ if (window.lucide) lucide.createIcons();
   items.forEach(i => i.addEventListener('click', () => apply(i.dataset.value, i.textContent.trim())));
   document.addEventListener('click', (e)=>{ if(!wrap.contains(e.target)) wrap.classList.remove('open'); });
 
-  // начальная метка по текущему select
   const cur = select?.options[select.selectedIndex]?.textContent?.trim() || 'Без сортировки';
   lab.textContent = cur;
 })();
-  
 </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
