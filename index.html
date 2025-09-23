@@ -468,7 +468,12 @@ const cleanTitle=(t="")=> String(t).replace(/^\s*[A-ZА-Я]{2,}-?\d+\s*[—-]\s*
 function canon(s){ return String(s||'').replace(/[“”«»„‟"']/g,'"').replace(/ё/g,'е').replace(/\s+/g,' ').trim().toLowerCase(); }
 function cell(row,i){ return i>=0 ? (row[i] ?? '') : ''; }
 function detectMode(name=""){ const n=String(name).toLowerCase(); if(n.includes('сделано сегодня')) return 'fact'; if(n.includes('задачи на сегодня')) return 'plan'; return 'plan'; }
-function extractDate(name=""){ const m=String(name).match(/(\d{1,2})\.(\d{2})\.(\d{4})/); if(!m) return '—'; return `${m[1]}.${m[2]}.${m[3]}`; }
+function extractDate(name=""){
+  const m = String(name).match(/(\d{1,2})\.(\d{2})\.(\d{4})/);
+  if(!m) return '—';
+  return `${m[1]}.${m[2]}.${m[3]}`;
+}
+
 
 /* ===== Theme ===== */
 const themeSwitch=$("#themeSwitch");
@@ -569,16 +574,15 @@ function indexColumns(normHeader){
   return idx;
 }
 
+function rowEmpty(row){
+  if(!row) return true;
+  return row.every(v => String(v ?? '').trim() === '');
+}
 function isSummaryRow(row){
   const s = canon((row && row[0]) || '');
   return /^сумма значений/.test(s);
 }
 
-function rowEmpty(row){
-  return !row || row.every(v => (String(v??'').trim()===''));
-}
-
-/* ===== File flow (HYBRID) ===== */
 async function handleFile(file){
   try{
     showProgress(); setProgress(10,'Читаю файл');
@@ -592,27 +596,63 @@ async function handleFile(file){
     let allTasks = [];
     let diagParts = [];
 
-    // обрабатываем все листы
-    wb.SheetNames.forEach((sheetName, si) => {
+    // обойдём все листы (их может быть несколько)
+    wb.SheetNames.forEach(sheetName=>{
       const sheet = wb.Sheets[sheetName];
       if(!sheet) return;
-      const M = XLSX.utils.sheet_to_json(sheet,{header:1,defval:"",raw:true});
+
+      // читаем ВСЁ как матрицу, дефолт — пустая строка
+      const M = XLSX.utils.sheet_to_json(sheet,{header:1,defval:"",raw:true, blankrows:false});
       if(!M || !M.length) return;
 
-      // найти строку заголовков
-      const hdr = findHeaderRow(M);
-      const headerRowIdx = hdr.idx;
-      const headersNorm = hdr.map;
-      const idx = indexColumns(headersNorm);
+      // 1-я строка — заголовки
+      const headersRaw = M[0] || [];
+      const headers = headersRaw.map(h => canon(h));
+      const rows = M.slice(1);
 
-      // диагностический блок
-      const found = Object.entries(idx).filter(([_,i])=>i>=0).map(([k,i])=>`${k} → <b>${esc(M[headerRowIdx][i]||'?')}</b> (col ${i+1})`).join('<br>');
+      // индексатор колонок
+      const NEED_MAP = {
+        id:               ['id задачи','id','код','task id'],
+        title:            ['название задачи','название','тема','subject','title'],
+        deadline:         ['дедлайн','срок','deadline'],
+        board:            ['доска','board'],
+        column:           ['колонка','статус','column'],
+        project:          ['проект','project'],
+        last_msg:         ['дата последнего сообщения','последнее сообщение','last message'],
+        msgs:             ['кол-во сообщений','сообщений','messages'],
+        sticker_priority: ['стикер "приоритет"','приоритет','priority'],
+        sticker_stage:    ['стикер "этап"','этап','stage'],
+        sticker_project:  ['стикер "проект"','проект (стикер)','project sticker'],
+        sticker_plan:     ['стикер "план сегодня"','план сегодня','план','plan'],
+        sticker_fact:     ['стикер "факт часов"','факт часов','факт','fact'],
+        sticker_category: ['стикер "категория"','категория','category'],
+      };
+      const findCol=(vars)=>{
+        const vs = vars.map(canon);
+        // точное
+        for(const v of vs){ const i=headers.indexOf(v); if(i>=0) return i; }
+        // contains
+        for(const v of vs){ const i=headers.findIndex(h=>h.includes(v)); if(i>=0) return i; }
+        // все слова содержатся
+        for(const v of vs){
+          const w=v.split(' ').filter(Boolean);
+          const i=headers.findIndex(h=>w.every(x=>h.includes(x)));
+          if(i>=0) return i;
+        }
+        return -1;
+      };
+      const idx={}; Object.entries(NEED_MAP).forEach(([k,v])=> idx[k]=findCol(v));
+
+      // диагностика
+      const found = Object.entries(idx).filter(([_,i])=>i>=0).map(([k,i])=>`${k} → <b>${XLSX.utils.encode_col(i)} (${headersRaw[i]||'?'})</b>`).join('<br>');
       const miss  = Object.entries(idx).filter(([_,i])=>i<0).map(([k])=>k).join(', ') || '—';
-      diagParts.push(`<b>${esc(sheetName)}</b>: строк: <b>${M.length}</b>, заголовок: <b>${headerRowIdx+1}</b><br><u>Найдены:</u><br>${found||'—'}<br><u>Отсутствуют:</u> ${miss}`);
+      diagParts.push(`<b>${esc(sheetName)}</b>: строк: <b>${M.length}</b><br><u>Найдены:</u><br>${found||'—'}<br><u>Отсутствуют:</u> ${miss}`);
 
-      // идём по строкам после заголовков, до конца или до «Сумма значений»
-      for(let r=headerRowIdx+1; r<M.length; r++){
-        const row = M[r];
+      // если нет и ID, и Title — бессмысленно
+      if(idx.title<0 && idx.id<0) return;
+
+      // идём по строкам до «Сумма значений», пропуская полностью пустые
+      for(const row of rows){
         if(isSummaryRow(row)) break;
         if(rowEmpty(row)) continue;
 
@@ -633,7 +673,7 @@ async function handleFile(file){
           sticker_category: cell(row, idx.sticker_category),
         };
 
-        // фильтр: хотя бы ID или Название
+        // ключевой критерий: есть ID или Название
         if(String(t.id||t.title||'').trim()==='') continue;
 
         allTasks.push(t);
@@ -642,10 +682,9 @@ async function handleFile(file){
 
     setDiag(diagParts.join('<hr>'));
 
-    allTasks = allTasks.filter(t => !/^сумма значений/i.test(String(t.id||'').trim()));
-
     if(!allTasks.length){
-      $("#whyEmpty").classList.remove('hidden'); toast('После парсинга задач не найдено'); hideProgress(); return;
+      $("#whyEmpty").classList.remove('hidden');
+      toast('Задачи не найдены'); hideProgress(); return;
     }
 
     setProgress(78,'Рисую карточки');
@@ -656,6 +695,7 @@ async function handleFile(file){
     $("#collageWrap").scrollIntoView({behavior:'smooth',block:'start'});
   }catch(e){ console.error(e); toast('Ошибка обработки файла'); hideProgress(); }
 }
+
 
 /* ===== Render ===== */
 function render(list,isFact,filename){
@@ -945,3 +985,4 @@ function setSelectValue(sel, value) {
 </script>
 </body>
 </html>
+
