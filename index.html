@@ -635,7 +635,12 @@ function render(list,isFact,filename){
   $("#kpiTasks").textContent = tasksView.length;
 
   const factBadge=$("#factBadge"), factBadgeText=$("#factBadgeText");
-  if(isFact){ factBadge.classList.remove('hidden'); factBadgeText.textContent=`ФАКТ на ${String(sf).replace('.',',')} ч`; } else { factBadge.classList.add('hidden'); }
+  if(isFact){
+    factBadge.classList.remove('hidden');
+    factBadgeText.textContent = `ФАКТ на ${sfR.toFixed(1).replace('.',',')} ч`;
+  } else {
+    factBadge.classList.add('hidden');
+  }
 
   applyLayout(); drawCards(tasksView,isFact);
   collageWrap.classList.remove('hidden');
@@ -894,5 +899,6 @@ function setSelectValue(sel, value) {
 </script>
 </body>
 </html>
+
 
 
