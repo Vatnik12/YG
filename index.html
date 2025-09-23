@@ -620,16 +620,19 @@ function render(list,isFact,filename){
   const sp = tasksView.reduce((a,t)=>a+num(t.sticker_plan),0);
   const sf = tasksView.reduce((a,t)=>a+num(t.sticker_fact),0);
   
-  // округляем до 1 знака после запятой
+  // округляем до 1 знака
   const spR = Math.round(sp * 10) / 10;
   const sfR = Math.round(sf * 10) / 10;
   
-  sumPlan.textContent = String(spR).replace('.',',');
-  sumFact.textContent = String(sfR).replace('.',',');
-  sumCount.textContent=tasksView.length;
-  $("#kpiPlan").textContent=String(sp).replace('.',',');
-  $("#kpiFact").textContent=String(sf).replace('.',',');
-  $("#kpiTasks").textContent=tasksView.length;
+  // вывод в Сводку
+  sumPlan.textContent = spR.toFixed(1).replace('.',',');
+  sumFact.textContent = sfR.toFixed(1).replace('.',',');
+  sumCount.textContent = tasksView.length;
+  
+  // вывод в KPI
+  $("#kpiPlan").textContent = spR.toFixed(1).replace('.',',');
+  $("#kpiFact").textContent = sfR.toFixed(1).replace('.',',');
+  $("#kpiTasks").textContent = tasksView.length;
 
   const factBadge=$("#factBadge"), factBadgeText=$("#factBadgeText");
   if(isFact){ factBadge.classList.remove('hidden'); factBadgeText.textContent=`ФАКТ на ${String(sf).replace('.',',')} ч`; } else { factBadge.classList.add('hidden'); }
@@ -891,4 +894,5 @@ function setSelectValue(sel, value) {
 </script>
 </body>
 </html>
+
 
