@@ -25,9 +25,8 @@
   <script src="https://unpkg.com/lucide@latest"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
-  <!-- NEW: основная библиотека экспорта -->
+  <!-- Export -->
   <script src="https://unpkg.com/html-to-image@1.11.11/dist/html-to-image.js"></script>
-  <!-- Fallback: html2canvas -->
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 
   <style>
@@ -44,24 +43,18 @@
     .yg-chip,.yg-badge{
       display:inline-flex; align-items:center; gap:6px;
       height:26px; padding:0 10px; border-radius:9999px;
-      font-size:12px; line-height:26px; vertical-align:middle; white-space:nowrap;
-      transform: translateZ(0);
-      will-change: transform;
-      -webkit-font-smoothing: antialiased;
-      text-rendering: optimizeLegibility;
+      font-size:12px; line-height:26px; white-space:nowrap;
+      transform: translateZ(0); will-change: transform;
+      -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility;
     }
     .yg-chip{ background:#0b1220; border:1px solid #23314f; color:#dbeafe }
     body.light .yg-chip{ background:#f1f5f9; border:1px solid #e2e8f0; color:#0f172a }
     .yg-badge{ color:#fff; }
     .badge-red{ background:#ef4444 } .badge-amber{ background:#f59e0b } .badge-slate{ background:#94a3b8 } .badge-blue{ background:#3b82f6 } .badge-emerald{ background:#10b981 }
 
-    .title{
-      font-weight:700; line-height:1.3; word-break:break-word; overflow-wrap:anywhere;
-      transform: translateZ(0);
-      will-change: transform;
-      -webkit-font-smoothing: antialiased;
-      text-rendering: optimizeLegibility;
-    }
+    .title{ font-weight:700; line-height:1.3; overflow-wrap:anywhere;
+      transform: translateZ(0); will-change: transform;
+      -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
 
     .mode-switch{ position:relative; border-radius:12px; border:1px solid var(--ring); background:rgba(99,102,241,.08); padding:4px; display:flex; gap:4px }
     .mode-thumb{ position:absolute; inset:4px auto 4px 4px; width:calc(50% - 6px); border-radius:8px; background:rgba(99,102,241,.18); transition:transform .25s ease }
@@ -92,7 +85,7 @@
     .kpi .v{ font-size:28px; font-weight:800; line-height:1 }
     .kpi .t{ font-size:13px; opacity:.85 }
 
-    /* === KPI компакт === */
+    /* KPI компакт */
     #topSummary{ --kpi-gap:8px; }
     #topSummary { gap: var(--kpi-gap) !important; }
     #topSummary .grid { gap: var(--kpi-gap) !important; }
@@ -114,9 +107,7 @@
       backdrop-filter:saturate(1.2) blur(8px);
     }
     body.light .panel{
-      background:#ffffff;
-      color:#0f172a;
-      border-color:#e5e7eb;
+      background:#ffffff; color:#0f172a; border-color:#e5e7eb;
       box-shadow:0 10px 30px rgba(2,6,23,.06);
     }
     body.light select.bg-slate-800{ background:#ffffff !important; color:#0f172a !important; border-color:#e2e8f0 !important; }
@@ -130,7 +121,7 @@
     .icon-tile{ background:rgba(49,46,129,.15); color:#4338ca; }
     body.light .icon-tile{ background:#e2e8f0; color:#4338ca; }
 
-    /* === Premium header controls ========================================== */
+    /* === Premium header controls === */
     .os-pill { border-radius:1rem; padding:.375rem .5rem; background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.1); font-size:.875rem; color:#cbd5e1; display:inline-flex; align-items:center; gap:.5rem; }
     body.light .os-pill { background:rgba(15,23,42,.04); border-color:#e2e8f0; color:#0f172a; }
 
@@ -143,48 +134,28 @@
       transition:transform .25s ease, width .25s ease;
     }
     .os-seg button{
-      flex:1; min-width:38px; height:32px; /* было 34 */
+      flex:1; min-width:38px; height:32px;
       padding:0; display:flex; align-items:center; justify-content:center;
       font-size:13px; font-weight:500; border-radius:6px; position:relative; z-index:1; background:transparent;
     }
     body.light .os-seg button{ color:#334155; }
 
-    /* активная кнопка — только цвет текста; ФОНА НЕТ */
+    /* активная кнопка — без фона, фон рисует только .thumb */
     .os-seg button[data-active="true"]{ background:transparent !important; box-shadow:none !important; color:#fff; }
     body.light .os-seg button[data-active="true"]{ background:transparent !important; box-shadow:none !important; color:#0f172a; }
 
-    /* Glass combobox */
-    .os-combo{ position:relative; }
-    .os-combo-btn{ composes: os-pill; }
-    .os-combo-menu{
-      position:absolute; right:0; margin-top:.5rem; width:14rem;
-      border-radius:1rem; border:1px solid rgba(255,255,255,.12);
-      background:rgba(2,6,23,.92); color:#e5e7eb;
-      box-shadow:0 20px 40px rgba(0,0,0,.35);
-      backdrop-filter:blur(10px); padding:.25rem; display:none;
-    }
-    body.light .os-combo-menu{ background:rgba(255,255,255,.96); color:#0f172a; border-color:#e2e8f0; }
-    .os-combo-item{ width:100%; text-align:left; padding:.5rem .75rem; border-radius:.75rem; font-size:.875rem; }
-    .os-combo-item:hover{ background:rgba(255,255,255,.08); }
-    body.light .os-combo-item:hover{ background:#f1f5f9; }
-    .os-combo.os-combo-open .os-combo-menu{ display:block; }
-
-    /* Segmented control — компакт и один фон-источник */
+    /* Segmented control — компакт и один источник фона */
     .os-seg{
-      --seg-h: 32px;  /* было 34 */
-      --seg-pad: 6px;
-      --seg-gap: 10px;/* было 12 */
+      --seg-h: 32px; --seg-pad: 6px; --seg-gap: 10px;
       display:flex; align-items:center; gap:var(--seg-gap); padding:var(--seg-pad);
       border-radius:12px; background:rgba(148,163,184,.08); box-shadow:inset 0 0 0 1px rgba(148,163,184,.25); box-sizing:border-box;
     }
     body.light .os-seg{ background:#f1f5f9; box-shadow:inset 0 0 0 1px #e2e8f0; }
     .os-seg button{ height:var(--seg-h); min-width:40px; padding:0 10px; display:flex; align-items:center; justify-content:center; border:0; border-radius:10px; box-sizing:border-box; background:transparent; font-size:13px; font-weight:500; line-height:1; color:#cbd5e1; cursor:pointer; }
     body.light .os-seg button{ color:#334155; }
-
-    /* единственная light-строка для thumb */
     body.light .os-seg .thumb{ background:#e7eafc; box-shadow: inset 0 0 0 1px #c7cffc; }
 
-    /* Combobox (ещё один стиль) */
+    /* Glass combobox */
     .os-combo{ position:relative }
     .os-combo-btn{ width:100%; display:flex; align-items:center; justify-content:space-between; gap:10px; padding:10px 12px; border-radius:10px; background:rgba(148,163,184,.08); border:1px solid rgba(148,163,184,.25) }
     .os-combo-menu{ position:absolute; top:calc(100% + 6px); left:0; right:0; z-index:40; background:rgba(2,6,23,.9); border:1px solid rgba(148,163,184,.25); border-radius:12px; backdrop-filter:blur(10px); padding:6px; display:none }
@@ -195,7 +166,8 @@
     body.light .os-combo-menu{ background:#fff }
 
     /* Muted-панель */
-    .panel-muted{ background:transparent !important; color:#94a3b8 !important; border:1px dashed rgba(148,163,184,.35) !important }
+    .panel-muted{ background:transparent !important; color:#94a3b8 !important;
+      border:1px dashed rgba(148,163,184,.35) !important }
     .panel-muted .chip{ background:rgba(148,163,184,.12); border:1px solid rgba(148,163,184,.25) }
   </style>
 </head>
@@ -234,7 +206,7 @@
 
           <!-- Контролы -->
           <div class="flex flex-wrap items-stretch gap-2 flex-1">
-            <!-- Колонки: сегменты -->
+            <!-- Колонки -->
             <div class="panel px-3 py-2 min-w-[220px]">
               <div class="flex items-center justify-between">
                 <span class="text-xs text-slate-400">Колонки</span>
@@ -460,7 +432,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
 /* ===== Utils ===== */
 const $=(s,r=document)=>r.querySelector(s);
 const $$=(s,r=document)=>Array.from(r.querySelectorAll(s));
-const toast=(m)=>{const b=$("#toast>div"); b.textContent=m; $("#toast").classList.remove("hidden"); setTimeout(()=>$("#toast").classList.add("hidden"),2200);};
+const toast=(m)=>{const b=$("#toast>div"); if(!b) return; b.textContent=m; $("#toast")?.classList?.remove("hidden"); setTimeout(()=>$("#toast")?.classList?.add("hidden"),2200);};
 const esc=(s="")=>String(s).replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
 const num=(v)=>{ if(typeof v==='number')return v; if(v==null||v==='')return 0; const s=String(v).replace(",",".").replace(/[^\d.-]/g,""); const n=parseFloat(s); return isNaN(n)?0:n; };
 const prRank=(p="")=>{ p=String(p).toLowerCase(); if(p.includes('пожар')||p.includes('alarm')||p.includes('аларм'))return 0; if(p.includes('важно'))return 1; return 2; };
@@ -468,12 +440,14 @@ const cleanTitle=(t="")=> String(t).replace(/^\s*[A-ZА-Я]{2,}-?\d+\s*[—-]\s*
 function canon(s){ return String(s||'').replace(/[“”«»„‟"']/g,'"').replace(/ё/g,'е').replace(/\s+/g,' ').trim().toLowerCase(); }
 function cell(row,i){ return i>=0 ? (row[i] ?? '') : ''; }
 function detectMode(name=""){ const n=String(name).toLowerCase(); if(n.includes('сделано сегодня')) return 'fact'; if(n.includes('задачи на сегодня')) return 'plan'; return 'plan'; }
-function extractDate(name=""){
-  const m = String(name).match(/(\d{1,2})\.(\d{2})\.(\d{4})/);
-  if(!m) return '—';
-  return `${m[1]}.${m[2]}.${m[3]}`;
-}
 
+/* Умная дата: 23.09.2025 или "23 Сент ..." */
+function extractDate(name=""){
+  const s=String(name);
+  let m=s.match(/(\d{1,2})\.(\d{2})\.(\d{4})/); if(m) return `${m[1]}.${m[2]}.${m[3]}`;
+  m=s.match(/(\d{1,2})\s*(янв|фев|мар|апр|ма[йи]|июн|июл|авг|сен|сент|окт|ноя|дек)/i); if(m) return `${m[1]} ${m[2]}`;
+  return '—';
+}
 
 /* ===== Theme ===== */
 const themeSwitch=$("#themeSwitch");
@@ -518,7 +492,7 @@ function setProgress(p,step){ progressBar.style.width=p+'%'; progressLabel.textC
 function hideProgress(){ setTimeout(()=>progressWrap.classList.add('hidden'),350); }
 const setDiag=(html)=>{ diag.innerHTML=html; };
 
-/* ===== Hybrid header dictionary ===== */
+/* ===== Словарь колонок ===== */
 const NEED_MAP = {
   id:               ['id задачи','id','код','task id'],
   title:            ['название задачи','название','тема','subject','title'],
@@ -536,53 +510,43 @@ const NEED_MAP = {
   sticker_category: ['стикер "категория"','категория','category'],
 };
 
-/* ===== Helpers for hybrid detection ===== */
+/* ===== Поиск строки заголовков (гибрид) ===== */
 function findHeaderRow(matrix){
-  // ищем строку, где совпадёт максимум по словарю (>=5 сигналов — надёжный хедер)
-  let best = {idx:-1, score:0, map:[]};
-  for(let r=0; r<Math.min(matrix.length, 50); r++){
-    const row = matrix[r] || [];
+  let best = {idx:0, score:0};
+  const limit = Math.min(matrix.length, 6); // шапка почти всегда сверху
+  for(let r=0;r<limit;r++){
+    const row = matrix[r]||[];
     const norm = row.map(canon);
-    let score = 0;
+    let score=0;
     for(const keys of Object.values(NEED_MAP)){
-      const probes = keys.map(canon);
-      const hit = norm.find(h => probes.some(p => h.includes(p)));
+      const probes=keys.map(canon);
+      const hit = norm.find(h => probes.some(p=>h.includes(p)));
       if(hit) score++;
     }
-    if(score > best.score){ best = {idx:r, score, map:norm}; }
+    if(score>best.score) best={idx:r,score};
   }
-  return (best.score>=3) ? best : {idx:0, score:0, map: (matrix[0]||[]).map(canon)};
+  return best.idx;
 }
 
 function indexColumns(normHeader){
   const findCol=(vars)=>{
     const vs=vars.map(canon);
-    // точное совпадение
-    for(const v of vs){ const i=normHeader.indexOf(v); if(i>=0) return i; }
-    // contains
-    for(const v of vs){ const i=normHeader.findIndex(h=>h.includes(v)); if(i>=0) return i; }
-    // все слова содержатся
-    for(const v of vs){
-      const w=v.split(' ').filter(Boolean);
-      const i=normHeader.findIndex(h=>w.every(x=>h.includes(x)));
-      if(i>=0) return i;
-    }
+    for(const v of vs){ const i=normHeader.indexOf(v); if(i>=0) return i; }        // точное
+    for(const v of vs){ const i=normHeader.findIndex(h=>h.includes(v)); if(i>=0) return i; } // contains
+    for(const v of vs){ const w=v.split(' ').filter(Boolean); const i=normHeader.findIndex(h=>w.every(x=>h.includes(x))); if(i>=0) return i; } // слова
     return -1;
   };
-  const idx={};
-  Object.entries(NEED_MAP).forEach(([k,vars]) => idx[k]=findCol(vars));
+  const idx={}; Object.entries(NEED_MAP).forEach(([k,vars])=> idx[k]=findCol(vars));
   return idx;
 }
 
-function rowEmpty(row){
-  if(!row) return true;
-  return row.every(v => String(v ?? '').trim() === '');
-}
+function rowEmpty(row){ return !row || row.every(v => String(v ?? '').trim() === ''); }
 function isSummaryRow(row){
-  const s = canon((row && row[0]) || '');
-  return /^сумма значений/.test(s);
+  // ищем "Сумма значений" в любой ячейке строки
+  return (row||[]).some(c => /^сумма значений/i.test(String(c||'').trim()));
 }
 
+/* ===== Основной поток чтения ===== */
 async function handleFile(file){
   try{
     showProgress(); setProgress(10,'Читаю файл');
@@ -596,65 +560,29 @@ async function handleFile(file){
     let allTasks = [];
     let diagParts = [];
 
-    // обойдём все листы (их может быть несколько)
-    wb.SheetNames.forEach(sheetName=>{
-      const sheet = wb.Sheets[sheetName];
-      if(!sheet) return;
+    for(const sheetName of wb.SheetNames){
+      const sheet = wb.Sheets[sheetName]; if(!sheet) continue;
+      const M = XLSX.utils.sheet_to_json(sheet,{header:1,defval:"",raw:true,blankrows:false});
+      if(!M || !M.length) continue;
 
-      // читаем ВСЁ как матрицу, дефолт — пустая строка
-      const M = XLSX.utils.sheet_to_json(sheet,{header:1,defval:"",raw:true, blankrows:false});
-      if(!M || !M.length) return;
+      // ищем строку заголовков и нарезаем данные
+      const hdrRowIdx = findHeaderRow(M);
+      const headersRaw = M[hdrRowIdx] || [];
+      const headers    = headersRaw.map(h=>canon(h));
+      const rows       = M.slice(hdrRowIdx+1);
 
-      // 1-я строка — заголовки
-      const headersRaw = M[0] || [];
-      const headers = headersRaw.map(h => canon(h));
-      const rows = M.slice(1);
-
-      // индексатор колонок
-      const NEED_MAP = {
-        id:               ['id задачи','id','код','task id'],
-        title:            ['название задачи','название','тема','subject','title'],
-        deadline:         ['дедлайн','срок','deadline'],
-        board:            ['доска','board'],
-        column:           ['колонка','статус','column'],
-        project:          ['проект','project'],
-        last_msg:         ['дата последнего сообщения','последнее сообщение','last message'],
-        msgs:             ['кол-во сообщений','сообщений','messages'],
-        sticker_priority: ['стикер "приоритет"','приоритет','priority'],
-        sticker_stage:    ['стикер "этап"','этап','stage'],
-        sticker_project:  ['стикер "проект"','проект (стикер)','project sticker'],
-        sticker_plan:     ['стикер "план сегодня"','план сегодня','план','plan'],
-        sticker_fact:     ['стикер "факт часов"','факт часов','факт','fact'],
-        sticker_category: ['стикер "категория"','категория','category'],
-      };
-      const findCol=(vars)=>{
-        const vs = vars.map(canon);
-        // точное
-        for(const v of vs){ const i=headers.indexOf(v); if(i>=0) return i; }
-        // contains
-        for(const v of vs){ const i=headers.findIndex(h=>h.includes(v)); if(i>=0) return i; }
-        // все слова содержатся
-        for(const v of vs){
-          const w=v.split(' ').filter(Boolean);
-          const i=headers.findIndex(h=>w.every(x=>h.includes(x)));
-          if(i>=0) return i;
-        }
-        return -1;
-      };
-      const idx={}; Object.entries(NEED_MAP).forEach(([k,v])=> idx[k]=findCol(v));
+      const idx = indexColumns(headers);
 
       // диагностика
-      const found = Object.entries(idx).filter(([_,i])=>i>=0).map(([k,i])=>`${k} → <b>${XLSX.utils.encode_col(i)} (${headersRaw[i]||'?'})</b>`).join('<br>');
+      const found = Object.entries(idx).filter(([_,i])=>i>=0).map(([k,i])=>`${k} → <b>${XLSX.utils.encode_col(i)} (${esc(headersRaw[i]||'?')})</b>`).join('<br>');
       const miss  = Object.entries(idx).filter(([_,i])=>i<0).map(([k])=>k).join(', ') || '—';
-      diagParts.push(`<b>${esc(sheetName)}</b>: строк: <b>${M.length}</b><br><u>Найдены:</u><br>${found||'—'}<br><u>Отсутствуют:</u> ${miss}`);
+      diagParts.push(`<b>${esc(sheetName)}</b> (header: ${hdrRowIdx+1})<br>строк: <b>${M.length}</b><br><u>Найдены:</u><br>${found||'—'}<br><u>Отсутствуют:</u> ${miss}`);
 
-      // если нет и ID, и Title — бессмысленно
-      if(idx.title<0 && idx.id<0) return;
+      if(idx.title<0 && idx.id<0) continue; // вообще нечего читать
 
-      // идём по строкам до «Сумма значений», пропуская полностью пустые
       for(const row of rows){
-        if(isSummaryRow(row)) break;
         if(rowEmpty(row)) continue;
+        if(isSummaryRow(row)) break;
 
         const t = {
           id:               cell(row, idx.id),
@@ -673,18 +601,18 @@ async function handleFile(file){
           sticker_category: cell(row, idx.sticker_category),
         };
 
-        // ключевой критерий: есть ID или Название
+        // ключ: есть хотя бы ID или Название
         if(String(t.id||t.title||'').trim()==='') continue;
 
         allTasks.push(t);
       }
-    });
+    }
 
     setDiag(diagParts.join('<hr>'));
 
     if(!allTasks.length){
       $("#whyEmpty").classList.remove('hidden');
-      toast('Задачи не найдены'); hideProgress(); return;
+      setProgress(100,'Пусто'); hideProgress(); return;
     }
 
     setProgress(78,'Рисую карточки');
@@ -695,7 +623,6 @@ async function handleFile(file){
     $("#collageWrap").scrollIntoView({behavior:'smooth',block:'start'});
   }catch(e){ console.error(e); toast('Ошибка обработки файла'); hideProgress(); }
 }
-
 
 /* ===== Render ===== */
 function render(list,isFact,filename){
@@ -768,7 +695,7 @@ function priorityBadge(text){
   const t=String(text).toLowerCase();
   if(t.includes('пожар')||t.includes('alarm')||t.includes('аларм')) return badge('Аларм сейчас ПОЖАР','badge-red','flame');
   if(t.includes('важно')) return badge('Важно сегодня','badge-amber','flame');
-  return badge(text,'badge-slate','flame');
+  return badge(text,'badge-slate','flame'); /* иконка огня для всех приоритетов */
 }
 
 function drawCards(items,isFact){
@@ -827,7 +754,6 @@ function drawCards(items,isFact){
 /* ===== Export ===== */
 function enableExports(v){ btnPNG.disabled=btnCopy.disabled=!v; }
 
-// инлайн фона в dataURL
 async function inlineStageBg(){
   const img = renderRoot.querySelector('.bg-img');
   if(!img || img.dataset.inlined) return;
@@ -881,7 +807,7 @@ btnCopy.addEventListener('click', async ()=>{
   }catch(e){ console.error(e); toast('Ошибка при копировании'); }
 });
 
-/* ===== Support FAB + Modal (animated) ===== */
+/* ===== Support FAB + Modal ===== */
 const supportFab      = document.getElementById("supportFab");
 const supportModal    = document.getElementById("supportModal");
 const supportBackdrop = document.getElementById("supportBackdrop");
@@ -917,8 +843,7 @@ function setSelectValue(sel, value) {
   sel.dispatchEvent(new Event('change', { bubbles: true }));
 }
 
-/* === Segments: Колонки (точное позиционирование thumb) === */
-/* Единственный рабочий блок — дубли удалены */
+/* === Segments: Колонки (точное позиционирование thumb) — единственный блок === */
 (() => {
   const seg    = document.getElementById('segCols');
   if (!seg) return;
@@ -929,16 +854,13 @@ function setSelectValue(sel, value) {
   let currentIdx = Math.max(0, btns.findIndex(b => b.dataset.value === (select?.value || '2')));
 
   function placeThumb(idx){
-    const b = btns[idx];
-    if(!b) return;
+    const b = btns[idx]; if(!b) return;
     const rBtn = b.getBoundingClientRect();
     const rSeg = seg.getBoundingClientRect();
     const x = rBtn.left - rSeg.left;
     const w = rBtn.width;
-
     thumb.style.transform = `translateX(${x}px)`;
     thumb.style.width = `${w}px`;
-
     btns.forEach((el,i)=> el.toggleAttribute('data-active', i===idx));
     currentIdx = idx;
   }
@@ -985,4 +907,3 @@ function setSelectValue(sel, value) {
 </script>
 </body>
 </html>
-
