@@ -321,7 +321,14 @@
           <div class="panel p-5">
             <div class="text-sm text-slate-400 mb-2">Сводка</div>
             <div class="grid grid-cols-2 gap-3 text-center">
-              <div class="panel py-3"><div class="text-xs text-slate-400">Дата</div><div id="sumDate" class="font-semibold">—</div></div>
+              <div class="panel py-3">
+                <div class="text-xs text-slate-400">Дата</div>
+                <div id="sumDate" class="font-semibold">—</div>
+              
+                <!-- ДОБАВИТЬ: время -->
+                <div class="text-xs text-slate-400 mt-1">Время</div>
+                <div id="sumTime" class="font-semibold">—</div>
+              </div>
               <div class="panel py-3"><div class="text-xs text-slate-400">Задач</div><div id="sumCount" class="font-semibold">0</div></div>
               <div class="panel py-3"><div class="text-xs text-slate-400">План (ч)</div><div id="sumPlan" class="font-semibold">0</div></div>
               <div class="panel py-3"><div class="text-xs text-slate-400">Факт (ч)</div><div id="sumFact" class="font-semibold">0</div></div>
@@ -355,7 +362,12 @@
                     </div>
                   </div>
                   <div class="col-span-7 md:col-span-8 grid grid-cols-4 gap-3">
-                    <div class="kpi text-center"><div class="t">Дата</div><div class="v" id="kpiDate">—</div></div>
+                    <div class="kpi text-center">
+                      <div class="t">Дата</div>
+                      <div class="v" id="kpiDate">—</div>
+                      <div class="t mt-1">Время</div>
+                      <div class="v" id="kpiTime">—</div>
+                    </div>
                     <div class="kpi text-center"><div class="t">Задач</div><div class="v" id="kpiTasks">0</div></div>
                     <div class="kpi text-center"><div class="t">План (ч)</div><div class="v" id="kpiPlan">0</div></div>
                     <div class="kpi text-center"><div class="t">Факт (ч)</div><div class="v" id="kpiFact">0</div></div>
@@ -438,14 +450,37 @@ function detectMode(name=""){ const n=String(name).toLowerCase(); if(n.includes(
 function isBlank(v){ return String(v??'').replace(/\u00A0/g,' ').trim()===''; }
 
 /* Более умный парсер даты из имени файла */
-function extractDate(name=""){
-  const s=String(name);
-  const m1 = s.match(/(\d{1,2})\.(\d{2})\.(\d{4})/);
-  if(m1) return `${m1[1]}.${m1[2]}.${m1[3]}`;
-  const months = {янв:'01',фев:'02',мар:'03',апр:'04',мая:'05',май:'05',июн:'06',июл:'07',авг:'08',сен:'09',сент:'09',окт:'10',ноя:'11',дек:'12'};
-  const m2 = s.toLowerCase().match(/(\d{1,2})\s*([а-я]{3,4})/);
-  if(m2 && months[m2[2]]){ const d=m2[1].padStart(2,'0'); return `${d}.${months[m2[2]]}`; }
-  return '—';
+function extractDateTime(name=""){
+  const s = String(name).toLowerCase();
+
+  // карта русских месяцев -> номер
+  const mMap = {
+    'янв':'01','фев':'02','мар':'03','апр':'04',
+    'май':'05','мая':'05','июн':'06','июл':'07',
+    'авг':'08','сен':'09','сент':'09','окт':'10',
+    'ноя':'11','дек':'12'
+  };
+
+  // 1) dd.mm(.yyyy) [sep] hh[:._-]mm  → напр. "23.09.2025 12:14", "23.09 12_14"
+  let m = s.match(/(\d{1,2})[.\-\/ ](\d{1,2})(?:[.\-\/ ]\d{2,4})?(?:[^\d]+(\d{1,2})[.:_\-](\d{2}))?/);
+  if (m) {
+    const dd = m[1].padStart(2,'0');
+    const mm = m[2].padStart(2,'0');
+    const time = (m[3] && m[4]) ? `${m[3].padStart(2,'0')}:${m[4].padStart(2,'0')}` : '—';
+    return { date: `${dd}.${mm}`, time };
+  }
+
+  // 2) dd <месяц-рус> hh[:._-]mm  → "23 сент 12_14", "23 Сентябрь 09:05"
+  m = s.match(/(\d{1,2})\s*(янв|фев|мар|апр|ма[йя]|июн|июл|авг|сен|сент|окт|ноя|дек)[^\d]*?(\d{1,2})[.:_\-](\d{2})/);
+  if (m) {
+    const dd = m[1].padStart(2,'0');
+    const mm = mMap[m[2]] || '01';
+    const time = `${m[3].padStart(2,'0')}:${m[4].padStart(2,'0')}`;
+    return { date: `${dd}.${mm}`, time };
+  }
+
+  // если ничего не нашли
+  return { date: '—', time: '—' };
 }
 
 /* ===== Theme ===== */
@@ -604,12 +639,48 @@ async function handleFile(file){
     $("#collageWrap").scrollIntoView({behavior:'smooth',block:'start'});
   }catch(e){ console.error(e); hideProgress(); }
 }
+// Выдергиваем время из имени файла
+function extractDateTime(name=""){
+  const s = String(name).toLowerCase();
 
+  // русские месяцы → номер
+  const mMap = {янв:'01',фев:'02',мар:'03',апр:'04',май:'05',мая:'05',июн:'06',июл:'07',авг:'08',сен:'09',сент:'09',окт:'10',ноя:'11',дек:'12'};
+
+  // 1) 23.09.2025 12:14  |  23.09 12_14
+  let m = s.match(/(\d{1,2})[.\-\/ ](\d{1,2})(?:[.\-\/ ]\d{2,4})?(?:[^\d]+(\d{1,2})[.:_\-](\d{2}))?/);
+  if (m) {
+    const dd = m[1].padStart(2,'0');
+    const mm = m[2].padStart(2,'0');
+    const time = (m[3] && m[4]) ? `${m[3].padStart(2,'0')}:${m[4].padStart(2,'0')}` : '—';
+    return { date: `${dd}.${mm}`, time };
+  }
+
+  // 2) 23 сент 12_14  |  23 сентября 09:05
+  m = s.match(/(\d{1,2})\s*(янв|фев|мар|апр|ма[йя]|июн|июл|авг|сен|сент|окт|ноя|дек)[^\d]*?(\d{1,2})[.:_\-](\d{2})/);
+  if (m) {
+    const dd = m[1].padStart(2,'0');
+    const mm = mMap[m[2]] || '01';
+    const time = `${m[3].padStart(2,'0')}:${m[4].padStart(2,'0')}`;
+    return { date: `${dd}.${mm}`, time };
+  }
+
+  return { date: '—', time: '—' };
+}
+  
 /* ===== Render ===== */
 function render(list,isFact,filename){
   isFactGlobal=isFact;
-  const when = extractDate(filename);
-  sumDate.textContent=when; $("#kpiDate").textContent=when;
+  const { date: whenDate, time: whenTime } = extractDateTime(filename);
+
+  // сводка (справа)
+  sumDate.textContent = whenDate;
+  const sumTimeEl = document.getElementById('sumTime');
+  if (sumTimeEl) sumTimeEl.textContent = whenTime;
+  
+  // KPI-плитка в рендере
+  $("#kpiDate").textContent = whenDate;
+  const kpiTimeEl = document.getElementById('kpiTime');
+  if (kpiTimeEl) kpiTimeEl.textContent = whenTime;
 
   const titleText = isFact ? 'Сделано сегодня' : 'Задачи на сегодня';
   $("#summaryTitle").textContent=titleText; collageTitle.textContent=titleText;
@@ -899,6 +970,7 @@ function setSelectValue(sel, value) {
 </script>
 </body>
 </html>
+
 
 
 
